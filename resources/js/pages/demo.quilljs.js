@@ -6,7 +6,7 @@ Contact: support@coderthemes.com
 File: Quilljs init js
 */
 
-import Quill from 'quill/dist/quill.min.js';
+import Quill from 'quill/dist/quill.js';
 
 // Snow theme
 var quill = new Quill('#snow-editor', {
