@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
             $table->string('foto')->nullable();
+            $table->string('session_id')->default('0');
             $table->integer('ujian_id')->nullable()->index('ujian_id');
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
