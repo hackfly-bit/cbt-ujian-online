@@ -19,17 +19,10 @@ class HasilUjian extends Model
 {
     /**
      * The table associated with the model.
-     *
+     * 
      * @var string
      */
     protected $table = 'hasil_ujian';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
 
     /**
      * @var array
@@ -39,9 +32,9 @@ class HasilUjian extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function peserta()
+    public function pesertum()
     {
-        return $this->belongsTo('App\Models\Peserta', 'peserta_id');
+        return $this->belongsTo('App\Models\Pesertum', 'peserta_id');
     }
 
     /**

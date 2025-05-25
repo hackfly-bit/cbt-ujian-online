@@ -17,10 +17,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $updated_at
  * @property Pesertum[] $pesertas
  * @property Sertifikat[] $sertifikats
- * @property JenisUjian $jenisUjian
  * @property UjianPengaturan $ujianPengaturan
  * @property UjianPesertaForm $ujianPesertaForm
  * @property UjianSection[] $ujianSections
+ * @property JenisUjian $jenisUjian
  */
 class Ujian extends Model
 {
@@ -30,13 +30,6 @@ class Ujian extends Model
      * @var string
      */
     protected $table = 'ujian';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     * 
-     * @var bool
-     */
-    public $incrementing = false;
 
     /**
      * @var array
@@ -57,14 +50,6 @@ class Ujian extends Model
     public function sertifikats()
     {
         return $this->hasMany('App\Models\Sertifikat');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function jenisUjian()
-    {
-        return $this->belongsTo('App\Models\JenisUjian');
     }
 
     /**
@@ -89,5 +74,13 @@ class Ujian extends Model
     public function ujianSections()
     {
         return $this->hasMany('App\Models\UjianSection');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function jenisUjian()
+    {
+        return $this->belongsTo('App\Models\JenisUjian');
     }
 }

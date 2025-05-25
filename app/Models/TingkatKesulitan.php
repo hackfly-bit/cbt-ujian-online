@@ -22,13 +22,6 @@ class TingkatKesulitan extends Model
     protected $table = 'tingkat_kesulitan';
 
     /**
-     * Indicates if the IDs are auto-incrementing.
-     * 
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * @var array
      */
     protected $fillable = ['nama', 'deskripsi', 'created_at', 'updated_at'];

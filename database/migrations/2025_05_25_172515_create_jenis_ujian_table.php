@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sub_kategori', function (Blueprint $table) {
-            $table->integer('id')->primary();
-            $table->integer('kategori_id')->nullable()->index('kategori_id');
+        Schema::create('jenis_ujian', function (Blueprint $table) {
+            $table->integer('id', true);
             $table->string('nama')->nullable();
             $table->string('deskripsi')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sub_kategori');
+        Schema::dropIfExists('jenis_ujian');
     }
 };

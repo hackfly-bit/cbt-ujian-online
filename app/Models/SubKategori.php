@@ -24,13 +24,6 @@ class SubKategori extends Model
     protected $table = 'sub_kategori';
 
     /**
-     * Indicates if the IDs are auto-incrementing.
-     * 
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * @var array
      */
     protected $fillable = ['kategori_id', 'nama', 'deskripsi', 'created_at', 'updated_at'];

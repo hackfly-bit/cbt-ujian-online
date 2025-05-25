@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('jenis_ujian', function (Blueprint $table) {
-            $table->integer('id')->primary();
+        Schema::create('tingkat_kesulitan', function (Blueprint $table) {
+            $table->integer('id', true);
             $table->string('nama')->nullable();
             $table->string('deskripsi')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('jenis_ujian');
+        Schema::dropIfExists('tingkat_kesulitan');
     }
 };

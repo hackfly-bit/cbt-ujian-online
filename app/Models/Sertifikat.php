@@ -24,13 +24,6 @@ class Sertifikat extends Model
     protected $table = 'sertifikat';
 
     /**
-     * Indicates if the IDs are auto-incrementing.
-     * 
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * @var array
      */
     protected $fillable = ['ujian_id', 'image_bg', 'template', 'created_at', 'updated_at'];

@@ -14,13 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('hasil_ujian', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->integer('peserta_id')->nullable()->index('peserta_id');
             $table->integer('hasil_nilai')->nullable();
-            $table->dateTime('waktu_selesai')->nullable();
+            $table->string('waktu_selesai', 0)->nullable();
             $table->integer('sertifikat_id')->nullable()->index('sertifikat_id');
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+            $table->timestamps();
         });
     }
 

@@ -23,8 +23,7 @@ return new class extends Migration
             $table->boolean('tanggal_lahir')->nullable();
             $table->boolean('alamat')->nullable();
             $table->boolean('foto')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 

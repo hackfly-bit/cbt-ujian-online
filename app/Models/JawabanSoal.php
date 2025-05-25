@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer $id
  * @property integer $soal_id
  * @property string $jenis_isian
- * @property mixed $jawaban
+ * @property string $jawaban
  * @property boolean $jawaban_benar
  * @property string $created_at
  * @property string $updated_at
@@ -22,13 +22,6 @@ class JawabanSoal extends Model
      * @var string
      */
     protected $table = 'jawaban_soal';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     * 
-     * @var bool
-     */
-    public $incrementing = false;
 
     /**
      * @var array

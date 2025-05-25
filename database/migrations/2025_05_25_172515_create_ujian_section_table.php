@@ -14,14 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('ujian_section', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->integer('ujian_id')->nullable()->index('ujian_id');
             $table->string('nama_section')->nullable();
-            $table->decimal('bobot_nilai', 10, 0)->nullable();
+            $table->float('bobot_nilai', 10, 0)->nullable();
+            // $table->string('instruksi', 65535)->nullable();
             $table->text('instruksi')->nullable();
             $table->string('metode_penilaian')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 

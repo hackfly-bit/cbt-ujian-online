@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer $kategori_id
  * @property integer $sub_kategori_id
  * @property string $jenis_font
+ * @property string $jenis_isian
  * @property string $pertanyaan
  * @property boolean $is_audio
  * @property string $audio_file
@@ -33,16 +34,9 @@ class Soal extends Model
     protected $table = 'soal';
 
     /**
-     * Indicates if the IDs are auto-incrementing.
-     * 
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * @var array
      */
-    protected $fillable = ['tingkat_kesulitan_id', 'kategori_id', 'sub_kategori_id', 'jenis_font', 'pertanyaan', 'is_audio', 'audio_file', 'penjelasan_jawaban', 'tag', 'created_at', 'updated_at'];
+    protected $fillable = ['tingkat_kesulitan_id', 'kategori_id', 'sub_kategori_id', 'jenis_font', 'jenis_isian', 'pertanyaan', 'is_audio', 'audio_file', 'penjelasan_jawaban', 'tag', 'created_at', 'updated_at'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

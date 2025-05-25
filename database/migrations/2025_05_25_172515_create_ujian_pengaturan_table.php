@@ -18,8 +18,7 @@ return new class extends Migration
             $table->string('metode_penilaian')->nullable();
             $table->integer('nilai_kelulusan')->nullable();
             $table->boolean('hasil_ujian_tersedia')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 

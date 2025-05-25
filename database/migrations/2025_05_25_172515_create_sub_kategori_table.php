@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('kategori', function (Blueprint $table) {
-            $table->integer('id')->primary();
+        Schema::create('sub_kategori', function (Blueprint $table) {
+            $table->integer('id', true);
+            $table->integer('kategori_id')->nullable()->index('kategori_id');
             $table->string('nama')->nullable();
             $table->string('deskripsi')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kategori');
+        Schema::dropIfExists('sub_kategori');
     }
 };

@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['page_title' => 'Profile', 'mode' => $mode ?? '', 'demo' => $demo ?? ''])
+@extends('layouts.vertical', ['page_title' => 'Bank Soal', 'mode' => $mode ?? '', 'demo' => $demo ?? ''])
 
 @section('css')
     @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css'])
@@ -31,7 +31,7 @@
                             <li class="breadcrumb-item active">Profile</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">Profile</h4>
+                    <h4 class="page-title">Bank Soal</h4>
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
             </ul>
 
             <!-- Tambah Soal Button -->
-            <a href="" class="btn btn-primary">
+            <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah-bank-soal">
                 <i class="ri-add-line me-1"></i> Tambah Soal
             </a>
         </div>
@@ -78,14 +78,165 @@
                 @include('bank-soal.tabs.grammar')
             </div>
         </div>
-        
+
         <!-- end row-->
+
+
+        {{-- modal Create And Update --}}
+        <div class="modal fade" id="tambah-bank-soal" tabindex="-1" role="dialog" aria-labelledby="scrollableModalTitle"
+            aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-title">Tambah Soal Baru</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-bank-soal" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" id="soal-id" name="soal_id">
+                            <input type="hidden" id="form-method" name="_method" value="POST">
+                            <div class="row">
+                                <!-- Pertanyaan -->
+                                <div class="col-12 mb-3">
+                                    <label for="pertanyaan" class="form-label">Pertanyaan <span
+                                            class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="pertanyaan" name="pertanyaan" rows="4" required></textarea>
+                                </div>
+
+                                <!-- Jenis Font -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="jenis_font" class="form-label">Jenis Font <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="jenis_font" name="jenis_font" required>
+                                        <option value="">Pilih Jenis Font</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Calibri">Calibri</option>
+                                        <option value="Verdana">Verdana</option>
+                                        <option value="Georgia">Georgia</option>
+                                    </select>
+                                </div>
+
+                                <!-- Jenis Soal -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="jenis_soal" class="form-label">Jenis Soal <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="jenis_soal" name="jenis_soal" required>
+                                        <option value="">Pilih Jenis Soal</option>
+                                        <option value="pilihan_ganda">Pilihan Ganda</option>
+                                        <option value="benar_salah">Benar/Salah</option>
+                                        <option value="isian">Isian</option>
+                                    </select>
+                                </div>
+
+                                <!-- Soal Dengan Audio -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_audio" name="is_audio"
+                                            value="1">
+                                        <label class="form-check-label" for="is_audio">
+                                            Soal Dengan Audio
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Audio File -->
+                                <div class="col-md-6 mb-3" id="audio-file-container" style="display: none;">
+                                    <label for="audio_file" class="form-label">File Audio</label>
+                                    <input type="file" class="form-control" id="audio_file" name="audio_file"
+                                        accept=".mp3,.wav,.ogg">
+                                    <small class="text-muted">Format yang didukung: MP3, WAV, OGG (Max: 10MB)</small>
+                                </div>
+
+                                <!-- Tingkat Kesulitan -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="tingkat_kesulitan" class="form-label">Tingkat Kesulitan <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="tingkat_kesulitan" name="tingkat_kesulitan_id"
+                                        required>
+                                        <option value="">Pilih Tingkat Kesulitan</option>
+                                    </select>
+                                </div>
+
+                                <!-- Kategori -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="kategori" class="form-label">Kategori <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="kategori" name="kategori_id" required>
+                                        <option value="">Pilih Kategori</option>
+                                    </select>
+                                </div>
+
+                                <!-- Sub Kategori -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="sub_kategori" class="form-label">Sub Kategori</label>
+                                    <select class="form-select" id="sub_kategori" name="sub_kategori_id">
+                                        <option value="">Pilih Sub Kategori</option>
+                                    </select>
+                                </div>
+
+                                <!-- Jawaban Soal -->
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Jawaban Soal <span class="text-danger">*</span></label>
+                                    <div id="jawaban-container">
+                                        <!-- Dynamic content based on jenis_soal -->
+                                    </div>
+                                </div>
+
+                                <!-- Penjelasan Jawaban -->
+                                <div class="col-12 mb-3">
+                                    <label for="penjelasan_jawaban" class="form-label">Penjelasan Jawaban</label>
+                                    <textarea class="form-control" id="penjelasan_jawaban" name="penjelasan_jawaban" rows="3"></textarea>
+                                </div>
+
+                                <!-- Tag -->
+                                <div class="col-12 mb-3">
+                                    <label for="tag" class="form-label">Tag</label>
+                                    <input type="text" class="form-control" id="tag" name="tag"
+                                        placeholder="Pisahkan dengan koma (,)">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit">
+                            <span class="spinner-border spinner-border-sm d-none me-2" role="status"></span>
+                            Simpan
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        {{-- Modal Konfirmasi Hapus --}}
+        <div class="modal fade" id="modal-hapus" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Konfirmasi Hapus</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin menghapus soal ini?</p>
+                        <p class="text-muted">Tindakan ini tidak dapat dibatalkan.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-danger" id="btn-hapus-confirm">
+                            <span class="spinner-border spinner-border-sm d-none me-2" role="status"></span>
+                            Ya, Hapus
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
     <!-- container -->
 @endsection
 
 @section('script')
-    @vite(['resources/js/pages/demo.datatable-init.js'])
-    @vite(['resources/js/pages/demo.datatable-custom.js'])
+    @vite(['resources/js/main/bank-soal.js'])
 @endsection

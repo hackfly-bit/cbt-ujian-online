@@ -14,12 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('sertifikat', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->integer('ujian_id')->nullable()->index('ujian_id');
             $table->string('image_bg')->nullable();
             $table->json('template')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 

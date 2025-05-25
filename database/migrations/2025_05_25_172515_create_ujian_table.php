@@ -14,16 +14,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('ujian', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->string('link')->nullable();
             $table->string('nama_ujian')->nullable();
-            $table->text('deskripsi')->nullable();
+            // $table->string('deskripsi', 65535)->nullable();
+            $table->string('deskripsi')->nullable();
             $table->integer('jenis_ujian_id')->nullable()->index('jenis_ujian_id');
             $table->integer('durasi')->nullable();
-            $table->date('tanggal_selesai')->nullable();
+            $table->string('tanggal_selesai', 0)->nullable();
             $table->boolean('status')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 

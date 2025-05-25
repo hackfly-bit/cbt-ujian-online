@@ -31,6 +31,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/head.js',
                 'resources/js/layout.js',
+                'resources/js/main/bank-soal.js',
                 'resources/js/pages/demo.toastr.js',
                 'resources/js/pages/component.chat.js',
                 'resources/js/pages/demo.apex-mixed.js',

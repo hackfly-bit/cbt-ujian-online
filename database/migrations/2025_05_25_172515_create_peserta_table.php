@@ -14,19 +14,17 @@ return new class extends Migration
     public function up()
     {
         Schema::create('peserta', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->string('nama')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('institusi')->nullable();
             $table->string('nomor_induk')->nullable();
-            $table->date('tanggal_lahir')->nullable();
+            $table->string('tanggal_lahir', 0)->nullable();
             $table->string('alamat')->nullable();
             $table->string('foto')->nullable();
-            $table->string('session_id')->default('0');
             $table->integer('ujian_id')->nullable()->index('ujian_id');
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+                  $table->timestamps();
         });
     }
 

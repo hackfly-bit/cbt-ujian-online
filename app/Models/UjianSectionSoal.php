@@ -23,13 +23,6 @@ class UjianSectionSoal extends Model
     protected $table = 'ujian_section_soal';
 
     /**
-     * Indicates if the IDs are auto-incrementing.
-     * 
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * @var array
      */
     protected $fillable = ['soal_id', 'ujian_section', 'created_at', 'updated_at'];
