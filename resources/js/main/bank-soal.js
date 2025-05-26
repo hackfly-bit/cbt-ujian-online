@@ -26,13 +26,17 @@ document.addEventListener('DOMContentLoaded', function () {
 // Fungsi untuk inisialisasi DataTables
 function initDataTables() {
     // Fungsi umum untuk inisialisasi datatable
-    function initDatatable(selector, filterSelector = null, tableIdForSearch = null) {
+    function initDatatable(selector, filterSelector = null, tableIdForSearch = null, params) {
         const table = new DataTable(selector, {
             processing: true,
             serverSide: true,
             ajax: {
                 url: '/bank-soal',
                 type: 'GET',
+                // param data
+                data: function (d) {
+                    d.kategori = params
+                },
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -99,16 +103,16 @@ function initDataTables() {
 
 
     // ✅ Semua tab
-    window.tableSemua = initDatatable('#selection-datatable-semua', '#custom-filters-semua', 'selection-datatable-semua');
+    window.tableSemua = initDatatable('#selection-datatable-semua', '#custom-filters-semua', 'selection-datatable-semua', 'all');
 
     // ✅ Tab Reading
-    window.tableReading = initDatatable('#selection-datatable-reading', '#custom-filters-reading', 'selection-datatable-reading');
+    window.tableReading = initDatatable('#selection-datatable-reading', '#custom-filters-reading', 'selection-datatable-reading', '1');
 
     // ✅ Tab Grammar
-    window.tableGrammar = initDatatable('#selection-datatable-grammar', '#custom-filters-grammar', 'selection-datatable-grammar');
+    window.tableGrammar = initDatatable('#selection-datatable-grammar', '#custom-filters-grammar', 'selection-datatable-grammar', '2');
 
     // ✅ Tab Listening
-    window.tableListening = initDatatable('#selection-datatable-listening', '#custom-filters-listening', 'selection-datatable-listening');
+    window.tableListening = initDatatable('#selection-datatable-listening', '#custom-filters-listening', 'selection-datatable-listening', '3');
 }
 
 // Fungsi untuk inisialisasi form events

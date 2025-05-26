@@ -10,7 +10,7 @@ use App\Models\JawabanSoal;
 use App\Models\TingkatKesulitan;
 use App\Models\Kategori;
 use App\Models\SubKategori;
-
+use Illuminate\Support\Facades\Log;
 
 class BankSoalController extends Controller
 {
@@ -22,12 +22,16 @@ class BankSoalController extends Controller
 
         if ($request->ajax()) {
             $soals = \App\Models\Soal::with(['kategori', 'tingkatKesulitan', 'subKategori'])
-                ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at']);
+                ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at', 'jenis_isian']);
 
-            return datatables()->of($soals)
+            if ($request->has('kategori') && $request->kategori !== 'all') {
+                $soals->where('kategori_id', (int) $request->kategori);
+            }
+
+            return datatables()->of($soals->get())
                 ->addIndexColumn()
                 ->addColumn('pertanyaan', function ($row) {
-                    return  $row->pertanyaan ;
+                    return  $row->pertanyaan;
                 })
                 ->addColumn('kategori', function ($row) {
                     return $row->kategori ? $row->kategori->nama : '-';
@@ -45,10 +49,10 @@ class BankSoalController extends Controller
                 ->addColumn('action', function ($row) {
                     return '
                         <div class="action-icons">
-                            <a href="javascript:void(0)" class="text-primary" title="Edit" onclick="editSoal('.$row->id.')">
+                            <a href="javascript:void(0)" class="text-primary" title="Edit" onclick="editSoal(' . $row->id . ')">
                                 <i class="ri-edit-2-line"></i>
                             </a>
-                            <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation('.$row->id.')">
+                            <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation(' . $row->id . ')">
                                 <i class="ri-delete-bin-line"></i>
                             </a>
                         </div>
