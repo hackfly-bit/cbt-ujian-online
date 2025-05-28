@@ -295,4 +295,10 @@ class ThemeCustomizer {
   }
 }
 
-new ThemeCustomizer().init();
+const theme = new ThemeCustomizer();
+theme.init();
+
+// Set default menu color dan sidebar user info
+theme.changeMenuColor('light');
+theme.changeSidebarUser(true);
+

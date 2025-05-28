@@ -3,26 +3,27 @@
         <div class="card">
             <div class="card-body">
 
-                <h4 class="header-title">Daftar Semua Soal</h4>
+                <h4 class="header-title">Daftar Soal Grammar</h4>
                 <p class="text-muted fs-14">
-                    Berikut ini adalah daftar semua soal ujian, lengkap dengan kategori, tingkat
+                    Berikut ini adalah daftar soal ujian grammar, tingkat
                     kesulitan, jenis soal, dan aksi yang dapat dilakukan.
                 </p>
 
-                <!-- FILTERS -->
                 <!-- FILTERS untuk Tab Grammar -->
                 <div id="custom-filters-grammar" class="mb-3">
-                    <select id="filter-difficulty-grammar" class="form-select form-select-sm"
-                        title="Filter by difficulty">
-                        <option value="">All</option>
-                        <option value="Easy">Easy</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Hard">Hard</option>
-                    </select>
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="filter-difficulty-grammar" class="form-select form-select-sm" style="min-width: 200px;"
+                            title="Filter by difficulty">
+                            <option value="">All</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Tabel untuk Tab Grammar -->
-                <table id="selection-datatable-grammar" class="table table-bordered dt-responsive nowrap w-100">
+                <table id="selection-datatable-grammar" class="table table-striped dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th class="text-center">No</th>
@@ -35,195 +36,7 @@
                         </tr>
                     </thead>
 
-                    <tbody>
-                        <tr>
-                            <td class="text-center">1</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Easy</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">2</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Medium</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">3</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Hard</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">4</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Easy</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">5</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Medium</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">6</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Hard</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">7</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Easy</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">8</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Medium</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">9</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Hard</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">10</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Easy</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">11</td>
-                            <td>اختر الإجابة الصحيحة: هذا ......</td>
-                            <td class="text-center">Grammar</td>
-                            <td class="text-center">Medium</td>
-                            <td class="text-center">Pilihan Ganda</td>
-                            <td class="text-center"></td>
-                            <td class="action-icons">
-                                <a href="#edit" class="text-primary" title="Edit">
-                                    <i class="ri-edit-2-line"></i>
-                                </a>
-                                <a href="#delete" class="text-danger" title="Hapus"
-                                    onclick="return confirm('Yakin ingin menghapus soal ini?');">
-                                    <i class="ri-delete-bin-line"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
+
                 </table>
 
 

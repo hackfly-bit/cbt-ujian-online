@@ -1,6 +1,6 @@
-import $ from 'jquery';
-import DataTable from 'datatables.net-bs5';
-import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
+import $ from "jquery";
+import DataTable from "datatables.net-bs5";
+import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 
 window.$ = $;
 window.jQuery = $;
@@ -10,8 +10,8 @@ let currentSoalId = null;
 let jawabanCounter = 0;
 
 // Inisialisasi DataTable untuk halaman Bank Soal
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('Bank Soal JS loaded');
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("Bank Soal JS loaded");
 
     // Initialize DataTables
     initDataTables();
@@ -24,158 +24,373 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Fungsi untuk inisialisasi DataTables
+// function initDataTables() {
+//     // Fungsi umum untuk inisialisasi datatable
+//     function initDatatable(
+//         selector,
+//         filterSelector = null,
+//         tableIdForSearch = null,
+//         params
+//     ) {
+//         const table = new DataTable(selector, {
+//             processing: true,
+//             serverSide: true,
+//             ajax: {
+//                 url: "/bank-soal",
+//                 type: "GET",
+//                 // param data
+//                 data: function (d) {
+//                     d.kategori = params;
+//                 },
+//                 headers: {
+//                     "X-Requested-With": "XMLHttpRequest",
+//                 },
+//             },
+//             columns: [
+//                 {
+//                     data: "DT_RowIndex",
+//                     name: "DT_RowIndex",
+//                     orderable: false,
+//                     searchable: false,
+//                     className: "text-center",
+//                 },
+//                 { data: "pertanyaan", name: "pertanyaan" },
+//                 {
+//                     data: "kategori",
+//                     name: "kategori",
+//                     className: "text-center",
+//                 },
+//                 {
+//                     data: "tingkat_kesulitan",
+//                     name: "tingkat_kesulitan",
+//                     className: "text-center",
+//                 },
+//                 {
+//                     data: "jenis_soal",
+//                     name: "jenis_soal",
+//                     className: "text-center",
+//                 },
+//                 {
+//                     data: "is_audio",
+//                     name: "is_audio",
+//                     className: "text-center",
+//                     render: function (data) {
+//                         return data
+//                             ? '<i class="ri-volume-up-line text-primary"></i>'
+//                             : "";
+//                     },
+//                 },
+//                 {
+//                     data: "action",
+//                     name: "action",
+//                     orderable: false,
+//                     searchable: false,
+//                     className: "text-center",
+//                 },
+//             ],
+//             select: {
+//                 style: "multi",
+//             },
+//             responsive: true,
+//             language: {
+//                 paginate: {
+//                     previous: "<i class='ri-arrow-left-s-line'></i>",
+//                     next: "<i class='ri-arrow-right-s-line'></i>",
+//                 },
+//             },
+//             drawCallback: function () {
+//                 document
+//                     .querySelectorAll(".dataTables_paginate .pagination")
+//                     .forEach((pagination) => {
+//                         pagination.classList.remove("pagination-rounded");
+//                     });
+//             },
+//         });
+
+//         // Handle custom filter if provided
+//         if (filterSelector && tableIdForSearch) {
+//             const $filterWrapper = $(`${selector}_filter`);
+//             $filterWrapper.addClass(
+//                 "d-flex align-items-center gap-3 justify-content-end"
+//             );
+
+//             const $customFilters = $(filterSelector).children().detach();
+//             $filterWrapper.append($customFilters);
+
+//             // Trigger redraw saat filter kategori berubah juga
+//             $("#filter-difficulty, #filter-category").on("change", function () {
+//                 table.draw();
+//             });
+
+//             // Extend search agar mencakup kategori dan kesulitan
+//             $.fn.dataTable.ext.search.push(function (settings, data) {
+//                 if (settings.nTable.id !== tableIdForSearch) return true;
+
+//                 const difficultyFilter = $("#filter-difficulty").val();
+//                 const categoryFilter = $("#filter-category").val();
+
+//                 const category = data[2]?.trim(); // Kolom ke-3: Kategori
+//                 const difficulty = data[3]?.trim(); // Kolom ke-4: Tingkat Kesulitan
+
+//                 const matchDifficulty =
+//                     !difficultyFilter || difficulty === difficultyFilter;
+//                 const matchCategory =
+//                     !categoryFilter || category === categoryFilter;
+
+//                 return matchDifficulty && matchCategory;
+//             });
+//         }
+
+//         return table;
+//     }
+
+//     // ✅ Semua tab
+//     window.tableSemua = initDatatable(
+//         "#selection-datatable-semua",
+//         "#custom-filters-semua",
+//         "selection-datatable-semua",
+//         "all"
+//     );
+
+//     // ✅ Tab Reading
+//     window.tableReading = initDatatable(
+//         "#selection-datatable-reading",
+//         "#custom-filters-reading",
+//         "selection-datatable-reading",
+//         "1"
+//     );
+
+//     // ✅ Tab Listening
+//     window.tableListening = initDatatable(
+//         "#selection-datatable-listening",
+//         "#custom-filters-listening",
+//         "selection-datatable-listening",
+//         "2"
+//     );
+
+//     // ✅ Tab Grammar
+//     window.tableGrammar = initDatatable(
+//         "#selection-datatable-grammar",
+//         "#custom-filters-grammar",
+//         "selection-datatable-grammar",
+//         "3"
+//     );
+// }
+
 function initDataTables() {
-    // Fungsi umum untuk inisialisasi datatable
-    function initDatatable(selector, filterSelector = null, tableIdForSearch = null, params) {
+    function initDatatable({
+        selector,
+        filterWrapperSelector,
+        tableId,
+        kategoriParam,
+        difficultyFilterId = null,
+        categoryFilterId = null,
+    }) {
         const table = new DataTable(selector, {
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/bank-soal',
-                type: 'GET',
-                // param data
+                url: "/bank-soal",
+                type: "GET",
                 data: function (d) {
-                    d.kategori = params
-                },
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            },
-            columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
-                { data: 'pertanyaan', name: 'pertanyaan' },
-                { data: 'kategori', name: 'kategori', className: 'text-center' },
-                { data: 'tingkat_kesulitan', name: 'tingkat_kesulitan', className: 'text-center' },
-                { data: 'jenis_soal', name: 'jenis_soal', className: 'text-center' },
-                {
-                    data: 'is_audio',
-                    name: 'is_audio',
-                    className: 'text-center',
-                    render: function (data) {
-                        return data ? '<i class="ri-volume-up-line text-primary"></i>' : '';
+                    d.kategori = kategoriParam;
+
+                    // Tambahkan filter tingkat kesulitan jika tersedia
+                    if (difficultyFilterId) {
+                        d.tingkat_kesulitan = $(`#${difficultyFilterId}`).val();
+                    }
+
+                    // Tambahkan filter kategori jika tersedia
+                    if (categoryFilterId) {
+                        d.filter_kategori = $(`#${categoryFilterId}`).val();
                     }
                 },
-                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
-            ],
-            select: {
-                style: 'multi'
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
             },
+            columns: [
+                {
+                    data: "DT_RowIndex",
+                    name: "DT_RowIndex",
+                    orderable: false,
+                    searchable: false,
+                    className: "text-center",
+                },
+                { data: "pertanyaan", name: "pertanyaan" },
+                {
+                    data: "kategori",
+                    name: "kategori",
+                    className: "text-center",
+                },
+                {
+                    data: "tingkat_kesulitan",
+                    name: "tingkat_kesulitan",
+                    className: "text-center",
+                },
+                {
+                    data: "jenis_soal",
+                    name: "jenis_soal",
+                    className: "text-center",
+                },
+                {
+                    data: "media",
+                    name: "media",
+                    className: "text-center",
+                },
+                {
+                    data: "action",
+                    name: "action",
+                    orderable: false,
+                    searchable: false,
+                    className: "text-center",
+                },
+            ],
             responsive: true,
             language: {
                 paginate: {
                     previous: "<i class='ri-arrow-left-s-line'></i>",
-                    next: "<i class='ri-arrow-right-s-line'></i>"
-                }
+                    next: "<i class='ri-arrow-right-s-line'></i>",
+                },
+                emptyTable: "Data tidak ditemukan.",
             },
             drawCallback: function () {
-                document.querySelectorAll('.dataTables_paginate .pagination').forEach(pagination => {
-                    pagination.classList.remove('pagination-rounded');
-                });
-            }
+                document
+                    .querySelectorAll(".dataTables_paginate .pagination")
+                    .forEach((pagination) =>
+                        pagination.classList.remove("pagination-rounded")
+                    );
+            },
         });
 
-        // Handle custom filter if provided
-        if (filterSelector && tableIdForSearch) {
+        // Custom filter: pindahkan filter ke bagian datatable
+        if (filterWrapperSelector && tableId) {
             const $filterWrapper = $(`${selector}_filter`);
-            $filterWrapper.addClass('d-flex align-items-center gap-3 justify-content-end');
+            $filterWrapper.addClass(
+                "d-flex align-items-center gap-2 justify-content-end"
+            );
 
-            const $customFilters = $(filterSelector).children().detach();
+            const $customFilters = $(filterWrapperSelector).children().detach();
             $filterWrapper.append($customFilters);
 
-            // Trigger redraw on filter change
-            $('#filter-difficulty').on('change', function () {
-                table.draw();
-            });
-
-            // Extend DataTables search to include difficulty filter
-            $.fn.dataTable.ext.search.push(function (settings, data) {
-                if (settings.nTable.id !== tableIdForSearch) return true;
-
-                const difficultyFilter = $('#filter-difficulty').val();
-                const difficulty = data[3]?.trim(); // Column 4: Tingkat Kesulitan
-
-                return !difficultyFilter || difficulty === difficultyFilter;
+            // Event trigger saat filter berubah
+            [difficultyFilterId, categoryFilterId].forEach((filterId) => {
+                if (filterId) {
+                    $(`#${filterId}`).on("change", () => {
+                        table.draw();
+                    });
+                }
             });
         }
 
         return table;
     }
 
+    // Semua tab
+    window.tableSemua = initDatatable({
+        selector: "#selection-datatable-semua",
+        filterWrapperSelector: "#custom-filters-semua",
+        tableId: "selection-datatable-semua",
+        kategoriParam: "all",
+        difficultyFilterId: "filter-difficulty-semua",
+        categoryFilterId: "filter-category-semua",
+    });
 
-    // ✅ Semua tab
-    window.tableSemua = initDatatable('#selection-datatable-semua', '#custom-filters-semua', 'selection-datatable-semua', 'all');
+    // Tab Reading
+    window.tableReading = initDatatable({
+        selector: "#selection-datatable-reading",
+        filterWrapperSelector: "#custom-filters-reading",
+        tableId: "selection-datatable-reading",
+        kategoriParam: "1",
+        difficultyFilterId: "filter-difficulty-reading",
+    });
 
-    // ✅ Tab Reading
-    window.tableReading = initDatatable('#selection-datatable-reading', '#custom-filters-reading', 'selection-datatable-reading', '1');
+    // Tab Listening
+    window.tableListening = initDatatable({
+        selector: "#selection-datatable-listening",
+        filterWrapperSelector: "#custom-filters-listening",
+        tableId: "selection-datatable-listening",
+        kategoriParam: "2",
+        difficultyFilterId: "filter-difficulty-listening",
+    });
 
-    // ✅ Tab Grammar
-    window.tableGrammar = initDatatable('#selection-datatable-grammar', '#custom-filters-grammar', 'selection-datatable-grammar', '2');
-
-    // ✅ Tab Listening
-    window.tableListening = initDatatable('#selection-datatable-listening', '#custom-filters-listening', 'selection-datatable-listening', '3');
+    // Tab Grammar
+    window.tableGrammar = initDatatable({
+        selector: "#selection-datatable-grammar",
+        filterWrapperSelector: "#custom-filters-grammar",
+        tableId: "selection-datatable-grammar",
+        kategoriParam: "3",
+        difficultyFilterId: "filter-difficulty-grammar",
+    });
 }
 
 // Fungsi untuk inisialisasi form events
 function initFormEvents() {
     // Event untuk checkbox audio
-    $('#is_audio').on('change', function () {
+    $("#is_audio").on("change", function () {
         if (this.checked) {
-            $('#audio-file-container').show();
+            $("#audio-file-container").show();
         } else {
-            $('#audio-file-container').hide();
-            $('#audio_file').val('');
+            $("#audio-file-container").hide();
+            $("#audio_file").val("");
         }
     });
 
     // Event untuk perubahan jenis soal
-    $('#jenis_soal').on('change', function () {
+    $("#jenis_soal").on("change", function () {
         generateJawabanForm(this.value);
     });
 
     // Event untuk perubahan kategori
-    $('#kategori').on('change', function () {
+    $("#kategori").on("change", function () {
         loadSubKategori(this.value);
     });
 
     // Event submit form
-    $('#form-bank-soal').on('submit', function (e) {
+    $("#form-bank-soal").on("submit", function (e) {
         e.preventDefault();
         submitForm();
     });
 
     // Event untuk reset modal saat ditutup
-    $('#tambah-bank-soal').on('hidden.bs.modal', function () {
+    $("#tambah-bank-soal").on("hidden.bs.modal", function () {
         resetForm();
     });
 
     // Event konfirmasi hapus
-    $('#btn-hapus-confirm').on('click', function () {
+    $("#btn-hapus-confirm").on("click", function () {
         if (currentSoalId) {
             deleteSoal(currentSoalId);
         }
     });
 }
 
-// Fungsi untuk generate form jawaban berdasarkan jenis soal
 function generateJawabanForm(jenisSoal) {
-    const container = $('#jawaban-container');
+    const container = $("#jawaban-container");
+    const wrapper = $("#jawaban-wrapper");
     container.empty();
     jawabanCounter = 0;
 
+    // Sembunyikan dulu wrapper-nya
+    wrapper.addClass("d-none");
+
     if (!jenisSoal) return;
 
-    if (jenisSoal === 'pilihan_ganda') {
+    // Tampilkan wrapper saat jenis soal valid
+    wrapper.removeClass("d-none");
+
+    if (jenisSoal === "pilihan_ganda") {
         generatePilihanGandaForm(container);
-    } else if (jenisSoal === 'benar_salah') {
+    } else if (jenisSoal === "benar_salah") {
         generateBenarSalahForm(container);
-    } else if (jenisSoal === 'isian') {
+    } else if (jenisSoal === "isian") {
         generateIsianForm(container);
     }
 }
 
 // Generate form pilihan ganda
 function generatePilihanGandaForm(container) {
-    const pilihanLabels = ['A', 'B', 'C', 'D'];
+    const pilihanLabels = ["A", "B", "C", "D"];
 
     container.append(`
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -193,7 +408,7 @@ function generatePilihanGandaForm(container) {
     }
 
     // Event untuk tambah pilihan
-    $('#add-pilihan').on('click', function () {
+    $("#add-pilihan").on("click", function () {
         const nextLabel = String.fromCharCode(65 + jawabanCounter); // A, B, C, D, E, F, ...
         addPilihanGanda(nextLabel);
     });
@@ -205,10 +420,24 @@ function addPilihanGanda(label) {
     const pilihanHtml = `
         <div class="row align-items-center mb-2 pilihan-item" data-index="${jawabanCounter}">
             <div class="col-1">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="jawaban_benar" value="${jawabanCounter}" ${isFirst ? 'checked' : ''} required>
+                <div class="form-check d-flex align-items-center gap-1">
+                    <input 
+                        class="form-check-input jawaban-radio" 
+                        type="radio" 
+                        name="jawaban_benar" 
+                        value="${jawabanCounter}" 
+                        id="jawaban_${jawabanCounter}" 
+                        ${isFirst ? "checked" : ""}
+                        required
+                    >
+                    <label 
+                        class="form-check-label label-benar" 
+                        for="jawaban_${jawabanCounter}" 
+                        style="display: ${isFirst ? "inline" : "none"}"
+                    >Benar</label>
                 </div>
             </div>
+
             <div class="col-2">
                 <input type="text" class="form-control form-control-sm"
                        name="jawaban_soal[${jawabanCounter}][label_jawaban]"
@@ -221,38 +450,61 @@ function addPilihanGanda(label) {
                 <input type="hidden" name="jawaban_soal[${jawabanCounter}][jenis_isian]" value="pilihan_ganda">
             </div>
             <div class="col-1">
-                ${jawabanCounter > 3 ? `
+                ${
+                    jawabanCounter > 3
+                        ? `
                     <button type="button" class="btn btn-sm btn-outline-danger remove-pilihan">
                         <i class="ri-delete-bin-line"></i>
                     </button>
-                ` : ''}
+                `
+                        : ""
+                }
             </div>
         </div>
     `;
 
-    $('#pilihan-container').append(pilihanHtml);
+    $("#pilihan-container").append(pilihanHtml);
     jawabanCounter++;
 
     // Event untuk hapus pilihan (hanya jika lebih dari 4)
-    $('.remove-pilihan').off('click').on('click', function () {
-        $(this).closest('.pilihan-item').remove();
-        updatePilihanIndexes();
-    });
+    $(".remove-pilihan")
+        .off("click")
+        .on("click", function () {
+            $(this).closest(".pilihan-item").remove();
+            updatePilihanIndexes();
+            updateLabelBenar(); // Pastikan label di-refresh saat ada item yang dihapus
+        });
+
+    // Re-bind event radio untuk menampilkan label "Benar"
+    $("input[name='jawaban_benar']")
+        .off("change")
+        .on("change", function () {
+            updateLabelBenar();
+        });
+}
+
+// Fungsi untuk update label "Benar" hanya pada radio yang dipilih
+function updateLabelBenar() {
+    $(".label-benar").hide(); // Sembunyikan semua label
+    $("input[name='jawaban_benar']:checked")
+        .closest(".form-check")
+        .find(".label-benar")
+        .show(); // Tampilkan hanya label pada radio yang dipilih
 }
 
 // Update indexes setelah hapus pilihan
 function updatePilihanIndexes() {
-    $('#pilihan-container .pilihan-item').each(function (index) {
+    $("#pilihan-container .pilihan-item").each(function (index) {
         const $item = $(this);
-        $item.attr('data-index', index);
+        $item.attr("data-index", index);
         $item.find('input[name^="jawaban_soal"]').each(function () {
-            const name = $(this).attr('name');
+            const name = $(this).attr("name");
             const newName = name.replace(/\[\d+\]/, `[${index}]`);
-            $(this).attr('name', newName);
+            $(this).attr("name", newName);
         });
         $item.find('input[name="jawaban_benar"]').val(index);
     });
-    jawabanCounter = $('#pilihan-container .pilihan-item').length;
+    jawabanCounter = $("#pilihan-container .pilihan-item").length;
 }
 
 // Generate form benar/salah
@@ -300,93 +552,105 @@ function generateIsianForm(container) {
 // Load dropdown data
 function loadDropdownData() {
     // Load tingkat kesulitan
-    $.get('/filter/tingkat-kesulitan', function (data) {
-        const select = $('#tingkat_kesulitan');
-        select.empty().append('<option value="">Pilih Tingkat Kesulitan</option>');
-        data.forEach(item => {
+    $.get("/filter/tingkat-kesulitan", function (data) {
+        const select = $("#tingkat_kesulitan");
+        select
+            .empty()
+            .append('<option value="">Pilih Tingkat Kesulitan</option>');
+        data.forEach((item) => {
             select.append(`<option value="${item.id}">${item.nama}</option>`);
         });
     }).fail(function () {
-        console.error('Failed to load tingkat kesulitan');
+        console.error("Failed to load tingkat kesulitan");
     });
 
     // Load kategori
-    $.get('/filter/kategori', function (data) {
-        const select = $('#kategori');
+    $.get("/filter/kategori", function (data) {
+        const select = $("#kategori");
         select.empty().append('<option value="">Pilih Kategori</option>');
-        data.forEach(item => {
+        data.forEach((item) => {
             select.append(`<option value="${item.id}">${item.nama}</option>`);
         });
     }).fail(function () {
-        console.error('Failed to load kategori');
+        console.error("Failed to load kategori");
     });
 }
 
 // Load sub kategori berdasarkan kategori
 function loadSubKategori(kategoriId) {
-    const select = $('#sub_kategori');
+    const select = $("#sub_kategori");
     select.empty().append('<option value="">Pilih Sub Kategori</option>');
 
     if (!kategoriId) return;
 
     $.get(`/filter/sub-kategori/${kategoriId}`, function (data) {
-        data.forEach(item => {
+        data.forEach((item) => {
             select.append(`<option value="${item.id}">${item.nama}</option>`);
         });
     }).fail(function () {
-        console.error('Failed to load sub kategori');
+        console.error("Failed to load sub kategori");
     });
 }
 
 // Submit form
 function submitForm() {
-    const form = document.getElementById('form-bank-soal');
+    const form = document.getElementById("form-bank-soal");
     const formData = new FormData(form);
-    const method = $('#form-method').val();
-    const isEdit = method === 'PUT';
+    const method = $("#form-method").val();
+    const isEdit = method === "PUT";
 
     // Set jawaban_benar untuk setiap jawaban
-    if ($('#jenis_soal').val() === 'pilihan_ganda') {
+    if ($("#jenis_soal").val() === "pilihan_ganda") {
         const selectedIndex = $('input[name="jawaban_benar"]:checked').val();
-        $('#pilihan-container .pilihan-item').each(function (index) {
+        $("#pilihan-container .pilihan-item").each(function (index) {
             const isCorrect = index == selectedIndex;
-            $(this).append(`<input type="hidden" name="jawaban_soal[${index}][jawaban_benar]" value="${isCorrect ? 1 : 0}">`);
+            $(this).append(
+                `<input type="hidden" name="jawaban_soal[${index}][jawaban_benar]" value="${
+                    isCorrect ? 1 : 0
+                }">`
+            );
         });
-    } else if ($('#jenis_soal').val() === 'benar_salah') {
+    } else if ($("#jenis_soal").val() === "benar_salah") {
         const selectedValue = $('input[name="jawaban_benar"]:checked').val();
-        formData.append('jawaban_soal[0][jawaban_benar]', selectedValue == 0 ? 1 : 0);
-        formData.append('jawaban_soal[1][jawaban_benar]', selectedValue == 1 ? 1 : 0);
-    } else if ($('#jenis_soal').val() === 'isian') {
-        formData.append('jawaban_soal[0][jawaban_benar]', 1);
+        formData.append(
+            "jawaban_soal[0][jawaban_benar]",
+            selectedValue == 0 ? 1 : 0
+        );
+        formData.append(
+            "jawaban_soal[1][jawaban_benar]",
+            selectedValue == 1 ? 1 : 0
+        );
+    } else if ($("#jenis_soal").val() === "isian") {
+        formData.append("jawaban_soal[0][jawaban_benar]", 1);
     }
 
     // Add jenis_soal to formData
-    formData.append('jenis_soal', $('#jenis_soal').val());
+    formData.append("jenis_soal", $("#jenis_soal").val());
 
-    const btn = $('#btn-submit');
-    const spinner = btn.find('.spinner-border');
+    const btn = $("#btn-submit");
+    const spinner = btn.find(".spinner-border");
 
-    btn.prop('disabled', true);
-    spinner.removeClass('d-none');
+    btn.prop("disabled", true);
+    spinner.removeClass("d-none");
 
-    const url = isEdit ? `/bank-soal/${currentSoalId}` : '/bank-soal';
+    const url = isEdit ? `/bank-soal/${currentSoalId}` : "/bank-soal";
 
     if (isEdit) {
-        formData.append('_method', 'PUT');
+        formData.append("_method", "PUT");
     }
 
     $.ajax({
         url: url,
-        type: 'POST',
+        type: "POST",
         data: formData,
         processData: false,
         contentType: false,
         headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         success: function (response) {
             if (response.success) {
-                $('#tambah-bank-soal').modal('hide');
+                $("#tambah-bank-soal").modal("hide");
 
                 // Refresh all tables
                 if (window.tableSemua) window.tableSemua.ajax.reload();
@@ -394,25 +658,25 @@ function submitForm() {
                 if (window.tableGrammar) window.tableGrammar.ajax.reload();
                 if (window.tableListening) window.tableListening.ajax.reload();
 
-                showAlert('success', response.message);
+                showAlert("success", response.message);
             } else {
-                showAlert('error', response.message);
+                showAlert("error", response.message);
             }
         },
         error: function (xhr) {
-            let message = 'Terjadi kesalahan saat menyimpan data.';
+            let message = "Terjadi kesalahan saat menyimpan data.";
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 message = xhr.responseJSON.message;
             } else if (xhr.responseJSON && xhr.responseJSON.errors) {
                 const errors = Object.values(xhr.responseJSON.errors).flat();
-                message = errors.join('<br>');
+                message = errors.join("<br>");
             }
-            showAlert('error', message);
+            showAlert("error", message);
         },
         complete: function () {
-            btn.prop('disabled', false);
-            spinner.addClass('d-none');
-        }
+            btn.prop("disabled", false);
+            spinner.addClass("d-none");
+        },
     });
 }
 
@@ -421,49 +685,51 @@ function editSoal(id) {
     currentSoalId = id;
 
     $.get(`/bank-soal/${id}`, function (response) {
-        console.log('Response data:', response);
+        console.log("Response data:", response);
         if (response.success) {
             const data = response.data;
 
             // Set modal title
-            $('#modal-title').text('Edit Soal');
-            $('#form-method').val('PUT');
+            $("#modal-title").text("Edit Soal");
+            $("#form-method").val("PUT");
 
             // Fill form fields
-            $('#pertanyaan').val(data.pertanyaan);
-            $('#jenis_font').val(data.jenis_font);
-            $('#is_audio').prop('checked', data.is_audio == 1);
-            $('#tingkat_kesulitan').val(data.tingkat_kesulitan_id);
-            $('#kategori').val(data.kategori_id);
-            $('#penjelasan_jawaban').val(data.penjelasan_jawaban);
-            $('#tag').val(data.tag);
+            $("#pertanyaan").val(data.pertanyaan);
+            $("#jenis_font").val(data.jenis_font);
+            $("#is_audio").prop("checked", data.is_audio == 1);
+            $("#tingkat_kesulitan").val(data.tingkat_kesulitan_id);
+            $("#kategori").val(data.kategori_id);
+            $("#penjelasan_jawaban").val(data.penjelasan_jawaban);
+            $("#tag").val(data.tag);
 
             // Show/hide audio container
             if (data.is_audio) {
-                $('#audio-file-container').show();
+                $("#audio-file-container").show();
             }
 
             // Load sub kategori and set value
             if (data.kategori_id) {
                 loadSubKategori(data.kategori_id);
                 setTimeout(() => {
-                    $('#sub_kategori').val(data.sub_kategori_id);
+                    $("#sub_kategori").val(data.sub_kategori_id);
                 }, 500);
             }
 
             // Detect jenis soal from jawaban
-            let jenisSoal = 'isian';
+            let jenisSoal = "isian";
             if (data.jawaban_soals && data.jawaban_soals.length > 0) {
-                if (data.jawaban_soals.length === 2 &&
-                    data.jawaban_soals.some(j => j.jawaban === 'Benar') &&
-                    data.jawaban_soals.some(j => j.jawaban === 'Salah')) {
-                    jenisSoal = 'benar_salah';
+                if (
+                    data.jawaban_soals.length === 2 &&
+                    data.jawaban_soals.some((j) => j.jawaban === "Benar") &&
+                    data.jawaban_soals.some((j) => j.jawaban === "Salah")
+                ) {
+                    jenisSoal = "benar_salah";
                 } else if (data.jawaban_soals.length > 1) {
-                    jenisSoal = 'pilihan_ganda';
+                    jenisSoal = "pilihan_ganda";
                 }
             }
 
-            $('#jenis_soal').val(jenisSoal);
+            $("#jenis_soal").val(jenisSoal);
             generateJawabanForm(jenisSoal);
 
             // Fill jawaban data
@@ -472,10 +738,10 @@ function editSoal(id) {
             }, 100);
 
             // Show modal
-            $('#tambah-bank-soal').modal('show');
+            $("#tambah-bank-soal").modal("show");
         }
     }).fail(function () {
-        showAlert('error', 'Gagal memuat data soal.');
+        showAlert("error", "Gagal memuat data soal.");
     });
 }
 
@@ -483,7 +749,7 @@ function editSoal(id) {
 function fillJawabanData(jawabanData, jenisSoal) {
     if (!jawabanData || jawabanData.length === 0) return;
 
-    if (jenisSoal === 'pilihan_ganda') {
+    if (jenisSoal === "pilihan_ganda") {
         jawabanData.forEach((jawaban, index) => {
             const input = $(`input[name="jawaban_soal[${index}][jawaban]"]`);
             if (input.length) {
@@ -492,44 +758,51 @@ function fillJawabanData(jawabanData, jenisSoal) {
                 // Add more options if needed
                 const label = String.fromCharCode(65 + index);
                 addPilihanGanda(label);
-                $(`input[name="jawaban_soal[${index}][jawaban]"]`).val(jawaban.jawaban);
+                $(`input[name="jawaban_soal[${index}][jawaban]"]`).val(
+                    jawaban.jawaban
+                );
             }
 
             if (jawaban.jawaban_benar) {
-                $(`input[name="jawaban_benar"][value="${index}"]`).prop('checked', true);
+                $(`input[name="jawaban_benar"][value="${index}"]`).prop(
+                    "checked",
+                    true
+                );
             }
         });
-    } else if (jenisSoal === 'benar_salah') {
-        const benarJawaban = jawabanData.find(j => j.jawaban === 'Benar');
+    } else if (jenisSoal === "benar_salah") {
+        const benarJawaban = jawabanData.find((j) => j.jawaban === "Benar");
         if (benarJawaban && benarJawaban.jawaban_benar) {
-            $('input[name="jawaban_benar"][value="0"]').prop('checked', true);
+            $('input[name="jawaban_benar"][value="0"]').prop("checked", true);
         } else {
-            $('input[name="jawaban_benar"][value="1"]').prop('checked', true);
+            $('input[name="jawaban_benar"][value="1"]').prop("checked", true);
         }
-    } else if (jenisSoal === 'isian') {
+    } else if (jenisSoal === "isian") {
         if (jawabanData[0]) {
-            $('input[name="jawaban_soal[0][jawaban]"]').val(jawabanData[0].jawaban);
+            $('input[name="jawaban_soal[0][jawaban]"]').val(
+                jawabanData[0].jawaban
+            );
         }
     }
 }
 
 // Delete soal
 function deleteSoal(id) {
-    const btn = $('#btn-hapus-confirm');
-    const spinner = btn.find('.spinner-border');
+    const btn = $("#btn-hapus-confirm");
+    const spinner = btn.find(".spinner-border");
 
-    btn.prop('disabled', true);
-    spinner.removeClass('d-none');
+    btn.prop("disabled", true);
+    spinner.removeClass("d-none");
 
     $.ajax({
         url: `/bank-soal/${id}`,
-        type: 'DELETE',
+        type: "DELETE",
         headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         success: function (response) {
             if (response.success) {
-                $('#modal-hapus').modal('hide');
+                $("#modal-hapus").modal("hide");
 
                 // Refresh all tables
                 if (window.tableSemua) window.tableSemua.ajax.reload();
@@ -537,44 +810,47 @@ function deleteSoal(id) {
                 if (window.tableGrammar) window.tableGrammar.ajax.reload();
                 if (window.tableListening) window.tableListening.ajax.reload();
 
-                showAlert('success', response.message);
+                showAlert("success", response.message);
             } else {
-                showAlert('error', response.message);
+                showAlert("error", response.message);
             }
         },
         error: function () {
-            showAlert('error', 'Gagal menghapus soal.');
+            showAlert("error", "Gagal menghapus soal.");
         },
         complete: function () {
-            btn.prop('disabled', false);
-            spinner.addClass('d-none');
+            btn.prop("disabled", false);
+            spinner.addClass("d-none");
             currentSoalId = null;
-        }
+        },
     });
 }
 
 // Show delete confirmation
 function showDeleteConfirmation(id) {
     currentSoalId = id;
-    $('#modal-hapus').modal('show');
+    $("#modal-hapus").modal("show");
 }
 
 // Reset form
 function resetForm() {
-    document.getElementById('form-bank-soal').reset();
-    $('#modal-title').text('Tambah Soal Baru');
-    $('#form-method').val('POST');
-    $('#audio-file-container').hide();
-    $('#jawaban-container').empty();
-    $('#sub_kategori').empty().append('<option value="">Pilih Sub Kategori</option>');
+    document.getElementById("form-bank-soal").reset();
+    $("#modal-title").text("Tambah Soal Baru");
+    $("#form-method").val("POST");
+    $("#audio-file-container").hide();
+    $("#jawaban-container").empty();
+    $("#sub_kategori")
+        .empty()
+        .append('<option value="">Pilih Sub Kategori</option>');
     currentSoalId = null;
     jawabanCounter = 0;
 }
 
 // Show alert
 function showAlert(type, message) {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    const iconClass = type === 'success' ? 'ri-check-line' : 'ri-error-warning-line';
+    const alertClass = type === "success" ? "alert-success" : "alert-danger";
+    const iconClass =
+        type === "success" ? "ri-check-line" : "ri-error-warning-line";
 
     const alertHtml = `
         <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
@@ -585,20 +861,17 @@ function showAlert(type, message) {
     `;
 
     // Remove existing alerts
-    $('.alert').remove();
+    $(".alert").remove();
 
     // Add new alert at the top of container
-    $('.container-fluid').prepend(alertHtml);
+    $(".container-fluid").prepend(alertHtml);
 
     // Auto dismiss after 5 seconds
     setTimeout(() => {
-        $('.alert').fadeOut();
+        $(".alert").fadeOut();
     }, 5000);
 }
 
 // Make functions globally available
 window.editSoal = editSoal;
 window.showDeleteConfirmation = showDeleteConfirmation;
-
-
-
