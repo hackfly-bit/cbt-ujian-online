@@ -12,14 +12,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $waktu_selesai
  * @property string $created_at
  * @property string $updated_at
- * @property Pesertum $pesertum
+ * @property Peserta $peserta
  * @property Sertifikat $sertifikat
  */
 class HasilUjian extends Model
 {
     /**
      * The table associated with the model.
-     * 
+     *
      * @var string
      */
     protected $table = 'hasil_ujian';
@@ -32,9 +32,9 @@ class HasilUjian extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function pesertum()
+    public function Peserta()
     {
-        return $this->belongsTo('App\Models\Pesertum', 'peserta_id');
+        return $this->belongsTo('App\Models\Peserta', 'peserta_id');
     }
 
     /**

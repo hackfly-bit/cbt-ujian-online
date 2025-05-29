@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\BankSoalController;
+use App\Http\Controllers\FilterController;
 
 
 /*
@@ -35,11 +36,6 @@ Route::group(['prefix' => 'test', 'middleware' => 'auth'], function () {
 Route::get('/', [RoutingController::class, 'index'])->name('root');
 Route::get('/home', fn() => view('index'))->name('home');
 
-Route::group(['prefix' => 'filter', 'middleware' => 'auth'], function () {
-    Route::get('/tingkat-kesulitan', [BankSoalController::class, 'getTingkatKesulitan']);
-    Route::get('/kategori', [BankSoalController::class, 'getKategori']);
-    Route::get('/sub-kategori/{kategoriId}', [BankSoalController::class, 'getSubKategori']);
-});
 
 
 Route::group(['prefix' => 'bank-soal', 'as' => 'bank-soal.', 'middleware' => 'auth'], function () {
@@ -48,4 +44,21 @@ Route::group(['prefix' => 'bank-soal', 'as' => 'bank-soal.', 'middleware' => 'au
     Route::put('/{id}', [BankSoalController::class, 'update'])->name('update');
     Route::delete('/{id}', [BankSoalController::class, 'destroy'])->name('destroy');
     Route::get('/{id}', [BankSoalController::class, 'show'])->name('show');
+});
+
+
+Route::group(['prefix' => 'ujian', 'as' => 'ujian.', 'middleware' => 'auth'], function () {
+    Route::get('/', [BankSoalController::class, 'index'])->name('index');
+    Route::post('/', [BankSoalController::class, 'store'])->name('store');
+    Route::put('/{id}', [BankSoalController::class, 'update'])->name('update');
+    Route::delete('/{id}', [BankSoalController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [BankSoalController::class, 'show'])->name('show');
+});
+
+
+Route::group(['prefix' => 'filter', 'as' => 'filter.', 'middleware' => 'auth'], function () {
+    Route::get('/soals', [FilterController::class, 'getSoals'])->name('soals');
+    Route::get('/tingkat-kesulitan', [FilterController::class, 'getTingkatKesulitan'])->name('tingkat-kesulitan');
+    Route::get('/kategori', [FilterController::class, 'getKategori'])->name('kategori');
+    Route::get('/sub-kategori/{kategoriId}', [FilterController::class, 'getSubKategori'])->name('sub-kategori');
 });

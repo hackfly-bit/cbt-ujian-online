@@ -2,21 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ujian;
 use Illuminate\Http\Request;
 
 class UjianController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index()
-    // {
-    //     //
-    //     return view('ujian.index');
-    // }
 
-
-        public function index(Request $request)
+    public function index(Request $request)
     {
 
         if ($request->ajax()) {
@@ -77,6 +69,7 @@ class UjianController extends Controller
     public function create()
     {
         //
+
     }
 
     /**
@@ -84,7 +77,18 @@ class UjianController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //validation
+
+        // logic
+
+        $ujian = new Ujian();
+        $ujian->jenis_ujian_id = $request->jenis_ujian_id;
+        $ujian->nama = $request->nama;
+        $ujian->deskripsi = $request->deskripsi;
+        $ujian->durasi = $request->durasi;
+        $ujian->tanggal_selesai = $request->tanggal_selesai;
+        $ujian->link = $request->link;
+        $ujian->save();
     }
 
     /**

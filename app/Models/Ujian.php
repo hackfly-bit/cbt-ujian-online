@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $status
  * @property string $created_at
  * @property string $updated_at
- * @property Pesertum[] $pesertas
+ * @property Peserta[] $pesertas
  * @property Sertifikat[] $sertifikats
  * @property UjianPengaturan $ujianPengaturan
  * @property UjianPesertaForm $ujianPesertaForm
@@ -26,7 +26,7 @@ class Ujian extends Model
 {
     /**
      * The table associated with the model.
-     * 
+     *
      * @var string
      */
     protected $table = 'ujian';
@@ -41,7 +41,7 @@ class Ujian extends Model
      */
     public function pesertas()
     {
-        return $this->hasMany('App\Models\Pesertum');
+        return $this->hasMany('App\Models\Peserta');
     }
 
     /**

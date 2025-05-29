@@ -346,32 +346,5 @@ class BankSoalController extends Controller
         }
     }
 
-    /**
-     * Get tingkat kesulitan for dropdown
-     */
-    public function getTingkatKesulitan()
-    {
-        $tingkatKesulitan = TingkatKesulitan::select('id', 'nama')->get();
-        return response()->json($tingkatKesulitan);
-    }
 
-    /**
-     * Get kategori for dropdown
-     */
-    public function getKategori()
-    {
-        $kategori = Kategori::select('id', 'nama')->get();
-        return response()->json($kategori);
-    }
-
-    /**
-     * Get sub kategori by kategori id
-     */
-    public function getSubKategori($kategoriId)
-    {
-        $subKategori = SubKategori::where('kategori_id', $kategoriId)
-            ->select('id', 'nama')
-            ->get();
-        return response()->json($subKategori);
-    }
 }

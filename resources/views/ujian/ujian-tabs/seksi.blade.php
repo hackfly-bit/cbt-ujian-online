@@ -22,9 +22,12 @@
                 </div>
 
                 <!-- Tombol Navigasi -->
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="button" class="btn btn-primary">
-                        Lanjut ke Seksi & Soal <i class="bi bi-arrow-right ms-1"></i>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary" onclick="goToNextTab('detail')">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Detail
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="goToNextTab('peserta')">
+                        Lanjut ke Data Peserta <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </div>
             </div>

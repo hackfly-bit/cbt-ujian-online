@@ -55,7 +55,7 @@
 
                 <!-- Tombol Navigasi -->
                 <div class="d-flex justify-content-end mt-4">
-                    <button type="button" class="btn btn-primary">
+                    <button type="button" class="btn btn-primary" id="btn-lanjut-seksi" onclick="goToNextTab('seksi')">
                         Lanjut ke Seksi & Soal <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </div>

@@ -8,6 +8,23 @@
 
 
     <style>
+.bg-soft-info {
+    background-color: rgba(13, 202, 240, 0.15);
+}
+.bg-soft-secondary {
+    background-color: rgba(108, 117, 125, 0.15);
+}
+.bg-light-subtle {
+    background-color: #f8f9fa;
+}
+.shadow-sm {
+    transition: box-shadow 0.2s ease-in-out;
+}
+.shadow-sm:hover {
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.06);
+}
+
+
         .action-icons {
             text-align: center
         }
@@ -69,6 +86,44 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        /* Question selection styles */
+        .question-container {
+            background-color: #f8f9fa;
+        }
+
+        .question-container .form-check {
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .question-container .form-check:hover {
+            background-color: #e9ecef !important;
+            border-color: #dee2e6 !important;
+        }
+
+        .question-container .form-check-input:checked+.form-check-label {
+            color: #0d6efd;
+            font-weight: 500;
+        }
+
+        .question-container .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .category-dropdown {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .category-dropdown:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .selected-count {
+            font-weight: 600;
+            color: #0d6efd;
         }
     </style>
 @endsection
@@ -142,6 +197,7 @@
         </div>
 
 
+
         <!-- end row-->
 
     </div>
@@ -149,6 +205,6 @@
 @endsection
 
 @section('script')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
     @vite(['resources/js/main/buat-ujian.js'])
 @endsection
