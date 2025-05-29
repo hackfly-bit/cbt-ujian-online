@@ -9,10 +9,66 @@ class UjianController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    // public function index()
+    // {
+    //     //
+    //     return view('ujian.index');
+    // }
+
+
+        public function index(Request $request)
     {
-        //
-        return view('ujian.index');
+
+        if ($request->ajax()) {
+            $soals = \App\Models\Soal::with(['kategori', 'tingkatKesulitan', 'subKategori'])
+                ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at', 'jenis_isian']);
+
+            if ($request->has('kategori') && $request->kategori !== 'all') {
+                $soals->where('kategori_id', (int) $request->kategori);
+            }
+
+            return datatables()->of($soals->get())
+                ->addIndexColumn()
+                ->addColumn('pertanyaan', function ($row) {
+                    return  $row->pertanyaan;
+                })
+                ->addColumn('kategori', function ($row) {
+                    return $row->kategori ? $row->kategori->nama : '-';
+                })
+                ->addColumn('tingkat_kesulitan', function ($row) {
+                    return $row->tingkatKesulitan ? $row->tingkatKesulitan->nama : '-';
+                })
+                ->addColumn('jenis_soal', function ($row) {
+                    return $row->jenis_isian ? $row->jenis_isian : '-';
+                })
+                ->addColumn('media', function ($row) {
+                    return $row->is_audio ? '<i class="ri-audio-line"></i> Audio' : '<i class="ri-text-wrap"></i> Teks';
+                })
+
+                ->addColumn('action', function ($row) {
+                    return '
+                        <div class="action-icons">
+                            <a href="javascript:void(0)" class="text-primary" title="Edit" onclick="editSoal(' . $row->id . ')">
+                                <i class="ri-edit-2-line"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation(' . $row->id . ')">
+                                <i class="ri-delete-bin-line"></i>
+                            </a>
+                        </div>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('ujian.index', [
+            'title' => 'Ujian',
+            'active' => 'ujian',
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => 'Ujian', 'url' => route('ujian.index')],
+            ],
+        ]);
     }
 
     /**
