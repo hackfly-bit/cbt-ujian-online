@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Ujian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UjianController extends Controller
 {
@@ -12,35 +14,34 @@ class UjianController extends Controller
     {
 
         if ($request->ajax()) {
-            $soals = \App\Models\Soal::with(['kategori', 'tingkatKesulitan', 'subKategori'])
-                ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at', 'jenis_isian']);
 
-            if ($request->has('kategori') && $request->kategori !== 'all') {
-                $soals->where('kategori_id', (int) $request->kategori);
-            }
-
-            return datatables()->of($soals->get())
+            $ujian = Ujian::with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals.soal']);
+            return datatables()->of($ujian->get())
                 ->addIndexColumn()
-                ->addColumn('pertanyaan', function ($row) {
-                    return  $row->pertanyaan;
+                ->addColumn('nama_ujian', function ($row) {
+                    return $row->nama_ujian;
                 })
-                ->addColumn('kategori', function ($row) {
-                    return $row->kategori ? $row->kategori->nama : '-';
+                ->addColumn('status', function ($row) {
+                    return $row->deskripsi;
                 })
-                ->addColumn('tingkat_kesulitan', function ($row) {
-                    return $row->tingkatKesulitan ? $row->tingkatKesulitan->nama : '-';
+                ->addColumn('soal', function ($row) {
+                    return $row->ujianSections->sum(function ($section) {
+                        return $section->ujianSectionSoals->count();
+                    });
                 })
-                ->addColumn('jenis_soal', function ($row) {
-                    return $row->jenis_isian ? $row->jenis_isian : '-';
+                ->addColumn('durasi', function ($row) {
+                    return $row->durasi . ' menit';
                 })
-                ->addColumn('media', function ($row) {
-                    return $row->is_audio ? '<i class="ri-audio-line"></i> Audio' : '<i class="ri-text-wrap"></i> Teks';
+                ->addColumn('peserta', function ($row) {
+                    return $row->pesertas->count();
                 })
-
+                ->addColumn('tanggal_selesai', function ($row) {
+                    return $row->tanggal_selesai ? date('d-m-Y H:i', strtotime($row->tanggal_selesai)) : '-';
+                })
                 ->addColumn('action', function ($row) {
                     return '
                         <div class="action-icons">
-                            <a href="javascript:void(0)" class="text-primary" title="Edit" onclick="editSoal(' . $row->id . ')">
+                            <a href="javascript:void(0)" class="text-primary" title="Edit" onclick="editUjian(' . $row->id . ')">
                                 <i class="ri-edit-2-line"></i>
                             </a>
                             <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation(' . $row->id . ')">
@@ -56,10 +57,6 @@ class UjianController extends Controller
         return view('ujian.index', [
             'title' => 'Ujian',
             'active' => 'ujian',
-            'breadcrumbs' => [
-                ['label' => 'Dashboard', 'url' => route('dashboard')],
-                ['label' => 'Ujian', 'url' => route('ujian.index')],
-            ],
         ]);
     }
 
@@ -77,18 +74,98 @@ class UjianController extends Controller
      */
     public function store(Request $request)
     {
-        //validation
 
-        // logic
+        Log::info("message", [
+            'request' => $request->all(),
+        ]);
+        // Validation
+        // $request->validate([
+        //     'detail.nama' => 'required|string|max:255',
+        //     'detail.deskripsi' => 'nullable|string',
+        //     'detail.durasi' => 'required|string',
+        //     'detail.jenis_ujian' => 'required|string',
+        //     'detail.tanggal_selesai' => 'required|date',
+        //     'sections' => 'required|array|min:1',
+        //     'sections.*.nama_section' => 'required|string|max:255',
+        //     'sections.*.bobot_nilai' => 'required|numeric|min:0|max:100',
+        //     'sections.*.instruksi' => 'nullable|string',
+        //     'sections.*.metode_penilaian' => 'required|in:otomatis,manual',
+        //     'sections.*.kategori_id' => 'required|exists:kategoris,id',
+        //     'sections.*.selected_questions' => 'required|array|min:1',
+        //     'sections.*.selected_questions.*' => 'exists:soals,id',
+        //     'peserta' => 'required|array',
+        //     'pengaturan.metode_penilaian' => 'required|in:presentase,poin',
+        //     'pengaturan.nilai_kelulusan' => 'nullable|numeric|min:0',
+        //     'pengaturan.hasil_ujian' => 'required|numeric|min:0',
+        // ]);
 
-        $ujian = new Ujian();
-        $ujian->jenis_ujian_id = $request->jenis_ujian_id;
-        $ujian->nama = $request->nama;
-        $ujian->deskripsi = $request->deskripsi;
-        $ujian->durasi = $request->durasi;
-        $ujian->tanggal_selesai = $request->tanggal_selesai;
-        $ujian->link = $request->link;
-        $ujian->save();
+        try {
+            DB::beginTransaction();
+
+            // Create ujian
+            $ujian = new Ujian();
+            $ujian->nama_ujian   = $request->detail['nama'];
+            $ujian->deskripsi = $request->detail['deskripsi'];
+            $ujian->durasi = $request->detail['durasi'];
+            $ujian->jenis_ujian_id = 1; //$request->detail['jenis_ujian'];
+            $ujian->tanggal_selesai = $request->detail['tanggal_selesai'];
+            $ujian->save();
+
+            // Create ujian settings
+            $ujianPengaturan = new \App\Models\UjianPengaturan();
+            $ujianPengaturan->ujian_id = $ujian->id;
+            $ujianPengaturan->metode_penilaian = $request->pengaturan['metode_penilaian'];
+            $ujianPengaturan->nilai_kelulusan = $request->pengaturan['nilai_kelulusan'];
+            $ujianPengaturan->hasil_ujian_tersedia = $request->pengaturan['hasil_ujian'];
+            $ujianPengaturan->save();
+
+            // Create ujian peserta form
+            $ujianPesertaForm = new \App\Models\UjianPesertaForm();
+            $ujianPesertaForm->ujian_id = $ujian->id;
+            $ujianPesertaForm->nama = $request->peserta['nama'] ?? false;
+            $ujianPesertaForm->phone = $request->peserta['phone'] ?? false;
+            $ujianPesertaForm->email = $request->peserta['email'] ?? false;
+            $ujianPesertaForm->institusi = $request->peserta['institusi'] ?? false;
+            $ujianPesertaForm->nomor_induk = $request->peserta['nomor_induk'] ?? false;
+            $ujianPesertaForm->tanggal_lahir = $request->peserta['tanggal_lahir'] ?? false;
+            $ujianPesertaForm->alamat = $request->peserta['alamat'] ?? false;
+            $ujianPesertaForm->foto = $request->peserta['foto'] ?? false;
+            $ujianPesertaForm->save();
+
+            // Create ujian sections
+            foreach ($request->sections as $sectionData) {
+                $ujianSection = new \App\Models\UjianSection();
+                $ujianSection->ujian_id = $ujian->id;
+                $ujianSection->nama_section = $sectionData['nama_section'];
+                $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
+                $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
+                $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
+                $ujianSection->save();
+
+                // Create ujian section soals
+                foreach ($sectionData['selected_questions'] as $soalId) {
+                    $ujianSectionSoal = new \App\Models\UjianSectionSoal();
+                    $ujianSectionSoal->ujian_section = $ujianSection->id;
+                    $ujianSectionSoal->soal_id = $soalId;
+                    $ujianSectionSoal->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ujian berhasil dibuat',
+                'data' => $ujian
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat membuat ujian: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

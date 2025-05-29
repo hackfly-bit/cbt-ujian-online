@@ -46,8 +46,8 @@
                         <label for="tanggal_kedaluwarsa" class="form-label">Tanggal Kedaluwarsa (Opsional)</label>
                         <div class="input-group mb-1">
                             <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                            <input type="date" id="tanggal_kedaluwarsa" name="tanggal_kedaluwarsa"
-                                class="form-control">
+                            <input type="text" id="tanggal_kedaluwarsa" name="tanggal_kedaluwarsa"
+                                class="form-control datepicker">
                         </div>
                         <span>Ujian tidak dapat diakses setelah tanggal ini</span>
                     </div>

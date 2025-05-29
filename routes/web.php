@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\BankSoalController;
 use App\Http\Controllers\FilterController;
-
+use App\Http\Controllers\UjianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,11 +48,11 @@ Route::group(['prefix' => 'bank-soal', 'as' => 'bank-soal.', 'middleware' => 'au
 
 
 Route::group(['prefix' => 'ujian', 'as' => 'ujian.', 'middleware' => 'auth'], function () {
-    Route::get('/', [BankSoalController::class, 'index'])->name('index');
-    Route::post('/', [BankSoalController::class, 'store'])->name('store');
-    Route::put('/{id}', [BankSoalController::class, 'update'])->name('update');
-    Route::delete('/{id}', [BankSoalController::class, 'destroy'])->name('destroy');
-    Route::get('/{id}', [BankSoalController::class, 'show'])->name('show');
+    Route::get('/', [UjianController::class, 'index'])->name('index');
+    Route::post('/', [UjianController::class, 'store'])->name('store');
+    Route::put('/{id}', [UjianController::class, 'update'])->name('update');
+    Route::delete('/{id}', [UjianController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [UjianController::class, 'show'])->name('show');
 });
 
 

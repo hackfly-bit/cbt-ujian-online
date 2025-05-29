@@ -10,13 +10,14 @@
 
                 <table id="selection-datatable-ujian-draft" class="table table-striped dt-responsive nowrap w-100">
                     <thead>
-                        <tr>		
+                        <tr>
                             <th class="text-center">No</th>
                             <th>Nama Ujian</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Soal</th>
                             <th class="text-center">Durasi</th>
                             <th class="text-center">Peserta</th>
+                            <th class="text-center">Tanggal Selesai</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>

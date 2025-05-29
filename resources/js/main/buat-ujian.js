@@ -1,15 +1,22 @@
 import dragula from "dragula/dist/dragula.min.js";
 import jQuery from "jquery/dist/jquery.min.js";
+import Swal from "sweetalert2";
+import flatpickr from "flatpickr";
+// import Datepicker from "bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js";
+
 
 (function ($) {
     "use strict";
-
-
 
     var DragulaSections = function () {
         this.$body = $("body");
         this.sectionCount = 0;
     };
+
+    flatpickr("#tanggal_kedaluwarsa", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+    });
 
     DragulaSections.prototype.init = function () {
         const self = this;
@@ -205,46 +212,55 @@ import jQuery from "jquery/dist/jquery.min.js";
             </div>
         `);
 
-        fetch(`/filter/soals?kategori_id=${categoryId}`)
+        fetch(`/bank-soal?kategori=${categoryId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
             .then(response => response.json())
             .then(response => {
                 let questionsHTML = '';
-                const data = response.data || response; // Handle both response formats
+                const data = response.data || response; // Handle DataTables response format
 
                 if (data && data.length > 0) {
                     data.forEach((question, index) => {
-                        const questionText = question.pertanyaan || question.soal || question.question || `Soal ${index + 1}`;
+                        const questionText = question.pertanyaan || `Soal ${index + 1}`;
                         const questionId = question.id;
 
-                        const tingkatKesulitan = question.tingkat_kesulitan?.nama
-                            ? `<span class="badge rounded-pill bg-soft-info text-dark me-2 d-flex align-items-center gap-1 px-2 py-1">
-                                    <i class="bi bi-bar-chart-line"></i> ${question.tingkat_kesulitan.nama}
-                                </span>` : '';
+                        const tingkatKesulitan = question.tingkat_kesulitan
+                            ? `<span class="badge bg-secondary-subtle text-dark small">${question.tingkat_kesulitan}</span>`
+                            : '';
 
-                        const subKategori = question.sub_kategori?.nama
-                            ? `<span class="badge rounded-pill bg-soft-secondary text-dark d-flex align-items-center gap-1 px-2 py-1">
-                                    <i class="bi bi-tag"></i> ${question.sub_kategori.nama}
-                                </span>` : '';
+                        const kategori = question.kategori
+                            ? `<span class="badge bg-primary-subtle text-primary small">${question.kategori}</span>`
+                            : '';
+
+                        const mediaIcon = question.is_audio
+                            ? '<i class="ri-audio-line text-primary me-1"></i>'
+                            : '<i class="ri-text-wrap text-muted me-1"></i>';
 
                         questionsHTML += `
                             <div class="question-box d-flex align-items-center justify-content-between mb-3 p-3 rounded shadow-sm bg-light-subtle">
                                 <div class="content me-3 w-100">
-                                    <div class="fw-medium text-dark text-truncate mb-2" title="${questionText.replace(/"/g, '&quot;')}">
-                                        ${questionText.length > 100 ? questionText.substring(0, 100) + '...' : questionText}
+                                    <div class="fw-medium text-dark mb-2 d-flex align-items-center" title="${questionText.replace(/"/g, '&quot;')}">
+                                        ${mediaIcon}
+                                        <span class="text-truncate">
+                                            ${questionText.length > 100 ? questionText.substring(0, 100) + '...' : questionText}
+                                        </span>
                                     </div>
                                     <div class="d-flex flex-wrap gap-2">
-                                        ${subKategori ? `<span class="badge bg-primary-subtle text-primary small">${subKategori}</span>` : ''}
-                                        ${tingkatKesulitan ? `<span class="badge bg-secondary-subtle text-dark small">${tingkatKesulitan}</span>` : ''}
+                                        ${kategori}
+                                        ${tingkatKesulitan}
                                     </div>
                                 </div>
 
                                 <div class="form-check ms-auto">
-                                    <input class="form-check-input large-checkbox" type="checkbox"
+                                    <input class="form-check-input large-checkbox question-checkbox" type="checkbox"
                                         value="${questionId}" id="question-${sectionId}-${questionId}">
                                 </div>
                             </div>
-
-                            `;
+                        `;
                     });
                 } else {
                     questionsHTML = `
@@ -301,6 +317,8 @@ import jQuery from "jquery/dist/jquery.min.js";
     $.DragulaSections = new DragulaSections();
     $.DragulaSections.Constructor = DragulaSections;
 
+
+
 })(window.jQuery);
 
 // Custom functions and scripts section
@@ -311,7 +329,7 @@ import jQuery from "jquery/dist/jquery.min.js";
     $.DragulaSections.init();
 
 
-       window.toggleNilaiKelulusan = () => {
+    window.toggleNilaiKelulusan = () => {
         const metode = document.getElementById('metode_penilaian').value;
         const group = document.getElementById('nilai_kelulusan_group');
         group.style.display = metode === 'rumus_custom' ? 'block' : 'none';
@@ -366,10 +384,23 @@ import jQuery from "jquery/dist/jquery.min.js";
     window.handleSaveUjian = function () {
         const sectionData = getSectionData();
 
+        // Check if Swal is available
+        if (typeof Swal === 'undefined') {
+            console.error('SweetAlert2 is not loaded');
+            alert('Harap tambahkan minimal satu seksi ujian.'); // Fallback
+            return;
+        }
+
         // Validate that at least one section exists
         if (sectionData.length === 0) {
-            alert('Harap tambahkan minimal satu seksi ujian.');
-            goToNextTab('seksi');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan',
+                text: 'Harap tambahkan minimal satu seksi ujian.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                goToNextTab('seksi');
+            });
             return;
         }
 
@@ -378,14 +409,26 @@ import jQuery from "jquery/dist/jquery.min.js";
             const section = sectionData[i];
 
             if (!section.nama_section) {
-                alert(`Harap isi nama seksi untuk Seksi ${i + 1}.`);
-                goToNextTab('seksi');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: `Harap isi nama seksi untuk Seksi ${i + 1}.`,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    goToNextTab('seksi');
+                });
                 return;
             }
 
             if (section.selected_questions.length === 0) {
-                alert(`Harap pilih minimal satu soal untuk ${section.nama_section}.`);
-                goToNextTab('seksi');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: `Harap pilih minimal satu soal untuk ${section.nama_section}.`,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    goToNextTab('seksi');
+                });
                 return;
             }
         }
@@ -394,38 +437,99 @@ import jQuery from "jquery/dist/jquery.min.js";
         const totalQuestions = sectionData.reduce((total, section) => total + section.selected_questions.length, 0);
         const confirmMessage = `Anda akan menyimpan ujian dengan ${sectionData.length} seksi dan total ${totalQuestions} soal. Lanjutkan?`;
 
-        if (confirm(confirmMessage)) {
-            // Here you would send the data to your Laravel backend
-            console.log('Section data to save:', sectionData);
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: confirmMessage,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    text: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-            // Example: Send to backend
-            // fetch('/ujian/store', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            //     },
-            //     body: JSON.stringify({
-            //         sections: sectionData
-            //         // Add other ujian data here
-            //     })
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if (data.success) {
-            //         alert('Ujian berhasil disimpan!');
-            //         window.location.href = '/ujian';
-            //     } else {
-            //         alert('Error: ' + data.message);
-            //     }
-            // })
-            // .catch(error => {
-            //     console.error('Error:', error);
-            //     alert('Terjadi kesalahan saat menyimpan ujian.');
-            // });
+                // Here you would send the data to your Laravel backend
+                console.log('Section data to save:', sectionData);
 
-            alert('Data ujian siap disimpan! (Integrasi dengan backend belum diimplementasikan)');
-        }
+                $.ajax({
+                    url: '/ujian',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        sections: sectionData,
+                        detail: {
+                            nama: $('#nama_ujian').val(),
+                            deskripsi: $('#deskripsi').val(),
+                            durasi: $('#durasi_ujian').val() || 120, // Fixed ID (was pointing to #deskripsi before)
+                            jenis_ujian: $('#jenis_ujian').val(),
+                            tanggal_selesai: $('#tanggal_kedaluwarsa').val(),
+                        },
+                        peserta: {
+                            nama: $('#nama').is(':checked'),
+                            email: $('#email').is(':checked'),
+                            telp: $('#telp').is(':checked'),
+                            sekolah: $('#sekolah').is(':checked'),
+                            no_induk: $('#no_induk').is(':checked'),
+                            tanggal_lahir: $('#tanggal_lahir').is(':checked'),
+                            alamat: $('#alamat').is(':checked')
+                        },
+                        pengaturan: {
+                            metode_penilaian: $('#metode_penilaian').val(),
+                            nilai_kelulusan: $('#nilai_kelulusan').val(),
+                            hasil_ujian: $('#hasil_ujian_tersedia').val(),
+                        }
+                    }),
+                    success: function (data) {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Ujian berhasil disimpan!',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/ujian';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Error: ' + data.message,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX Error:', status, error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Terjadi kesalahan saat menyimpan ujian.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            }
+        }).catch((error) => {
+            console.error('SweetAlert2 error:', error);
+            // Fallback to regular confirm
+            if (confirm(confirmMessage)) {
+                // Continue with save logic using regular alerts
+                console.log('Using fallback confirmation');
+            }
+        });
     };
-
+    // Prevent form submission on Enter key in section for
 })(window.jQuery);

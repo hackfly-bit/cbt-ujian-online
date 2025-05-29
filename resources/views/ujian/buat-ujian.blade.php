@@ -1,28 +1,36 @@
 @extends('layouts.vertical', ['page_title' => 'Buat Ujian', 'mode' => $mode ?? '', 'demo' => $demo ?? ''])
 
 @section('css')
-    @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css'])
+    @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css', 'node_modules/flatpickr/dist/flatpickr.min.css'])
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css"> --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script> --}}
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.css"> --}}
+
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script> --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
 
 
     <style>
-.bg-soft-info {
-    background-color: rgba(13, 202, 240, 0.15);
-}
-.bg-soft-secondary {
-    background-color: rgba(108, 117, 125, 0.15);
-}
-.bg-light-subtle {
-    background-color: #f8f9fa;
-}
-.shadow-sm {
-    transition: box-shadow 0.2s ease-in-out;
-}
-.shadow-sm:hover {
-    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.06);
-}
+        .bg-soft-info {
+            background-color: rgba(13, 202, 240, 0.15);
+        }
+
+        .bg-soft-secondary {
+            background-color: rgba(108, 117, 125, 0.15);
+        }
+
+        .bg-light-subtle {
+            background-color: #f8f9fa;
+        }
+
+        .shadow-sm {
+            transition: box-shadow 0.2s ease-in-out;
+        }
+
+        .shadow-sm:hover {
+            box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.06);
+        }
 
 
         .action-icons {

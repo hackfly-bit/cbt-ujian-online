@@ -23,160 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
     loadDropdownData();
 });
 
-// Fungsi untuk inisialisasi DataTables
-// function initDataTables() {
-//     // Fungsi umum untuk inisialisasi datatable
-//     function initDatatable(
-//         selector,
-//         filterSelector = null,
-//         tableIdForSearch = null,
-//         params
-//     ) {
-//         const table = new DataTable(selector, {
-//             processing: true,
-//             serverSide: true,
-//             ajax: {
-//                 url: "/bank-soal",
-//                 type: "GET",
-//                 // param data
-//                 data: function (d) {
-//                     d.kategori = params;
-//                 },
-//                 headers: {
-//                     "X-Requested-With": "XMLHttpRequest",
-//                 },
-//             },
-//             columns: [
-//                 {
-//                     data: "DT_RowIndex",
-//                     name: "DT_RowIndex",
-//                     orderable: false,
-//                     searchable: false,
-//                     className: "text-center",
-//                 },
-//                 { data: "pertanyaan", name: "pertanyaan" },
-//                 {
-//                     data: "kategori",
-//                     name: "kategori",
-//                     className: "text-center",
-//                 },
-//                 {
-//                     data: "tingkat_kesulitan",
-//                     name: "tingkat_kesulitan",
-//                     className: "text-center",
-//                 },
-//                 {
-//                     data: "jenis_soal",
-//                     name: "jenis_soal",
-//                     className: "text-center",
-//                 },
-//                 {
-//                     data: "is_audio",
-//                     name: "is_audio",
-//                     className: "text-center",
-//                     render: function (data) {
-//                         return data
-//                             ? '<i class="ri-volume-up-line text-primary"></i>'
-//                             : "";
-//                     },
-//                 },
-//                 {
-//                     data: "action",
-//                     name: "action",
-//                     orderable: false,
-//                     searchable: false,
-//                     className: "text-center",
-//                 },
-//             ],
-//             select: {
-//                 style: "multi",
-//             },
-//             responsive: true,
-//             language: {
-//                 paginate: {
-//                     previous: "<i class='ri-arrow-left-s-line'></i>",
-//                     next: "<i class='ri-arrow-right-s-line'></i>",
-//                 },
-//             },
-//             drawCallback: function () {
-//                 document
-//                     .querySelectorAll(".dataTables_paginate .pagination")
-//                     .forEach((pagination) => {
-//                         pagination.classList.remove("pagination-rounded");
-//                     });
-//             },
-//         });
-
-//         // Handle custom filter if provided
-//         if (filterSelector && tableIdForSearch) {
-//             const $filterWrapper = $(`${selector}_filter`);
-//             $filterWrapper.addClass(
-//                 "d-flex align-items-center gap-3 justify-content-end"
-//             );
-
-//             const $customFilters = $(filterSelector).children().detach();
-//             $filterWrapper.append($customFilters);
-
-//             // Trigger redraw saat filter kategori berubah juga
-//             $("#filter-difficulty, #filter-category").on("change", function () {
-//                 table.draw();
-//             });
-
-//             // Extend search agar mencakup kategori dan kesulitan
-//             $.fn.dataTable.ext.search.push(function (settings, data) {
-//                 if (settings.nTable.id !== tableIdForSearch) return true;
-
-//                 const difficultyFilter = $("#filter-difficulty").val();
-//                 const categoryFilter = $("#filter-category").val();
-
-//                 const category = data[2]?.trim(); // Kolom ke-3: Kategori
-//                 const difficulty = data[3]?.trim(); // Kolom ke-4: Tingkat Kesulitan
-
-//                 const matchDifficulty =
-//                     !difficultyFilter || difficulty === difficultyFilter;
-//                 const matchCategory =
-//                     !categoryFilter || category === categoryFilter;
-
-//                 return matchDifficulty && matchCategory;
-//             });
-//         }
-
-//         return table;
-//     }
-
-//     // ✅ Semua tab
-//     window.tableSemua = initDatatable(
-//         "#selection-datatable-semua",
-//         "#custom-filters-semua",
-//         "selection-datatable-semua",
-//         "all"
-//     );
-
-//     // ✅ Tab Reading
-//     window.tableReading = initDatatable(
-//         "#selection-datatable-reading",
-//         "#custom-filters-reading",
-//         "selection-datatable-reading",
-//         "1"
-//     );
-
-//     // ✅ Tab Listening
-//     window.tableListening = initDatatable(
-//         "#selection-datatable-listening",
-//         "#custom-filters-listening",
-//         "selection-datatable-listening",
-//         "2"
-//     );
-
-//     // ✅ Tab Grammar
-//     window.tableGrammar = initDatatable(
-//         "#selection-datatable-grammar",
-//         "#custom-filters-grammar",
-//         "selection-datatable-grammar",
-//         "3"
-//     );
-// }
-
 function initDataTables() {
     function initDatatable({
         selector,
@@ -421,18 +267,18 @@ function addPilihanGanda(label) {
         <div class="row align-items-center mb-2 pilihan-item" data-index="${jawabanCounter}">
             <div class="col-1">
                 <div class="form-check d-flex align-items-center gap-1">
-                    <input 
-                        class="form-check-input jawaban-radio" 
-                        type="radio" 
-                        name="jawaban_benar" 
-                        value="${jawabanCounter}" 
-                        id="jawaban_${jawabanCounter}" 
+                    <input
+                        class="form-check-input jawaban-radio"
+                        type="radio"
+                        name="jawaban_benar"
+                        value="${jawabanCounter}"
+                        id="jawaban_${jawabanCounter}"
                         ${isFirst ? "checked" : ""}
                         required
                     >
-                    <label 
-                        class="form-check-label label-benar" 
-                        for="jawaban_${jawabanCounter}" 
+                    <label
+                        class="form-check-label label-benar"
+                        for="jawaban_${jawabanCounter}"
                         style="display: ${isFirst ? "inline" : "none"}"
                     >Benar</label>
                 </div>

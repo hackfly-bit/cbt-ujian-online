@@ -17,6 +17,7 @@
                             <th class="text-center">Soal</th>
                             <th class="text-center">Durasi</th>
                             <th class="text-center">Peserta</th>
+                            <th class="text-center">Tanggal Selesai</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
