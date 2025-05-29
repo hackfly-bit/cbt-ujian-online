@@ -12,13 +12,15 @@
                 <!-- FILTERS -->
                 <div id="custom-filters-semua" class="mb-3">
                     <div class="d-flex align-items-center gap-2">
-                        <select id="filter-category" class="form-select form-select-sm" title="Filter by category">
+                        <select id="filter-category-semua" class="form-select form-select-sm" style="min-width: 200px;"
+                            title="Filter by category">
                             <option value="">All</option>
                             <option value="Reading">Reading</option>
                             <option value="Listening">Listening</option>
                             <option value="Grammar">Grammar</option>
                         </select>
-                        <select id="filter-difficulty" class="form-select form-select-sm" title="Filter by difficulty">
+                        <select id="filter-difficulty-semua" class="form-select form-select-sm"
+                            style="min-width: 200px;" title="Filter by difficulty">
                             <option value="">All</option>
                             <option value="Easy">Easy</option>
                             <option value="Medium">Medium</option>

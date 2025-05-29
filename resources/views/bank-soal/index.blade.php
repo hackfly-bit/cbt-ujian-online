@@ -60,7 +60,7 @@
 
             <!-- Tambah Soal Button -->
             <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah-bank-soal">
-                <i class="ri-add-line me-1"></i> Tambah Soal
+                <i class="ri-add-line me-1"></i> Buat Ujian Baru
             </a>
         </div>
 
@@ -91,35 +91,60 @@
                         <h5 class="modal-title" id="modal-title">Tambah Soal Baru</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body p-3">
                         <form id="form-bank-soal" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" id="soal-id" name="soal_id">
                             <input type="hidden" id="form-method" name="_method" value="POST">
                             <div class="row">
+                                <!-- Jenis Font -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="jenis_font" class="form-label">Jenis Font <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select mb-1" id="jenis_font" name="jenis_font" required>
+                                        <option value="">Pilih Jenis Font</option>
+                                        <option value="Latin">Latin</option>
+                                        <option value="Arab (RTL)">Arab (RTL)</option>
+                                    </select>
+                                    <span>Pilih "Arab" untuk menulis soal dengan huruf Arab (teks dari kanan ke
+                                        kiri)</span>
+                                </div>
+
                                 <!-- Pertanyaan -->
                                 <div class="col-12 mb-3">
                                     <label for="pertanyaan" class="form-label">Pertanyaan <span
                                             class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="pertanyaan" name="pertanyaan" rows="4" required></textarea>
+                                    <textarea class="form-control mb-1" id="pertanyaan" name="pertanyaan" rows="4" required></textarea>
+                                    <span>Teks pertanyaan yang akan ditampilkan kepada peserta</span>
                                 </div>
 
-                                <!-- Jenis Font -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="jenis_font" class="form-label">Jenis Font <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-select" id="jenis_font" name="jenis_font" required>
-                                        <option value="">Pilih Jenis Font</option>
-                                        <option value="Arial">Arial</option>
-                                        <option value="Times New Roman">Times New Roman</option>
-                                        <option value="Calibri">Calibri</option>
-                                        <option value="Verdana">Verdana</option>
-                                        <option value="Georgia">Georgia</option>
-                                    </select>
+                                <div class="col-12 mb-3">
+                                    <div class="row">
+                                        <!-- Soal Dengan Audio -->
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_audio"
+                                                    name="is_audio" value="1">
+                                                <label class="form-check-label mb-1" for="is_audio">
+                                                    Soal Dengan Audio
+                                                </label>
+                                            </div>
+                                            <span>Centang jika soal ini memerlukan file audio</span>
+                                        </div>
+
+                                        <!-- Audio File -->
+                                        <div class="col-md-6" id="audio-file-container" style="display: none;">
+                                            <label for="audio_file" class="form-label">File Audio</label>
+                                            <input type="file" class="form-control" id="audio_file" name="audio_file"
+                                                accept=".mp3,.wav,.ogg">
+                                            <small class="text-muted">Format yang didukung: MP3, WAV, OGG (Max:
+                                                10MB)</small>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Jenis Soal -->
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-12 mb-3">
                                     <label for="jenis_soal" class="form-label">Jenis Soal <span
                                             class="text-danger">*</span></label>
                                     <select class="form-select" id="jenis_soal" name="jenis_soal" required>
@@ -130,24 +155,14 @@
                                     </select>
                                 </div>
 
-                                <!-- Soal Dengan Audio -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="is_audio" name="is_audio"
-                                            value="1">
-                                        <label class="form-check-label" for="is_audio">
-                                            Soal Dengan Audio
-                                        </label>
+                                <!-- Jawaban Soal -->
+                                <div id="jawaban-wrapper" class="col-12 mb-3 d-none">
+                                    <label class="form-label">Jawaban Soal <span class="text-danger">*</span></label>
+                                    <div id="jawaban-container">
+                                        <!-- Dynamic content based on jenis_soal -->
                                     </div>
                                 </div>
 
-                                <!-- Audio File -->
-                                <div class="col-md-6 mb-3" id="audio-file-container" style="display: none;">
-                                    <label for="audio_file" class="form-label">File Audio</label>
-                                    <input type="file" class="form-control" id="audio_file" name="audio_file"
-                                        accept=".mp3,.wav,.ogg">
-                                    <small class="text-muted">Format yang didukung: MP3, WAV, OGG (Max: 10MB)</small>
-                                </div>
 
                                 <!-- Tingkat Kesulitan -->
                                 <div class="col-md-4 mb-3">
@@ -176,13 +191,7 @@
                                     </select>
                                 </div>
 
-                                <!-- Jawaban Soal -->
-                                <div class="col-12 mb-3">
-                                    <label class="form-label">Jawaban Soal <span class="text-danger">*</span></label>
-                                    <div id="jawaban-container">
-                                        <!-- Dynamic content based on jenis_soal -->
-                                    </div>
-                                </div>
+
 
                                 <!-- Penjelasan Jawaban -->
                                 <div class="col-12 mb-3">

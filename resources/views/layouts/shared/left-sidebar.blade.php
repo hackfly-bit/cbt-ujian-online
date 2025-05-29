@@ -61,7 +61,7 @@
 
             {{-- MENU UJIAN ONLINE --}}
             <li class="side-nav-item">
-                <a href="{{ route('second', ['bank-soal', 'index']) }}" class="side-nav-link">
+                <a href="{{ route('bank-soal.index') }}" class="side-nav-link">
                     <i class="ri-database-2-line"></i>
                     <span> Bank Soal </span>
                 </a>
