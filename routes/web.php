@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\BankSoalController;
 use App\Http\Controllers\FilterController;
+use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UjianController;
+use App\Http\Controllers\SubKategoriController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +57,15 @@ Route::group(['prefix' => 'ujian', 'as' => 'ujian.', 'middleware' => 'auth'], fu
     Route::get('/{id}', [UjianController::class, 'show'])->name('show');
 });
 
+// route for master kategori
+Route::group(['prefix' => 'kategori', 'as' => 'kategori.', 'middleware' => 'auth'], function () {
+    Route::get('/', [KategoriController::class, 'index'])->name('index');
+    Route::post('/', [KategoriController::class, 'store'])->name('store');
+    Route::put('/{id}', [KategoriController::class, 'update'])->name('update');
+    Route::delete('/{id}', [KategoriController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [KategoriController::class, 'show'])->name('show');
+});
+
 
 Route::group(['prefix' => 'filter', 'as' => 'filter.', 'middleware' => 'auth'], function () {
     Route::get('/soals', [FilterController::class, 'getSoals'])->name('soals');
@@ -62,4 +73,13 @@ Route::group(['prefix' => 'filter', 'as' => 'filter.', 'middleware' => 'auth'], 
     Route::get('/kategori', [FilterController::class, 'getKategori'])->name('kategori');
     Route::get('/sub-kategori/{kategoriId}', [FilterController::class, 'getSubKategori'])->name('sub-kategori');
     Route::get('/ujian-sections-soals', [FilterController::class, 'getUjianSectionsSoals'])->name('ujian-sections-soals');
+});
+
+// route for master sub kategori
+Route::group(['prefix' => 'subkategori', 'as' => 'subkategori.', 'middleware' => 'auth'], function () {
+    Route::get('/', [SubKategoriController::class, 'index'])->name('index');
+    Route::post('/', [SubKategoriController::class, 'store'])->name('store');
+    Route::put('/{id}', [SubKategoriController::class, 'update'])->name('update');
+    Route::delete('/{id}', [SubKategoriController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [SubKategoriController::class, 'show'])->name('show');
 });

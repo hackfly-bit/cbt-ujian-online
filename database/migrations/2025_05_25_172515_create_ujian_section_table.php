@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('ujian_id')->nullable()->index('ujian_id');
             $table->string('nama_section')->nullable();
             $table->float('bobot_nilai', 10, 0)->nullable();
+            $table->integer('kategori_id')->nullable()->index('kategori_id');
             // $table->string('instruksi', 65535)->nullable();
             $table->text('instruksi')->nullable();
             $table->string('metode_penilaian')->nullable();

@@ -84,6 +84,18 @@
                     <span> Sertifikat </span>
                 </a>
             </li>
+               <li class="side-nav-item">
+                <a href="{{ route('kategori.index') }}" class="side-nav-link">
+                    <i class="ri-award-line"></i>
+                    <span> Master Kategori </span>
+                </a>
+            </li>
+               <li class="side-nav-item">
+                <a href="{{ route('subkategori.index') }}" class="side-nav-link">
+                    <i class="ri-award-line"></i>
+                    <span> Master Sub Kategori </span>
+                </a>
+            </li>
             <li class="side-nav-item">
                 <a href="{{ route('second', ['pengaturan', 'index']) }}" class="side-nav-link">
                     <i class="ri-settings-3-line"></i>

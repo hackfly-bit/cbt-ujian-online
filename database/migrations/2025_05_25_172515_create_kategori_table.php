@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('id', true);
             $table->string('nama')->nullable();
             $table->string('deskripsi')->nullable();
-                  $table->timestamps();
+            $table->timestamps();
         });
     }
 

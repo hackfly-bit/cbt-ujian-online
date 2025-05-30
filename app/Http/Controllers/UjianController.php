@@ -209,6 +209,43 @@ class UjianController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            DB::beginTransaction();
+
+            $ujian = Ujian::findOrFail($id);
+
+            // Delete related data first (due to foreign key constraints)
+            // Delete ujian section soals
+            foreach ($ujian->ujianSections as $section) {
+                $section->ujianSectionSoals()->delete();
+            }
+
+            // Delete ujian sections
+            $ujian->ujianSections()->delete();
+
+            // Delete ujian peserta form
+            $ujian->ujianPesertaForm()->delete();
+
+            // Delete ujian pengaturan
+            $ujian->ujianPengaturan()->delete();
+
+            // Delete the ujian itself
+            $ujian->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ujian berhasil dihapus'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus ujian: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

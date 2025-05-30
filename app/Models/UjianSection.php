@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property integer $id
  * @property integer $ujian_id
+ * @property integer $ketegori_id
  * @property string $nama_section
  * @property float $bobot_nilai
  * @property string $instruksi
@@ -15,12 +16,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $updated_at
  * @property UjianSectionSoal[] $ujianSectionSoals
  * @property Ujian $ujian
+ * @property Kategori $ketegori
  */
 class UjianSection extends Model
 {
     /**
      * The table associated with the model.
-     * 
+     *
      * @var string
      */
     protected $table = 'ujian_section';
@@ -28,7 +30,7 @@ class UjianSection extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ujian_id', 'nama_section', 'bobot_nilai', 'instruksi', 'metode_penilaian', 'created_at', 'updated_at'];
+    protected $fillable = ['ujian_id', 'ketegori_id','nama_section', 'bobot_nilai', 'instruksi', 'metode_penilaian', 'created_at', 'updated_at'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -44,5 +46,13 @@ class UjianSection extends Model
     public function ujian()
     {
         return $this->belongsTo('App\Models\Ujian');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function ketegori()
+    {
+        return $this->belongsTo('App\Models\Kategori', 'kategori_id');
     }
 }
