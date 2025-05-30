@@ -10,7 +10,8 @@
                     <!-- Nama Ujian -->
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="nama" name="nama">
+                            <input class="form-check-input" type="checkbox" id="nama" name="nama"
+                                {{ isset($ujian->ujianPesertaForm->nama) && $ujian->ujianPesertaForm->nama ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="nama">
                                 Nama Lengkap
                             </label>
@@ -18,7 +19,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="email" name="email">
+                            <input class="form-check-input" type="checkbox" id="email" name="email"
+                                {{ isset($ujian->ujianPesertaForm->email) && $ujian->ujianPesertaForm->email ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="email">
                                 Email
                             </label>
@@ -26,7 +28,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="telp" name="telp">
+                            <input class="form-check-input" type="checkbox" id="telp" name="telp"
+                                {{ isset($ujian->ujianPesertaForm->phone) && $ujian->ujianPesertaForm->phone ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="telp">
                                 Nomor Telepon
                             </label>
@@ -34,7 +37,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="sekolah" name="sekolah">
+                            <input class="form-check-input" type="checkbox" id="sekolah" name="sekolah"
+                                {{ isset($ujian->ujianPesertaForm->institusi) && $ujian->ujianPesertaForm->institusi ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="sekolah">
                                 Institusi/Sekolah
                             </label>
@@ -42,7 +46,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="no_induk" name="no_induk">
+                            <input class="form-check-input" type="checkbox" id="no_induk" name="no_induk"
+                                {{ isset($ujian->ujianPesertaForm->nomor_induk) && $ujian->ujianPesertaForm->nomor_induk ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="no_induk">
                                 Nomor Induk Siswa/Mahasiswa
                             </label>
@@ -50,7 +55,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="tanggal_lahir" name="tanggal_lahir">
+                            <input class="form-check-input" type="checkbox" id="tanggal_lahir" name="tanggal_lahir"
+                                {{ isset($ujian->ujianPesertaForm->tanggal_lahir) && $ujian->ujianPesertaForm->tanggal_lahir ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="tanggal_lahir">
                                 Tanggal Lahir
                             </label>
@@ -58,7 +64,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="alamat" name="alamat">
+                            <input class="form-check-input" type="checkbox" id="alamat" name="alamat"
+                                {{ isset($ujian->ujianPesertaForm->alamat) && $ujian->ujianPesertaForm->alamat ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="alamat">
                                 Alamat
                             </label>

@@ -6,6 +6,7 @@ use App\Models\Ujian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class UjianController extends Controller
 {
@@ -41,7 +42,7 @@ class UjianController extends Controller
                 ->addColumn('action', function ($row) {
                     return '
                         <div class="action-icons">
-                            <a href="javascript:void(0)" class="text-primary" title="Edit" onclick="editUjian(' . $row->id . ')">
+                           <a href="' . route('ujian.show', $row->id) . '" class="text-primary" title="Edit">
                                 <i class="ri-edit-2-line"></i>
                             </a>
                             <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation(' . $row->id . ')">
@@ -107,8 +108,10 @@ class UjianController extends Controller
             $ujian->nama_ujian   = $request->detail['nama'];
             $ujian->deskripsi = $request->detail['deskripsi'];
             $ujian->durasi = $request->detail['durasi'];
-            $ujian->jenis_ujian_id = 1; //$request->detail['jenis_ujian'];
+            $ujian->jenis_ujian_id = $request->detail['jenis_ujian'];
             $ujian->tanggal_selesai = $request->detail['tanggal_selesai'];
+            $ujian->status = $request->detail['status'] ?? 'draft'; // Default to 'draft' if not provided
+            $ujian->link = Str::uuid()->toString(); // Generate a unique link for the ujian
             $ujian->save();
 
             // Create ujian settings
@@ -173,7 +176,17 @@ class UjianController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // return all relational of ujian
+        $jenisUjian = \App\Models\JenisUjian::all();
+        $ujian = Ujian::with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals.soal'])->findOrFail($id);
+
+        return view('ujian.buat-ujian', [
+            'title' => $ujian->nama_ujian,
+            'active' => 'ujian',
+            'ujian' => $ujian,
+            'jenisUjian' => $jenisUjian,
+        ]);
+
     }
 
     /**
@@ -181,7 +194,6 @@ class UjianController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**

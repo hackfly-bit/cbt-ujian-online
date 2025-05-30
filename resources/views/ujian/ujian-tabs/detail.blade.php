@@ -9,7 +9,7 @@
                     <!-- Nama Ujian -->
                     <div class="col-md-12 mb-3">
                         <label for="nama_ujian" class="form-label">Nama Ujian</label>
-                        <input type="text" id="nama_ujian" name="nama_ujian" class="form-control"
+                        <input type="text" id="nama_ujian" name="nama_ujian" class="form-control" value="{{ $ujian->nama_ujian ?? '' }}" required
                             placeholder="e.g., TOAFL Reguler Batch 6">
                     </div>
 
@@ -17,7 +17,7 @@
                     <div class="col-md-12 mb-3">
                         <label for="deskripsi" class="form-label">Deskripsi</label>
                         <textarea id="deskripsi" name="deskripsi" class="form-control" rows="3"
-                            placeholder="Deskripsi singkat tentang ujian ini"></textarea>
+                            placeholder="Deskripsi singkat tentang ujian ini">{{ $ujian->deskripsi ?? '' }}</textarea>
                     </div>
 
                     <!-- Jenis Ujian & Durasi Total -->
@@ -25,9 +25,11 @@
                         <label for="jenis_ujian" class="form-label">Jenis Ujian</label>
                         <select id="jenis_ujian" name="jenis_ujian" class="form-select">
                             <option value="">Pilih Jenis Ujian</option>
-                            <option value="TOAFL Reguler">TOAFL Reguler</option>
-                            <option value="TOEFL Simulasi">TOEFL Simulasi</option>
-                            <!-- Tambahkan sesuai kebutuhan -->
+                            @foreach($jenisUjian as $jenis)
+                                <option value="{{ $jenis->id }}" {{ (isset($ujian) && $ujian->jenis_ujian_id == $jenis->id) ? 'selected' : '' }}>
+                                    {{ $jenis->nama }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -36,7 +38,7 @@
                         <div class="input-group mb-1">
                             <span class="input-group-text"><i class="bi bi-clock"></i></span>
                             <input type="number" min="1" id="durasi" name="durasi" class="form-control"
-                                value="120">
+                                value="{{ $ujian->durasi ?? '120' }}" placeholder="e.g., 60">
                         </div>
                         <span>Total waktu untuk menyelesaikan ujian</span>
                     </div>

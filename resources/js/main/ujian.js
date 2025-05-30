@@ -157,10 +157,29 @@ function initDataTables() {
 }
 
 // Function to edit ujian
-window.editUjian = function (id) {
-    currentUjianId = id;
-    console.log('Edit ujian:', id);
-};
+// window.editUjian = function (id) {
+//     currentUjianId = id;
+
+//     const url = `/ujian/${id}`;
+//     $.ajax({
+//         url: url,
+//         method: 'GET',
+//         success: function (data) {
+//             // // Assuming data contains the ujian details
+//             // $('#editUjianModal #nama_ujian').val(data.nama_ujian);
+//             // $('#editUjianModal #durasi').val(data.durasi);
+//             // $('#editUjianModal #tanggal_selesai').val(data.tanggal_selesai);
+//             // // Add other fields as necessary
+
+//             // $('#editUjianModal').modal('show');
+//             console.log('Edit data:', data);
+//         },
+//         error: function (xhr) {
+//             alert('Terjadi kesalahan saat mengambil data ujian');
+//             console.error('Edit error:', xhr);
+//         }
+//     });
+// };
 
 // Function to show delete confirmation
 window.showDeleteConfirmation = function (id) {

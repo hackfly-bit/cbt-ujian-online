@@ -1,16 +1,8 @@
-@extends('layouts.vertical', ['page_title' => 'Buat Ujian', 'mode' => $mode ?? '', 'demo' => $demo ?? ''])
+@extends('layouts.vertical', ['page_title' => $title ?? 'Buat Ujian', 'mode' => $mode ?? '', 'demo' => $demo ?? ''])
 
 @section('css')
     @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css', 'node_modules/flatpickr/dist/flatpickr.min.css'])
-
-    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css"> --}}
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script> --}}
-    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.css"> --}}
-
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script> --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
-
-
     <style>
         .bg-soft-info {
             background-color: rgba(13, 202, 240, 0.15);
@@ -151,7 +143,7 @@
                             <li class="breadcrumb-item active">Buat Ujian</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">Buat Ujian</h4>
+                    <h4 class="page-title">{{ isset($ujian->id) ? 'Edit Ujian ' . $ujian->nama_ujian : 'Buat Ujian' }}</h4>
                 </div>
             </div>
         </div>
@@ -203,7 +195,12 @@
                 @include('ujian.ujian-tabs.pengaturan')
             </div>
         </div>
-
+        <script>
+            // Pass PHP data to JS
+            window.ujian = @json($ujian ?? []);
+            console.log(window.ujian);
+            // You can now access window.ujian in buat-ujian.js
+        </script>
 
 
         <!-- end row-->
@@ -213,6 +210,5 @@
 @endsection
 
 @section('script')
-    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
     @vite(['resources/js/main/buat-ujian.js'])
 @endsection

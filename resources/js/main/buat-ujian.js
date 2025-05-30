@@ -16,6 +16,8 @@ import flatpickr from "flatpickr";
     flatpickr("#tanggal_kedaluwarsa", {
         dateFormat: "Y-m-d",
         allowInput: true,
+        // default value if ujian.tanggal_selesai is not null
+        defaultDate: ujian.tanggal_selesai || null,
     });
 
     DragulaSections.prototype.init = function () {
@@ -125,6 +127,100 @@ import flatpickr from "flatpickr";
             self.loadCategories(self.sectionCount);
         });
 
+        // load sections from ujian.ujian_sections count is greater than 0
+        if (ujian.ujian_sections && ujian.ujian_sections.length > 0) {
+            ujian.ujian_sections.forEach((section, index) => {
+                self.sectionCount++;
+
+                const $container = $("#section-container");
+                const collapseId = `collapse-seksi-${self.sectionCount}`;
+                const sectionHTML = `
+                <div class="section-item mb-2">
+                <div class="section-content d-flex justify-content-between align-items-center px-4 py-3">
+                    <div class="d-flex align-items-center gap-3">
+                    <span class="section-drag-handle cursor-grab text-muted">
+                        <i class="bi bi-grip-vertical fs-2"></i>
+                    </span>
+                    <strong class="section-title m-0">${section.nama_section || `Seksi ${self.sectionCount}`}</strong>
+                    </div>
+                    <div class="text-muted section-toolbar d-flex align-items-center gap-2">
+                    <span>${section.ujian_section_soals ? section.ujian_section_soals.length : 0} soal</span>
+                    <button class="chevron-toggle btn btn-sm p-1" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#${collapseId}"
+                        aria-expanded="false"
+                        aria-controls="${collapseId}">
+                        <i class="bi bi-chevron-down fs-4"></i>
+                    </button>
+                    </div>
+                </div>
+                <div id="${collapseId}" class="collapse section-body px-4 py-3 border-top">
+                    <p class="mb-0">Konten soal atau pengaturan lainnya.</p>
+
+                    <form class="section-form">
+                    <div class="mb-2">
+                        <label class="form-label">Nama Seksi</label>
+                        <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi" value="${section.nama_section || ''}">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Bobot Nilai</label>
+                        <input type="text" class="form-control" name="bobot_nilai" placeholder="Bobot Nilai" value="${section.bobot_nilai || ''}">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Instruksi</label>
+                        <textarea class="form-control" name="instruksi" rows="2" placeholder="Instruksi">${section.instruksi || ''}</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Metode Penilaian</label>
+                        <select class="form-select" name="metode_penilaian">
+                        <option value="">Pilih Metode</option>
+                        <option value="otomatis" ${section.metode_penilaian === 'otomatis' ? 'selected' : ''}>Otomatis</option>
+                        <option value="manual" ${section.metode_penilaian === 'manual' ? 'selected' : ''}>Manual</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Kategori Soal</label>
+                        <select class="form-select category-dropdown" name="kategori_id" data-section="${self.sectionCount}">
+                        <option value="">Pilih Kategori</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Pilih Soal</label>
+                        <div class="question-container border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                        <div class="text-muted text-center py-3">
+                            <i class="bi bi-list-check fs-3 d-block mb-2"></i>
+                            Soal is diambil dari kategori yang dipilih
+                        </div>
+                        </div>
+                        <div class="mt-2">
+                        <small class="text-muted">
+                            <span class="selected-count">${section.ujian_section_soals ? section.ujian_section_soals.length : 0}</span> soal dipilih
+                        </small>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                </div>
+            `;
+
+                $container.append(sectionHTML);
+
+                // console.log(`Added section ${self.sectionCount}: ${section.kategori_id = 1} || Seksi ${self.sectionCount}`);
+
+                // update sele
+
+                // Load categories and set selected category if exists
+                self.loadCategories(self.sectionCount).then(() => {
+                    if (section.kategori_id) {
+                        const $categoryDropdown = $(`.category-dropdown[data-section="${self.sectionCount}"]`);
+                        $categoryDropdown.val(section.kategori_id);
+                        // console.log(`Loaded category ${section.kategori_id} for section ${self.sectionCount}`);
+                        // Load questions for this category
+                        self.loadQuestionsIfExist(section.kategori_id, section.id,section.ujian_section_soals);
+                    }
+                });
+            });
+        }
         // Accordion collapse logic
         $("#section-container").on("click", ".chevron-toggle", function (e) {
             const $btn = $(this);
@@ -176,7 +272,7 @@ import flatpickr from "flatpickr";
         // Show loading state
         $dropdown.html('<option value="">Loading...</option>');
 
-        fetch('/filter/kategori')
+        return fetch('/filter/kategori')
             .then(response => response.json())
             .then(data => {
                 let options = '<option value="">Pilih Kategori</option>';
@@ -192,8 +288,97 @@ import flatpickr from "flatpickr";
                 $dropdown.html(options);
             })
             .catch(error => {
-                console.error('Error loading categories:', error);
+                // console.error('Error loading categories:', error);
                 $dropdown.html('<option value="">Error loading categories</option>');
+            });
+    };
+
+    // Load questions if they exist in the section
+    DragulaSections.prototype.loadQuestionsIfExist = function (categoryId, sectionId, existingQuestions) {
+        // console.log(`Loading questions for category ${categoryId} in section ${sectionId} with existing questions:`, existingQuestions);
+        const $form = $(`.category-dropdown[data-section="${sectionId}"]`).closest('.section-form');
+        const $questionContainer = $('.question-container');
+        // console.log('Question container class:', $questionContainer.attr('class'));
+        // console.log('Question container found:', $questionContainer.length ? 'Yes' : 'No');
+        const self = this; // Store the context
+
+        // Show loading state
+        $questionContainer.html(`
+            <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="text-muted mt-2">Memuat soal...</div>
+            </div>
+        `);
+        fetch(`/filter/ujian-sections-soals?kategori=${categoryId}&section_id=${sectionId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(response => {
+                // console.log('Loaded questions:', response);
+                let questionsHTML = '';
+                const data = response.data || response; // Handle DataTables response format
+                if (data && data.length > 0) {
+                    data.forEach((question, index) => {
+                        const questionText = question.pertanyaan || `Soal ${index + 1}`;
+                        const questionId = question.id;
+                        const tingkatKesulitan = question.tingkat_kesulitan
+                            ? `<span class="badge bg-secondary-subtle text-dark small">${question.tingkat_kesulitan.nama}</span>`
+                            : '';
+                        const kategori = question.kategori
+                            ? `<span class="badge bg-primary-subtle text-primary small">${question.kategori.nama}</span>`
+                            : '';
+                        const mediaIcon = question.is_audio
+                            ? '<i class="ri-audio-line text-primary me-1"></i>'
+                            : '<i class="ri-text-wrap text-muted me-1"></i>';
+                        const isChecked = existingQuestions && existingQuestions.some(q => q.soal_id === questionId) ? 'checked' : '';
+                        questionsHTML += `
+                            <div class="question-box d-flex align-items-center justify-content-between mb-3 p-3 rounded shadow-sm bg-light-subtle">
+                                <div class="content me-3 w-100">
+                                    <div class="fw-medium text-dark mb-2 d-flex align-items-center" title="${questionText.replace(/"/g, '&quot;')}">
+                                        ${mediaIcon}
+                                        <span class="text-truncate">
+                                            ${questionText.length > 100 ? questionText.substring(0, 100) + '...' : questionText}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        ${kategori}
+                                        ${tingkatKesulitan}
+                                    </div>
+                                </div>
+                                <div class="form-check ms-auto">
+                                    <input class="form-check-input large-checkbox question-checkbox" type="checkbox"
+                                        value="${questionId}" id="question-${sectionId}-${questionId}" ${isChecked}>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    questionsHTML = `
+                        <div class="text-muted text-center py-3">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Tidak ada soal tersedia untuk kategori ini
+                        </div>
+                    `;
+                }
+                // Update question container with loaded questions
+                // console.log('Setting questions HTML:', questionsHTML);
+                // console.log('Updating selected count for form:', $form);
+                $questionContainer.html(questionsHTML);
+                self.updateSelectedCount($form); // Use self instead of this
+            })
+            .catch(error => {
+                // console.error('Error loading questions:', error);
+                $questionContainer.html(`
+                    <div class="text-danger text-center py-3">
+                        <i class="bi bi-exclamation-triangle fs-3 d-block mb-2"></i>
+                        Error memuat soal. Silakan coba lagi.
+                    </div>
+                `);
             });
     };
 
@@ -275,7 +460,7 @@ import flatpickr from "flatpickr";
                 this.updateSelectedCount($form);
             })
             .catch(error => {
-                console.error('Error loading questions:', error);
+                // console.error('Error loading questions:', error);
                 $questionContainer.html(`
                     <div class="text-danger text-center py-3">
                         <i class="bi bi-exclamation-triangle fs-3 d-block mb-2"></i>
@@ -386,7 +571,7 @@ import flatpickr from "flatpickr";
 
         // Check if Swal is available
         if (typeof Swal === 'undefined') {
-            console.error('SweetAlert2 is not loaded');
+            // console.error('SweetAlert2 is not loaded');
             alert('Harap tambahkan minimal satu seksi ujian.'); // Fallback
             return;
         }
@@ -459,7 +644,7 @@ import flatpickr from "flatpickr";
                 });
 
                 // Here you would send the data to your Laravel backend
-                console.log('Section data to save:', sectionData);
+                // console.log('Section data to save:', sectionData);
 
                 $.ajax({
                     url: '/ujian',
@@ -512,7 +697,7 @@ import flatpickr from "flatpickr";
                         }
                     },
                     error: function (xhr, status, error) {
-                        console.error('AJAX Error:', status, error);
+                        // console.error('AJAX Error:', status, error);
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -523,11 +708,11 @@ import flatpickr from "flatpickr";
                 });
             }
         }).catch((error) => {
-            console.error('SweetAlert2 error:', error);
+            // console.error('SweetAlert2 error:', error);
             // Fallback to regular confirm
             if (confirm(confirmMessage)) {
                 // Continue with save logic using regular alerts
-                console.log('Using fallback confirmation');
+                // console.log('Using fallback confirmation');
             }
         });
     };

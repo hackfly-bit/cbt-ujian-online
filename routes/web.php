@@ -61,4 +61,5 @@ Route::group(['prefix' => 'filter', 'as' => 'filter.', 'middleware' => 'auth'], 
     Route::get('/tingkat-kesulitan', [FilterController::class, 'getTingkatKesulitan'])->name('tingkat-kesulitan');
     Route::get('/kategori', [FilterController::class, 'getKategori'])->name('kategori');
     Route::get('/sub-kategori/{kategoriId}', [FilterController::class, 'getSubKategori'])->name('sub-kategori');
+    Route::get('/ujian-sections-soals', [FilterController::class, 'getUjianSectionsSoals'])->name('ujian-sections-soals');
 });

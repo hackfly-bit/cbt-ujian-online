@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Kategori;
 use App\Models\TingkatKesulitan;
 use App\Models\SubKategori;
+use App\Models\Ujian;
+use App\Models\UjianSectionSoal;
 
 class FilterController extends Controller
 {
@@ -20,7 +22,7 @@ class FilterController extends Controller
         ]);
     }
 
-  /**
+    /**
      * Get tingkat kesulitan for dropdown
      */
     public function getTingkatKesulitan()
@@ -47,5 +49,23 @@ class FilterController extends Controller
             ->select('id', 'nama')
             ->get();
         return response()->json($subKategori);
+    }
+
+
+    // get data data from ujianSectionsSoals and merge with soal if soal exists in ujianSectionsSoals dont show it
+    public function getUjianSectionsSoals(Request $request)
+    {
+        $query = Soal::with(['ujianSectionSoals','kategori', 'tingkatKesulitan', 'subKategori'])
+            ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at', 'jenis_isian']);
+
+        if ($request->has('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        $ujianSectionsSoals = $query->get();
+
+        return response()->json([
+            'data' => $ujianSectionsSoals,
+        ]);
     }
 }
