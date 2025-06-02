@@ -37,8 +37,8 @@
         <div class="content-page">
             <div class="content">
                 <!-- Canvas Sertifikat -->
-                <canvas id="certificate-canvas" width="1000" height="700"
-                    style="border: 1px solid #ccc; background: #fff;"></canvas>
+                <canvas id="certificate-canvas" width="1000" height="700" style="border:1px solid #ccc;"></canvas>
+
             </div>
 
             <!-- Tombol menu sidebar untuk tambah teks -->
@@ -48,6 +48,7 @@
                     <span> Text </span>
                 </a>
             </li>
+
         </div>
 
         <!-- ============================================================== -->
@@ -59,11 +60,7 @@
     @include('layouts.shared/right-sidebar')
 
     <!-- Sertifikat.js dipanggil terakhir -->
-    @vite([
-        'resources/js/app.js',
-        'resources/js/layout.js',
-        'resources/js/main/sertifikat.js'
-    ])
+    @vite(['resources/js/app.js', 'resources/js/layout.js', 'resources/js/main/sertifikat.js'])
 
     @yield('script')
 

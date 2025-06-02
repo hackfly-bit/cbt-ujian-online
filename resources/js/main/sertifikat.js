@@ -1,35 +1,29 @@
-import { Canvas, FabricText } from 'fabric'
-document.addEventListener("DOMContentLoaded", () => {
-    const canvasElement = document.getElementById('certificate-canvas');
-    const canvas = new Canvas(canvasElement);
-    canvas.selection = true;
-    
-    // Set canvas dimensions to match the element
-    canvas.setDimensions({
-        width: canvasElement.width,
-        height: canvasElement.height
+import { Canvas, Textbox } from 'fabric';
+
+window.addEventListener('DOMContentLoaded', () => {
+  const canvas = new Canvas('certificate-canvas', {
+    backgroundColor: '#fff' // pastikan canvas tidak transparan
+  });
+
+  window.certificateCanvas = canvas;
+
+  window.addText = () => {
+    const text = new Textbox("Teks Baru", {
+      left: 100,
+      top: 100,
+      width: 300,
+      fontSize: 32,
+      fontFamily: 'Arial',
+      fill: '#000000', // pastikan warna hitam
+      backgroundColor: 'rgba(255, 255, 0, 0.2)', // untuk memastikan terlihat
+      editable: true,
     });
 
-    // Tambahkan background color ke canvas
-    canvas.backgroundColor = 'white';
-    canvas.renderAll();
+    canvas.add(text);
+    canvas.setActiveObject(text);
+    canvas.requestRenderAll();
+  };
 
-    const addText = () => {
-        const text = new FabricText("Teks Baru", {
-            left: 100,
-            top: 100,
-            fontSize: 24,
-            fill: 'black'
-        });
-        canvas.add(text);
-        canvas.setActiveObject(text);
-        canvas.renderAll();
-    };
-
-    const button = document.getElementById('btn-add-text');
-    if (button) {
-        button.addEventListener('click', addText);
-    }
-
-    console.log("Canvas initialized:", canvas);
+  // Tambahkan langsung 1 teks untuk testing otomatis:
+  window.addText();
 });
