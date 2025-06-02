@@ -1,5 +1,5 @@
 <!-- ========== Left Sidebar Start ========== -->
-<div class="leftside-menu d-flex flex-column" style="height: 100vh; padding-bottom: 0px !important;">
+<div class="leftside-menu d-flex flex-column" style="padding-bottom: 0px !important;">
 
     <!-- Logo -->
     <a href="{{ route('any', 'index') }}" class="logo logo-light">
@@ -79,18 +79,18 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="" class="side-nav-link">
+                <a href="{{ route('second', ['sertifikat', 'index']) }}" class="side-nav-link">
                     <i class="ri-award-line"></i>
                     <span> Sertifikat </span>
                 </a>
             </li>
-               <li class="side-nav-item">
+            <li class="side-nav-item">
                 <a href="{{ route('kategori.index') }}" class="side-nav-link">
                     <i class="ri-award-line"></i>
                     <span> Master Kategori </span>
                 </a>
             </li>
-               <li class="side-nav-item">
+            <li class="side-nav-item">
                 <a href="{{ route('subkategori.index') }}" class="side-nav-link">
                     <i class="ri-award-line"></i>
                     <span> Master Sub Kategori </span>
@@ -585,7 +585,8 @@
                                                         href="{{ route('second', ['charts', 'chartjs-area']) }}">Area</a>
                                                 </li>
                                                 <li>
-                                                    <a href="{{ route('second', ['charts', 'chartjs-bar']) }}">Bar</a>
+                                                    <a
+                                                        href="{{ route('second', ['charts', 'chartjs-bar']) }}">Bar</a>
                                                 </li>
                                                 <li>
                                                     <a
@@ -743,14 +744,16 @@
     </div>
 
     <!-- Logout button fixed at bottom -->
-    <div class="p-3 border-top mt-auto">
+    <div class="logout-fixed">
         <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button type="submit" class="btn btn-danger w-100 d-flex align-items-center justify-content-center">
-                <i class="ri-logout-box-line me-2"></i>
+            <button type="submit"
+                class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2 logout-button">
+                <i class="ri-logout-box-line"></i>
                 <span>Logout</span>
             </button>
         </form>
     </div>
+
 
 </div>
