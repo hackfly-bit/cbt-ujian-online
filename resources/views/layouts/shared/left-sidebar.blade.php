@@ -67,7 +67,7 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="{{ route('second', ['ujian', 'index']) }}" class="side-nav-link">
+                <a href="{{route('ujian.index')}}" class="side-nav-link">
                     <i class="ri-file-edit-line"></i>
                     <span> Ujian </span>
                 </a>

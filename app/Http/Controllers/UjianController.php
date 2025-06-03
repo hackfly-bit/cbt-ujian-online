@@ -67,6 +67,12 @@ class UjianController extends Controller
     public function create()
     {
         //
+        $jenisUjian = \App\Models\JenisUjian::all();
+        return view('ujian.buat-ujian', [
+            'title' => 'Buat Ujian',
+            'active' => 'ujian',
+            'jenisUjian' => $jenisUjian,
+        ]);
 
     }
 

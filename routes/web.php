@@ -7,6 +7,7 @@ use App\Http\Controllers\FilterController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UjianController;
 use App\Http\Controllers\SubKategoriController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,14 +30,15 @@ use App\Http\Controllers\SubKategoriController;
 
 require __DIR__ . '/auth.php';
 
-Route::group(['prefix' => 'test', 'middleware' => 'auth'], function () {
-    Route::get('/{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
-    Route::get('/{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
-    Route::get('/{any}', [RoutingController::class, 'root'])->name('any');
-});
 
-Route::get('/', [RoutingController::class, 'index'])->name('root');
-Route::get('/home', fn() => view('index'))->name('home');
+
+// Route::get('/', [RoutingController::class, 'index'])->name('root');
+Route::get('/', function () {
+    if (Auth::user()) {
+        return view('index');
+    }
+    return redirect()->route('login');
+})->name('home');
 
 
 
@@ -51,6 +53,7 @@ Route::group(['prefix' => 'bank-soal', 'as' => 'bank-soal.', 'middleware' => 'au
 
 Route::group(['prefix' => 'ujian', 'as' => 'ujian.', 'middleware' => 'auth'], function () {
     Route::get('/', [UjianController::class, 'index'])->name('index');
+    Route::get('/create', [UjianController::class, 'create'])->name('create'); // why return not found
     Route::post('/', [UjianController::class, 'store'])->name('store');
     Route::put('/{id}', [UjianController::class, 'update'])->name('update');
     Route::delete('/{id}', [UjianController::class, 'destroy'])->name('destroy');
@@ -82,4 +85,11 @@ Route::group(['prefix' => 'subkategori', 'as' => 'subkategori.', 'middleware' =>
     Route::put('/{id}', [SubKategoriController::class, 'update'])->name('update');
     Route::delete('/{id}', [SubKategoriController::class, 'destroy'])->name('destroy');
     Route::get('/{id}', [SubKategoriController::class, 'show'])->name('show');
+});
+
+
+Route::group(['prefix' => 'test', 'middleware' => 'auth'], function () {
+    Route::get('/{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
+    Route::get('/{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
+    Route::get('/{any}', [RoutingController::class, 'root'])->name('any');
 });
