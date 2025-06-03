@@ -17,6 +17,7 @@ window.addEventListener('DOMContentLoaded', () => {
       fill: '#000000', // pastikan warna hitam
       backgroundColor: 'rgba(255, 255, 0, 0.2)', // untuk memastikan terlihat
       editable: true,
+
     });
 
     canvas.add(text);

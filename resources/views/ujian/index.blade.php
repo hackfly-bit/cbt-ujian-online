@@ -59,7 +59,7 @@
             </ul>
 
             <!-- Tambah Soal Button -->
-            <a href="{{ route('second', ['ujian', 'buat-ujian']) }}" class="btn btn-primary">
+            <a href="{{ route('ujian.create') }}" class="btn btn-primary">
                 <i class="ri-add-line me-1"></i> Buat Ujian Baru
             </a>
         </div>
