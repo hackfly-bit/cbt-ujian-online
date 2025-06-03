@@ -39,7 +39,7 @@ class RoutingController extends Controller
 
         $mode = $request->query('mode');
         $demo = $request->query('demo');
-     
+
         if ($first == "assets")
             return redirect('home');
 
