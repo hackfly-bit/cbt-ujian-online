@@ -24,6 +24,11 @@ window.addEventListener('DOMContentLoaded', () => {
     canvas.requestRenderAll();
   };
 
-  // Tambahkan langsung 1 teks untuk testing otomatis:
-  window.addText();
+   // Hubungkan tombol sidebar ke fungsi addText
+  const addTextButton = document.getElementById("btn-add-text");
+  if (addTextButton) {
+    addTextButton.addEventListener("click", () => {
+      window.addText();
+    });
+  }
 });
