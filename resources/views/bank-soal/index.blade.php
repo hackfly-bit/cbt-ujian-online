@@ -13,6 +13,38 @@
             margin-right: 20px;
             transition: color 0.2s ease, transform 0.2s ease;
         }
+
+        /* Arabic RTL text styling */
+        .arabic-text {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Arial', 'Times New Roman', 'Amiri', 'Scheherazade New', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Smooth transition for font changes */
+        #pertanyaan {
+            transition: all 0.3s ease;
+        }
+
+        /* Arabic placeholder styling */
+        #pertanyaan[lang="ar"]::placeholder {
+            text-align: right;
+            direction: rtl;
+        }
+
+        /* Animation for font change */
+        .font-change-animation {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Arabic indicator badge */
+        .arabic-indicator {
+            font-size: 0.75em;
+            vertical-align: middle;
+        }
     </style>
 @endsection
 
@@ -103,11 +135,13 @@
                                             class="text-danger">*</span></label>
                                     <select class="form-select mb-1" id="jenis_font" name="jenis_font" required>
                                         <option value="">Pilih Jenis Font</option>
-                                        <option value="Latin">Latin</option>
-                                        <option value="Arab (RTL)">Arab (RTL)</option>
+                                        <option value="Latin">Latin (LTR - Left to Right)</option>
+                                        <option value="Arab (RTL)">Arab (RTL - Right to Left) - العربية</option>
                                     </select>
-                                    <span>Pilih "Arab" untuk menulis soal dengan huruf Arab (teks dari kanan ke
-                                        kiri)</span>
+                                    <small class="text-muted">
+                                        <i class="ri-information-line"></i>
+                                        Pilih "Arab (RTL)" untuk menulis soal dengan huruf Arab. Teks akan otomatis berubah ke arah kanan ke kiri.
+                                    </small>
                                 </div>
 
                                 <!-- Pertanyaan -->
