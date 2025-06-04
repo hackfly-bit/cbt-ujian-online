@@ -22,8 +22,9 @@ return new class extends Migration
             $table->integer('jenis_ujian_id')->nullable()->index('jenis_ujian_id');
             $table->integer('durasi')->nullable();
             $table->string('tanggal_selesai', 0)->nullable();
-            $table->boolean('status')->nullable();
-                  $table->timestamps();
+            // $table->boolean('status')->nullable();
+            $table->string('status')->nullable();
+            $table->timestamps();
         });
     }
 

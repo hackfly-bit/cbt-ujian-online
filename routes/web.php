@@ -53,7 +53,7 @@ Route::group(['prefix' => 'bank-soal', 'as' => 'bank-soal.', 'middleware' => 'au
 
 Route::group(['prefix' => 'ujian', 'as' => 'ujian.', 'middleware' => 'auth'], function () {
     Route::get('/', [UjianController::class, 'index'])->name('index');
-    Route::get('/create', [UjianController::class, 'create'])->name('create'); // why return not found
+    Route::get('/create', [UjianController::class, 'create'])->name('create');
     Route::post('/', [UjianController::class, 'store'])->name('store');
     Route::put('/{id}', [UjianController::class, 'update'])->name('update');
     Route::delete('/{id}', [UjianController::class, 'destroy'])->name('destroy');
@@ -87,6 +87,12 @@ Route::group(['prefix' => 'subkategori', 'as' => 'subkategori.', 'middleware' =>
     Route::get('/{id}', [SubKategoriController::class, 'show'])->name('show');
 });
 
+
+Route::get('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::class, 'ujianLogin'])->name('ujian.login');
+Route::post('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::class, 'generateSession'])->name('ujian.generateSession');
+Route::get('/kerjakan/{link}/ujian', [\App\Http\Controllers\UjianPesertaController::class, 'ujianPeserta'])->name('ujian.peserta');
+Route::post('/kerjakan/{link}/save-answer', [\App\Http\Controllers\UjianPesertaController::class, 'saveAnswer'])->name('ujian.save-answer');
+Route::get('/kerjakan/{link}/submit', [\App\Http\Controllers\UjianPesertaController::class, 'submitExam'])->name('ujian.submit');
 
 Route::group(['prefix' => 'test', 'middleware' => 'auth'], function () {
     Route::get('/{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');

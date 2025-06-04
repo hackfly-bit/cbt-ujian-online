@@ -45,6 +45,9 @@ class UjianController extends Controller
                            <a href="' . route('ujian.show', $row->id) . '" class="text-primary" title="Edit">
                                 <i class="ri-edit-2-line"></i>
                             </a>
+                            <a href="' . route('ujian.login', $row->link) . '" class="text-success" title="Lihat Ujian">
+                                <i class="ri-eye-line"></i>
+                            </a>
                             <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation(' . $row->id . ')">
                                 <i class="ri-delete-bin-line"></i>
                             </a>

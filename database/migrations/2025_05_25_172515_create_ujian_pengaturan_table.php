@@ -18,7 +18,11 @@ return new class extends Migration
             $table->string('metode_penilaian')->nullable();
             $table->integer('nilai_kelulusan')->nullable();
             $table->boolean('hasil_ujian_tersedia')->nullable();
-                  $table->timestamps();
+            $table->boolean('acak_soal')->default(0);
+            $table->boolean('acak_jawaban')->default(0);
+            $table->boolean('lihat_hasil')->default(0);
+            $table->boolean('lihat_pembahasan')->default(0);
+            $table->timestamps();
         });
     }
 
