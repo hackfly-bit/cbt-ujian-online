@@ -30,7 +30,7 @@ class UjianSection extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ujian_id', 'ketegori_id','nama_section', 'bobot_nilai', 'instruksi', 'metode_penilaian', 'created_at', 'updated_at'];
+    protected $fillable = ['ujian_id', 'kategori_id','nama_section', 'bobot_nilai', 'instruksi', 'metode_penilaian', 'created_at', 'updated_at'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

@@ -192,6 +192,11 @@ function initFormEvents() {
         loadSubKategori(this.value);
     });
 
+    // Event untuk perubahan jenis font - Arabic RTL Support
+    $("#jenis_font").on("change", function () {
+        handleFontChange(this.value);
+    });
+
     // Event submit form
     $("#form-bank-soal").on("submit", function (e) {
         e.preventDefault();
@@ -438,6 +443,64 @@ function loadSubKategori(kategoriId) {
     });
 }
 
+// Handle font change - Arabic RTL Support
+function handleFontChange(fontType) {
+    const questionTextarea = $("#pertanyaan");
+    const fontLabel = $("label[for='pertanyaan']");
+
+    if (fontType === "Arab (RTL)") {
+        // Apply Arabic RTL styling
+        questionTextarea.css({
+            'direction': 'rtl',
+            'text-align': 'right',
+            'font-family': 'Arial, "Times New Roman", "Amiri", "Scheherazade New", sans-serif',
+            'font-size': '16px',
+            'line-height': '1.6',
+            'unicode-bidi': 'plaintext'
+        });
+
+        // Add Arabic language attribute for better rendering
+        questionTextarea.attr('lang', 'ar');
+
+        // Update placeholder text
+        questionTextarea.attr('placeholder', 'اكتب السؤال هنا... (Arabic RTL mode)');
+
+        // Add visual indicator to the label
+        if (!fontLabel.find('.arabic-indicator').length) {
+            fontLabel.append(' <span class="arabic-indicator badge bg-info ms-2">العربية RTL</span>');
+        }
+
+        console.log('Arabic RTL mode activated');
+    } else {
+        // Reset to default Latin styling
+        questionTextarea.css({
+            'direction': 'ltr',
+            'text-align': 'left',
+            'font-family': '',
+            'font-size': '',
+            'line-height': '',
+            'unicode-bidi': ''
+        });
+
+        // Remove Arabic language attribute
+        questionTextarea.removeAttr('lang');
+
+        // Reset placeholder text
+        questionTextarea.attr('placeholder', 'Masukkan pertanyaan soal...');
+
+        // Remove visual indicator from the label
+        fontLabel.find('.arabic-indicator').remove();
+
+        console.log('Latin LTR mode activated');
+    }
+
+    // Add a subtle animation effect
+    questionTextarea.addClass('font-change-animation');
+    setTimeout(() => {
+        questionTextarea.removeClass('font-change-animation');
+    }, 300);
+}
+
 // Submit form
 function submitForm() {
     const form = document.getElementById("form-bank-soal");
@@ -547,6 +610,9 @@ function editSoal(id) {
             $("#kategori").val(data.kategori_id);
             $("#penjelasan_jawaban").val(data.penjelasan_jawaban);
             $("#tag").val(data.tag);
+
+            // Apply font styling based on selected font type
+            handleFontChange(data.jenis_font);
 
             // Show/hide audio container
             if (data.is_audio) {
@@ -688,6 +754,10 @@ function resetForm() {
     $("#sub_kategori")
         .empty()
         .append('<option value="">Pilih Sub Kategori</option>');
+
+    // Reset font styling to default (Latin)
+    handleFontChange("Latin");
+
     currentSoalId = null;
     jawabanCounter = 0;
 }
