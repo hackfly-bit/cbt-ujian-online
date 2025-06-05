@@ -13,7 +13,7 @@
                     <strong>Customize </strong> the overall color scheme, sidebar menu, etc.
                 </div>
 
-                <h5 class="mt-0 fs-16 fw-bold mb-3">Choose Layout</h5>
+                {{-- <h5 class="mt-0 fs-16 fw-bold mb-3">Choose Layout</h5>
                 <div class="d-flex flex-column gap-2">
                     <div class="form-check form-switch">
                         <input id="customizer-layout01" name="data-layout" type="checkbox" value="vertical"
@@ -25,7 +25,7 @@
                             class="form-check-input">
                         <label class="form-check-label" for="customizer-layout02">Horizontal</label>
                     </div>
-                </div>
+                </div> --}}
 
                 <h5 class="my-3 fs-16 fw-bold">Color Scheme</h5>
 
@@ -43,7 +43,7 @@
                     </div>
                 </div>
 
-                <div id="layout-width">
+                {{-- <div id="layout-width">
                     <h5 class="my-3 fs-16 fw-bold">Layout Mode</h5>
 
                     <div class="d-flex flex-column gap-2">
@@ -69,7 +69,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <h5 class="my-3 fs-16 fw-bold">Topbar Color</h5>
 
@@ -116,7 +116,7 @@
                     </div>
                 </div>
 
-                <div id="sidebar-size">
+                {{-- <div id="sidebar-size">
                     <h5 class="my-3 fs-16 fw-bold">Sidebar Size</h5>
 
                     <div class="d-flex flex-column gap-2">
@@ -156,9 +156,9 @@
                             <label class="form-check-label" for="leftbar-size-fullscreen">Fullscreen Layout</label>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
-                <div id="layout-position">
+                {{-- <div id="layout-position">
                     <h5 class="my-3 fs-16 fw-bold">Layout Position</h5>
 
                     <div class="btn-group checkbox" role="group">
@@ -171,7 +171,7 @@
                         <label class="btn btn-soft-primary w-sm ms-0"
                             for="layout-position-scrollable">Scrollable</label>
                     </div>
-                </div>
+                </div> --}}
 
                 <div id="sidebar-user">
                     <div class="d-flex justify-content-between align-items-center mt-3">
@@ -187,7 +187,7 @@
         </div>
 
     </div>
-    <div class="offcanvas-footer border-top p-3 text-center">
+    {{-- <div class="offcanvas-footer border-top p-3 text-center">
         <div class="row">
             <div class="col-6">
                 <button type="button" class="btn btn-light w-100" id="reset-layout">Reset</button>
@@ -196,5 +196,5 @@
                 <a href="#" role="button" class="btn btn-primary w-100">Buy Now</a>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>

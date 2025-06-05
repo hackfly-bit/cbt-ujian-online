@@ -245,6 +245,10 @@ html[data-sidenav-user="true"] {
     }
 
     .side-nav-item {
+        margin: 10px 0 10px 0;
+    }
+
+    .side-nav-item {
         > a[aria-expanded="true"] {
             > span.menu-arrow {
                 transform: translate(-50%, -50%) rotate(90deg);
@@ -262,20 +266,34 @@ html[data-sidenav-user="true"] {
 
     .menuitem-active {
         > a {
-            color: $menu-item-active-color;
+            color: $white;
             font-weight: $font-weight-medium;
+            background-color: $primary;
+            border-radius: $border-radius;
 
             &:hover,
             &:focus,
             &:active {
-                color: $menu-item-active-color;
+                color: $white;
+                background-color: $primary;
             }
         }
 
-        .menuitem-active {
+        // Style for submenu items
+        .side-nav-second-level,
+        .side-nav-third-level,
+        .side-nav-forth-level {
             .active {
-                color: $menu-item-active-color;
+                color: $primary;
                 font-weight: $font-weight-medium;
+                background-color: transparent;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: $primary;
+                    background-color: transparent;
+                }
             }
         }
     }
@@ -361,8 +379,10 @@ html[data-sidenav-size="condensed"]:not([data-layout="topnav"]) {
         // Side menu
         .leftside-menu {
             position: fixed;
-            width: $leftbar-width-sm;
-            min-width: $leftbar-width-sm;
+            width: 94px;
+            min-width: 94px;
+            // width: $leftbar-width-sm;
+            // min-width: $leftbar-width-sm;
             min-height: calc(100vh - $topbar-height - 2px);
 
             .simplebar-mask,

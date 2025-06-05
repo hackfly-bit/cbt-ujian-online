@@ -40,7 +40,7 @@
                 </div>
             </button>
 
-            <!-- Topbar Search Form -->
+            {{-- <!-- Topbar Search Form -->
             <div class="app-search dropdown d-none d-lg-block">
                 <form>
                     <div class="input-group">
@@ -102,7 +102,7 @@
                         </a>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         <ul class="topbar-menu d-flex align-items-center gap-3">
@@ -114,36 +114,6 @@
                     <form class="p-3">
                         <input type="search" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
                     </form>
-                </div>
-            </li>
-
-            <li class="dropdown">
-                <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                    <img src="/images/flags/us.jpg" alt="user-image" class="me-0 me-sm-1" height="12">
-                    <span class="align-middle d-none d-lg-inline-block">English</span> <i class="ri-arrow-down-s-line d-none d-sm-inline-block align-middle"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated">
-
-                    <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
-                        <img src="/images/flags/germany.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">German</span>
-                    </a>
-
-                    <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
-                        <img src="/images/flags/italy.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Italian</span>
-                    </a>
-
-                    <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
-                        <img src="/images/flags/spain.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Spanish</span>
-                    </a>
-
-                    <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
-                        <img src="/images/flags/russia.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Russian</span>
-                    </a>
-
                 </div>
             </li>
 
@@ -268,59 +238,6 @@
                 </div>
             </li>
 
-            <li class="dropdown d-none d-sm-inline-block">
-                <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                    <i class="ri-apps-2-line fs-22"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg p-0">
-
-                    <div class="p-2">
-                        <div class="row g-0">
-                            <div class="col">
-                                <a class="dropdown-icon-item" href="#">
-                                    <img src="/images/brands/github.png" alt="Github">
-                                    <span>GitHub</span>
-                                </a>
-                            </div>
-                            <div class="col">
-                                <a class="dropdown-icon-item" href="#">
-                                    <img src="/images/brands/bitbucket.png" alt="bitbucket">
-                                    <span>Bitbucket</span>
-                                </a>
-                            </div>
-                            <div class="col">
-                                <a class="dropdown-icon-item" href="#">
-                                    <img src="/images/brands/dropbox.png" alt="dropbox">
-                                    <span>Dropbox</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="row g-0">
-                            <div class="col">
-                                <a class="dropdown-icon-item" href="#">
-                                    <img src="/images/brands/slack.png" alt="slack">
-                                    <span>Slack</span>
-                                </a>
-                            </div>
-                            <div class="col">
-                                <a class="dropdown-icon-item" href="#">
-                                    <img src="/images/brands/dribbble.png" alt="dribbble">
-                                    <span>Dribbble</span>
-                                </a>
-                            </div>
-                            <div class="col">
-                                <a class="dropdown-icon-item" href="#">
-                                    <img src="/images/brands/behance.png" alt="Behance">
-                                    <span>Behance</span>
-                                </a>
-                            </div>
-                        </div> <!-- end row-->
-                    </div>
-
-                </div>
-            </li>
-
             <li class="d-none d-sm-inline-block">
                 <a class="nav-link" data-bs-toggle="offcanvas" href="#theme-settings-offcanvas">
                     <i class="ri-settings-3-line fs-22"></i>
@@ -353,24 +270,21 @@
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
-                    <!-- item-->
-                    <div class=" dropdown-header noti-title">
-                        <h6 class="text-overflow m-0">Welcome !</h6>
-                    </div>
+                
 
                     <!-- item-->
-                    <a href="{{ route('second', ['pages', 'profile']) }}" class="dropdown-item">
+                    <a href="" class="dropdown-item">
                         <i class="ri-account-circle-line fs-18 align-middle me-1"></i>
                         <span>My Account</span>
                     </a>
 
                     <!-- item-->
-                    <a href="{{ route('second', ['pages', 'profile']) }}" class="dropdown-item">
+                    <a href="" class="dropdown-item">
                         <i class="ri-settings-4-line fs-18 align-middle me-1"></i>
                         <span>Settings</span>
                     </a>
 
-                    <!-- item-->
+                    {{-- <!-- item-->
                     <a href="{{ route('second', ['pages', 'faq']) }}" class="dropdown-item">
                         <i class="ri-customer-service-2-line fs-18 align-middle me-1"></i>
                         <span>Support</span>
@@ -380,7 +294,7 @@
                     <a href="{{ route('second', ['auth', 'lock-screen']) }}" class="dropdown-item">
                         <i class="ri-lock-password-line fs-18 align-middle me-1"></i>
                         <span>Lock Screen</span>
-                    </a>
+                    </a> --}}
 
                     <!-- item-->
                     <form method="POST" action="{{ route('logout') }}">

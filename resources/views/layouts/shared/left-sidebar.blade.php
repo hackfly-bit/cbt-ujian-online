@@ -1,5 +1,5 @@
 <!-- ========== Left Sidebar Start ========== -->
-<div class="leftside-menu d-flex flex-column" style="padding-bottom: 0px !important;">
+<div class="leftside-menu d-flex flex-column px-2" style="padding-bottom: 0px !important;">
 
     <!-- Logo -->
     <a href="{{ route('any', 'index') }}" class="logo logo-light">
@@ -62,7 +62,7 @@
             {{-- MENU UJIAN ONLINE --}}
             <li class="side-nav-item">
                 <a href="{{ route('bank-soal.index') }}" class="side-nav-link">
-                    <i class="ri-database-2-line"></i>
+                    <i class="ri-book-line"></i>
                     <span> Bank Soal </span>
                 </a>
             </li>
@@ -85,16 +85,22 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="{{ route('kategori.index') }}" class="side-nav-link">
-                    <i class="ri-award-line"></i>
-                    <span> Master Kategori </span>
+                <a data-bs-toggle="collapse" href="#sidebarMaster" aria-expanded="false"
+                    aria-controls="sidebarMaster" class="side-nav-link">
+                    <i class="ri-database-2-line"></i>
+                    <span> Master Data </span>
+                    <span class="menu-arrow"></span>
                 </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="{{ route('subkategori.index') }}" class="side-nav-link">
-                    <i class="ri-award-line"></i>
-                    <span> Master Sub Kategori </span>
-                </a>
+                <div class="collapse" id="sidebarMaster">
+                    <ul class="side-nav-second-level mt-2">
+                        <li class="side-nav-second-level mb-1">
+                            <a href="{{ route('kategori.index') }}">Kategori</a>
+                        </li>
+                        <li class="side-nav-second-level">
+                            <a href="{{ route('subkategori.index') }}">Sub Kategori</a>
+                        </li>
+                    </ul>
+                </div>
             </li>
             <li class="side-nav-item">
                 <a href="{{ route('second', ['pengaturan', 'index']) }}" class="side-nav-link">

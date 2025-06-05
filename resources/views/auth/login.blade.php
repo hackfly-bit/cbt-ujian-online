@@ -8,7 +8,7 @@
 </head>
 
 <body class="authentication-bg position-relative">
-    <div class="position-absolute start-0 end-0 start-0 bottom-0 w-100 h-100">
+    {{-- <div class="position-absolute start-0 end-0 start-0 bottom-0 w-100 h-100">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 1920 1028">
             <g mask="url(&quot;#SvgjsMask1166&quot;)" fill="none">
                 <use xlink:href="#SvgjsSymbol1173" x="0" y="0"></use>
@@ -174,7 +174,7 @@
                 <use xlink:href="#SvgjsPath1171" x="690" y="690" stroke="rgba(var(--ct-primary-rgb), 0.20)"></use>
             </symbol>
         </svg>
-    </div>
+    </div> --}}
     <div class="account-pages pt-2 pt-sm-5 pb-4 pb-sm-5 position-relative">
         <div class="container">
             <div class="row justify-content-center">
@@ -236,11 +236,11 @@
                     </div>
                     <!-- end card -->
 
-                    <div class="row mt-3">
+                    {{-- <div class="row mt-3">
                         <div class="col-12 text-center">
                             <p class="text-muted bg-body">Don't have an account? <a href="{{ route('second', ['auth', 'register']) }}" class="text-muted ms-1 link-offset-3 text-decoration-underline"><b>Sign Up</b></a></p>
                         </div> <!-- end col -->
-                    </div>
+                    </div> --}}
                     <!-- end row -->
 
                 </div> <!-- end col -->
