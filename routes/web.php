@@ -7,6 +7,7 @@ use App\Http\Controllers\FilterController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UjianController;
 use App\Http\Controllers\SubKategoriController;
+use App\Http\Controllers\SertifikatController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -86,6 +87,16 @@ Route::group(['prefix' => 'subkategori', 'as' => 'subkategori.', 'middleware' =>
     Route::delete('/{id}', [SubKategoriController::class, 'destroy'])->name('destroy');
     Route::get('/{id}', [SubKategoriController::class, 'show'])->name('show');
 });
+
+Route::middleware(['auth'])->prefix('sertifikat')->as('sertifikat.')->group(function () {
+    Route::get('/', [SertifikatController::class, 'index'])->name('index');
+    Route::get('/create', [SertifikatController::class, 'create'])->name('create');
+    Route::post('/', [SertifikatController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [SertifikatController::class, 'edit'])->name('edit');
+    Route::put('/{id}/template', [SertifikatController::class, 'updateTemplate'])->name('updateTemplate');
+    Route::delete('/{id}', [SertifikatController::class, 'destroy'])->name('destroy');
+});
+
 
 
 Route::group(['prefix' => 'test', 'middleware' => 'auth'], function () {

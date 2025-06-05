@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('sertifikat', function (Blueprint $table) {
             $table->integer('id', true);
             $table->integer('ujian_id')->nullable()->index('ujian_id');
+            $table->string('judul'); // Judul sertifikat
             $table->string('image_bg')->nullable();
             $table->json('template')->nullable();
-                  $table->timestamps();
+            $table->timestamps();
         });
     }
 

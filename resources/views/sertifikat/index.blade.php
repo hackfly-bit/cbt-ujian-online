@@ -1,69 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.vertical', ['page_title' => 'Bank Soal', 'mode' => $mode ?? '', 'demo' => $demo ?? ''])
 
-<head>
-    @include('layouts.shared/title-meta', ['title' => 'Preloader'])
-    @yield('css')
-    @include('layouts.shared/head-css', ['mode' => $mode ?? '', 'demo' => $demo ?? ''])
-    @vite(['node_modules/daterangepicker/daterangepicker.css', 'node_modules/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css', 'resources/js/head.js'])
+@section('css')
+    @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css'])
+@endsection
 
-    <!-- Gunakan Fabric.js 4.6.0 dari CDN -->
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.6.0/fabric.min.js"></script> --}}
-</head>
+@section('content')
+    <!-- Start Content-->
+    <div class="container-fluid">
 
-<body>
+        {{-- Pesan Success --}}
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-    <!-- Pre-loader -->
-    <div id="preloader">
-        <div id="status">
-            <div class="bouncing-loader">
-                <div></div>
-                <div></div>
-                <div></div>
+        {{-- Pesan Gagal --}}
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        {{-- Validasi error (jika ada error dari $errors Laravel) --}}
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong><i class="bi bi-x-circle me-2"></i>Terjadi kesalahan:</strong>
+                <ul class="mb-0 mt-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+
+
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Attex</a></li>
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Sertifikat</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">List Sertifikat</h4>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- End Preloader-->
+        <!-- end page title -->
 
-    <div class="wrapper">
 
-        @include('layouts.shared/topbar')
-        @include('sertifikat.sidebar')
 
-        <!-- ============================================================== -->
-        <!-- Start Page Content here -->
-        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
 
-        <div class="content-page">
-            <div class="content">
-                <!-- Canvas Sertifikat -->
-                <canvas id="certificate-canvas" width="1000" height="700" style="border:1px solid #ccc;"></canvas>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h4 class="header-title">Daftar Semua Template Sertifikat</h4>
+                                <p class="text-muted fs-14">
+                                    Berikut ini adalah daftar semua ujian, lengkap dengan status, soal, durasi, peserta dan
+                                    aksi
+                                    yang dapat dilakukan.
+                                </p>
+                            </div>
+                            <!-- Tambah Soal Button -->
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#modal-tambah-sertifikat">
+                                <i class="ri-add-line me-1"></i> Buat Sertifikat Custom
+                            </button>
 
-            </div>
+                            <!-- Modal Tambah Sertifikat -->
+                            <div class="modal fade" id="modal-tambah-sertifikat" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Tambah Template Sertifikat</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ route('sertifikat.store') }}" method="POST">
+                                            @csrf
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="judul" class="form-label">Judul Sertifikat</label>
+                                                    <input type="text" class="form-control" id="judul" name="judul"
+                                                        required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="ujian_id" class="form-label">Pilih Ujian</label>
+                                                    <input type="text" class="form-control" id="ujian_id" name="ujian_id">
+                                                </div>
 
-            <!-- Tombol menu sidebar untuk tambah teks -->
-            <li class="side-nav-item">
-                <a href="javascript:void(0);" class="side-nav-link" id="btn-add-text">
-                    <i class="ri-file-edit-line"></i>
-                    <span> Text </span>
-                </a>
-            </li>
+                                                {{-- <div class="mb-3">
+                                                    <label for="ujian_id" class="form-label">Pilih Ujian</label>
+                                                    <select class="form-select" id="ujian_id" name="ujian_id" required>
+                                                        <option value="">Pilih Ujian</option>
+                                                        <option value="1">TOALF (Test of Academic Language Fluency)
+                                                        </option>
+                                                        <option value="2">TOEFL (Test of English as a Foreign Language)
+                                                        </option>
+                                                    </select>
+                                                </div> --}}
+                                                {{-- <div class="mb-3">
+                                                    <label for="ujian_id" class="form-label">Pilih Ujian</label>
+                                                    <select class="form-select" id="ujian_id" name="ujian_id" required>
+                                                        <option value="">Pilih Ujian</option>
+                                                        @foreach ($ujians as $ujian)
+                                                            <option value="{{ $ujian->id }}">{{ $ujian->nama_ujian }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div> --}}
 
+                                                <input type="hidden" name="is_custom" id="is_custom" value="1">
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary">Buka Canvas</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ route('sertifikat.create') }}" class="btn btn-primary">
+                                <i class="ri-add-line me-1"></i> Template
+                            </a>
+                        </div>
+
+                        <!-- FILTERS -->
+                        <div id="custom-filters-ujian-semua" class="mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <select id="filter-category-ujian-semua" class="form-select form-select-sm"
+                                    style="min-width: 200px;" title="Filter by category">
+                                    <option value="">All</option>
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <table id="selection-datatable-ujian-semua"
+                            class="table table-striped dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th>Nama Ujian</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Soal</th>
+                                    <th class="text-center">Durasi</th>
+                                    <th class="text-center">Peserta</th>
+                                    <th class="text-center">Tanggal Selesai</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div> <!-- end card body-->
+                </div> <!-- end card -->
+            </div><!-- end col-->
         </div>
 
-        <!-- ============================================================== -->
-        <!-- End Page content -->
-        <!-- ============================================================== -->
+
+        <!-- end row-->
+
+        {{-- Modal Konfirmasi Hapus --}}
+        <div class="modal fade" id="modal-hapus" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Konfirmasi Hapus</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin menghapus data ujian ini?</p>
+                        {{-- <p class="text-muted">Tindakan ini tidak dapat dibatalkan.</p> --}}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-danger" id="btn-hapus-confirm">
+                            <span class="spinner-border spinner-border-sm d-none me-2" role="status"></span>
+                            Ya, Hapus
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
+    <!-- container -->
+@endsection
 
-    @include('layouts.shared/right-sidebar')
-
-    <!-- Sertifikat.js dipanggil terakhir -->
-    @vite(['resources/js/app.js', 'resources/js/layout.js', 'resources/js/main/sertifikat.js'])
-
-    @yield('script')
-
-</body>
-
-</html>
+@section('script')
+    @vite(['resources/js/main/list-sertifikat.js'])
+@endsection

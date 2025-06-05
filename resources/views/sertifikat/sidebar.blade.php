@@ -32,53 +32,55 @@
 
         <!--- Sidemenu -->
         <ul class="side-nav">
-            {{-- Background --}}
-            <li class="side-nav-item">
-                <a href="javascript:void(0)" onclick="setBackground('/template.jpg')" class="side-nav-link">
-                    <i class="ri-database-2-line"></i>
-                    <span> Background </span>
-                </a>
-            </li>
 
             {{-- Image --}}
             <li class="side-nav-item">
-                <a href="javascript:void(0)" onclick="addImage()" class="side-nav-link">
+                <a href="javascript:void(0)" class="side-nav-link" id="btn-add-image">
                     <i class="ri-award-line"></i>
                     <span> Image </span>
                 </a>
             </li>
 
-            {{-- Text --}}
+            <!-- Tombol menu sidebar untuk tambah teks -->
             <li class="side-nav-item">
-                <a href="javascript:void(0)" onclick="addText()" class="side-nav-link">
+                <a href="javascript:void(0)" class="side-nav-link" id="btn-add-text">
                     <i class="ri-file-edit-line"></i>
                     <span> Text </span>
                 </a>
             </li>
 
-            {{-- PLACEHOLDER --}}
-            <li class="side-nav-item mt-2" style="margin-left: 20px">
-                <span>PLACEHOLDER</span>
-            </li>
-
             <li class="side-nav-item">
-                <a href="javascript:void(0)" onclick="addPlaceholder('Nama Lengkap')" class="side-nav-link">
+                <a href="javascript:void(0)" class="side-nav-link" id="nama-peserta">
                     <i class="ri-bar-chart-box-line"></i>
-                    <span> {Nama Lengkap} </span>
+                    <span> [Nama Lengkap] </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="javascript:void(0)" onclick="addPlaceholder('Jenis Ujian')" class="side-nav-link">
+                <a href="javascript:void(0)" class="side-nav-link" id="ujian">
                     <i class="ri-bar-chart-box-line"></i>
-                    <span> {Jenis Ujian} </span>
+                    <span> [Ujian] </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="javascript:void(0)" onclick="addPlaceholder('Skor Ujian')" class="side-nav-link">
+                <a href="javascript:void(0)" class="side-nav-link" id="tanggal-ujian">
                     <i class="ri-bar-chart-box-line"></i>
-                    <span> {Skor Ujian} </span>
+                    <span> [Tanggal Ujian] </span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="javascript:void(0)" class="side-nav-link" id="nilai-ujian">
+                    <i class="ri-bar-chart-box-line"></i>
+                    <span> [Nilai Ujian] </span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="javascript:void(0)" class="side-nav-link" id="qr-code">
+                    <i class="ri-bar-chart-box-line"></i>
+                    <span> [QR Code] </span>
                 </a>
             </li>
         </ul>

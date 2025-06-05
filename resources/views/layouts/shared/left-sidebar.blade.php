@@ -79,7 +79,7 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="{{ route('second', ['sertifikat', 'index']) }}" class="side-nav-link">
+                <a href="{{ route('sertifikat.index') }}" class="side-nav-link">
                     <i class="ri-award-line"></i>
                     <span> Sertifikat </span>
                 </a>
