@@ -60,7 +60,7 @@ class SertifikatController extends Controller
 
     public function store(Request $request)
     {
-        
+
 
         // dd($request->all());
 
@@ -96,12 +96,10 @@ class SertifikatController extends Controller
     {
         $sertifikat = Sertifikat::findOrFail($id);
 
-        dd($request->all());
+        // dd($request->all());
 
         $sertifikat->update([
-            'template' => $request->sertifikat_template,
-            'judul' => $request->judul,
-            'ujian_id' => $request->ujian_id
+            'template' => $request->template,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Template berhasil disimpan.']);

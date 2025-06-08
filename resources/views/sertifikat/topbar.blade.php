@@ -43,10 +43,10 @@
 
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <!-- Kiri: Icon + Teks Preview -->
-            <div class="d-flex align-items-center">
+            <button class="btn btn-outline-secondary d-flex align-items-center" id="preview">
                 <i class="ri-eye-line fs-4 me-2"></i>
                 <span class="fw-semibold">Preview</span>
-            </div>
+            </button>
 
             <!-- Kanan: Tombol + Select -->
             <div class="d-flex align-items-center">
@@ -58,9 +58,6 @@
                     <option value="f4-landscape">F4 Landscape</option>
                     <option value="f4-portrait">F4 Portrait</option>
                 </select>
-
-                <button id="generate">Generate Sertifikat</button>
-
             </div>
         </div>
 

@@ -16,6 +16,42 @@ window.addEventListener("DOMContentLoaded", () => {
     canvasElement.height = defaultSize.height;
 
     const canvas = new Canvas(canvasElement, { backgroundColor: "#fff" });
+    if (data.template) {
+
+        const templateData = JSON.parse(data.template);
+        console.log("Template data loaded:", templateData);
+
+        // Restore canvas size if saved in template
+        if (templateData.canvasWidth && templateData.canvasHeight) {
+            // Update canvas element size
+            canvasElement.width = templateData.canvasWidth;
+            canvasElement.height = templateData.canvasHeight;
+
+            // Update canvas instance size
+            canvas.setDimensions({
+                width: templateData.canvasWidth,
+                height: templateData.canvasHeight
+            });
+
+            // Store size key for reference
+            canvas.sizeKey = templateData.sizeKey || defaultSizeKey;
+        }
+        // Load template using Promise syntax
+        canvas.loadFromJSON(data.template)
+            .then(() => {
+                canvas.getObjects().forEach((obj) => obj.setCoords());
+                canvas.renderAll();
+                console.log("Template loaded from JSON.");
+            })
+            .catch(error => {
+                console.error("Error loading template:", error);
+                // Fallback to white background
+                canvas.setBackgroundColor("#fff", canvas.renderAll.bind(canvas));
+            });
+    } else {
+        // Set white background if no template
+        canvas.setBackgroundColor("#fff", canvas.renderAll.bind(canvas));
+    }
     window.certificateCanvas = canvas;
 
     // Elements
@@ -43,6 +79,10 @@ window.addEventListener("DOMContentLoaded", () => {
     const bgOpacity = document.getElementById("bg-opacity");
     const bgScaleContain = document.getElementById("bg-scale-contain");
     const bgScaleCover = document.getElementById("bg-scale-cover");
+
+    // Update Sertifikat Button
+    const btnUpdateSertifikat = document.getElementById("updateTemplate");
+    const btnPreview = document.getElementById("preview");
 
     const alignButtons = {
         left: document.getElementById("align-left"),
@@ -790,4 +830,125 @@ window.addEventListener("DOMContentLoaded", () => {
     // Aktifkan drag untuk kedua panel
     makeDraggable("#drag-handle", "#text-properties");
     makeDraggable("#bg-drag-handle", "#bg-properties");
+
+
+    // Update Sertifikat Button
+    if (btnUpdateSertifikat) {
+        btnUpdateSertifikat.addEventListener("click", () => {
+            // Get canvas data as JSON for database storage
+            const template = JSON.stringify(canvas.toObject());
+
+            // Save to database via AJAX
+            saveTemplateToDatabase(template);
+        });
+    }
+
+    function saveTemplateToDatabase(template) {
+
+        const pathParts = window.location.pathname.split('/');
+        const id = pathParts[2]; // ['sertifikat', '1', 'edit'] -> index 2
+        console.log(id); // Output: "1"
+
+        const canvasData = JSON.parse(template);
+
+        // Add canvas size information to the JSON
+        canvasData.canvasWidth = canvas.width;
+        canvasData.canvasHeight = canvas.height;
+        canvasData.sizeKey = canvas.sizeKey || defaultSizeKey;
+
+        fetch(`/sertifikat/${id}/template`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // if using Laravel/similar
+            },
+            body: JSON.stringify({
+                template: JSON.stringify(canvasData),
+                name: 'Certificate Template',
+                // Add other metadata as needed
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Template saved successfully:', data);
+                    alert('Template berhasil disimpan!');
+                } else {
+                    console.error('Error saving template:', data.error);
+                    alert('Gagal menyimpan template');
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                alert('Terjadi kesalahan jaringan');
+            });
+    }
+
+    // Add preview button functionality
+    if (btnPreview) {
+        btnPreview.addEventListener("click", () => {
+            showPreview();
+        });
+    }
+
+    function showPreview() {
+        // Create preview modal/window
+        const previewModal = document.createElement('div');
+        previewModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+        // Create preview content
+        const previewContent = document.createElement('div');
+        previewContent.style.cssText = `
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 90%;
+        max-height: 90%;
+        overflow: auto;
+    `;
+
+        // Export canvas as image for preview
+        const dataURL = canvas.toDataURL({
+            format: 'png',
+            quality: 1,
+            multiplier: 2 // Higher resolution for preview
+        });
+
+        previewContent.innerHTML = `
+        <h3>Preview Sertifikat</h3>
+        <img src="${dataURL}" style="max-width: 100%; height: auto; border: 1px solid #ddd;">
+        <div style="margin-top: 15px;">
+            <button onclick="this.closest('.preview-modal').remove()" style="margin-right: 10px;">Tutup</button>
+        </div>
+    `;
+
+        previewModal.className = 'preview-modal';
+        previewModal.appendChild(previewContent);
+        document.body.appendChild(previewModal);
+
+        // Close on background click
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) {
+                previewModal.remove();
+            }
+        });
+    }
+
+
+
+
+
+
+
 });

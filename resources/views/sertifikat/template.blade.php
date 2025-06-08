@@ -87,6 +87,10 @@
     </div>
 
     <!-- Sertifikat.js dipanggil terakhir -->
+    <script>
+        let data = @json($sertifikat);
+        console.log(data);
+    </script>
     @vite(['resources/js/app.js', 'resources/js/layout.js', 'resources/js/main/sertifikat.js'])
 
     @yield('script')
