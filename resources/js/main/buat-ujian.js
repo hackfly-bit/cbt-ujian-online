@@ -204,7 +204,8 @@ import flatpickr from "flatpickr";
             `;
 
                 $container.append(sectionHTML);
-
+                console.log(section);
+                console.log(`Loaded category ${section.kategori_id} for section ${self.sectionCount}`);
                 // console.log(`Added section ${self.sectionCount}: ${section.kategori_id = 1} || Seksi ${self.sectionCount}`);
 
                 // update sele
@@ -214,9 +215,9 @@ import flatpickr from "flatpickr";
                     if (section.kategori_id) {
                         const $categoryDropdown = $(`.category-dropdown[data-section="${self.sectionCount}"]`);
                         $categoryDropdown.val(section.kategori_id);
-                        // console.log(`Loaded category ${section.kategori_id} for section ${self.sectionCount}`);
+
                         // Load questions for this category
-                        self.loadQuestionsIfExist(section.kategori_id, section.id,section.ujian_section_soals);
+                        self.loadQuestionsIfExist(section.kategori_id, section.id, section.ujian_section_soals);
                     }
                 });
             });
@@ -645,10 +646,25 @@ import flatpickr from "flatpickr";
 
                 // Here you would send the data to your Laravel backend
                 // console.log('Section data to save:', sectionData);
+                // cek url http://127.0.0.1:8000/ujian/6
+                // get id from url
+
+                let ujianId = null;
+                const urlParts = window.location.pathname.split('/');
+                if (urlParts.length > 2 && urlParts[1] === 'ujian') {
+                    ujianId = urlParts[2]; // Assuming the second part is the ID
+                }
+
+                let url = '/ujian';
+                let method = 'POST';
+                if (ujianId) {
+                    url += `/${ujianId}`;
+                    method = 'PUT'; // Use PUT for updating existing ujian
+                }
 
                 $.ajax({
-                    url: '/ujian',
-                    method: 'POST',
+                    url: url,
+                    method: method,
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },

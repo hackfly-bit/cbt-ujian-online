@@ -55,13 +55,13 @@
                     </div>
 
                     <!-- Status Ujian -->
-                    <div class="col-md-6 mb-3"">
+                    <div class="col-md-6 mb-3">
                         <label for="status_ujian" class="form-label">Status Ujian</label>
                         <select id="status_ujian" name="status_ujian" class="form-select">
                             <option value="">Pilih Status</option>
-                            <option value="draft" > Draft</option>
-                            <option value="aktif" > Aktif</option>
-                            <option value="selesai" > Selesai</option>
+                            <option value="draft" {{ (isset($ujian) && $ujian->status == 'draft') ? 'selected' : '' }}>Draft</option>
+                            <option value="aktif" {{ (isset($ujian) && $ujian->status == 'aktif') ? 'selected' : '' }}>Aktif</option>
+                            <option value="selesai" {{ (isset($ujian) && $ujian->status == 'selesai') ? 'selected' : '' }}>Selesai</option>
                         </select>
                     </div>
 

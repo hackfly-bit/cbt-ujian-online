@@ -152,6 +152,7 @@ class UjianController extends Controller
                 $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
                 $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
                 $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
+                $ujianSection->kategori_id = $sectionData['kategori_id'];
                 $ujianSection->save();
 
                 // Create ujian section soals
@@ -179,6 +180,8 @@ class UjianController extends Controller
             ], 500);
         }
     }
+
+
 
     /**
      * Display the specified resource.
@@ -210,7 +213,84 @@ class UjianController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        Log::info("message update", [
+            'request' => $request->all(),
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Find existing ujian
+            $ujian = Ujian::findOrFail($id);
+            $ujian->nama_ujian   = $request->detail['nama'];
+            $ujian->deskripsi = $request->detail['deskripsi'];
+            $ujian->durasi = $request->detail['durasi'];
+            $ujian->jenis_ujian_id = $request->detail['jenis_ujian'];
+            $ujian->tanggal_selesai = $request->detail['tanggal_selesai'];
+            $ujian->status = $request->detail['status'] ?? 'draft'; // Default to 'draft' if not provided
+            $ujian->save();
+
+            // Update ujian settings
+            $ujianPengaturan = $ujian->ujianPengaturan;
+            $ujianPengaturan->metode_penilaian = $request->pengaturan['metode_penilaian'];
+            $ujianPengaturan->nilai_kelulusan = $request->pengaturan['nilai_kelulusan'];
+            $ujianPengaturan->hasil_ujian_tersedia = $request->pengaturan['hasil_ujian'];
+            $ujianPengaturan->save();
+
+            // Update ujian peserta form
+            $ujianPesertaForm = $ujian->ujianPesertaForm;
+            $ujianPesertaForm->nama = $request->peserta['nama'] ?? false;
+            $ujianPesertaForm->phone = $request->peserta['phone'] ?? false;
+            $ujianPesertaForm->email = $request->peserta['email'] ?? false;
+            $ujianPesertaForm->institusi = $request->peserta['institusi'] ?? false;
+            $ujianPesertaForm->nomor_induk = $request->peserta['nomor_induk'] ?? false;
+            $ujianPesertaForm->tanggal_lahir = $request->peserta['tanggal_lahir'] ?? false;
+            $ujianPesertaForm->alamat = $request->peserta['alamat'] ?? false;
+            $ujianPesertaForm->foto = $request->peserta['foto'] ?? false;
+            $ujianPesertaForm->save();
+
+            // Update ujian sections
+            // Delete existing section soals first
+            foreach ($ujian->ujianSections as $section) {
+                $section->ujianSectionSoals()->delete();
+            }
+
+            // Then delete the sections
+            $ujian->ujianSections()->delete();
+            foreach ($request->sections as $sectionData) {
+                $ujianSection = new \App\Models\UjianSection();
+                $ujianSection->ujian_id = $ujian->id;
+                $ujianSection->nama_section = $sectionData['nama_section'];
+                $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
+                $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
+                $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
+                $ujianSection->kategori_id = $sectionData['kategori_id'];
+                $ujianSection->save();
+
+                // Create ujian section soals
+                foreach ($sectionData['selected_questions'] as $soalId) {
+                    $ujianSectionSoal = new \App\Models\UjianSectionSoal();
+                    $ujianSectionSoal->ujian_section = $ujianSection->id;
+                    $ujianSectionSoal->soal_id = $soalId;
+                    $ujianSectionSoal->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ujian berhasil diperbarui',
+                'data' => $ujian
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui ujian: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
