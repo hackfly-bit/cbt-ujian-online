@@ -43,7 +43,7 @@ function initDataTables() {
                 },
                 {
                     data: "nama_ujian",
-                    name: "nama_ujian"
+                    name: "nama_ujian",
                 },
                 {
                     data: "status",
@@ -118,7 +118,7 @@ function initDataTables() {
     }
 
     // Initialize all datatables
-    if (document.getElementById('selection-datatable-ujian-semua')) {
+    if (document.getElementById("selection-datatable-ujian-semua")) {
         window.tableUjianSemua = initDatatable({
             selector: "#selection-datatable-ujian-semua",
             filterWrapperSelector: "#custom-filters-ujian-semua",
@@ -127,8 +127,7 @@ function initDataTables() {
         });
     }
 
-
-    if (document.getElementById('selection-datatable-ujian-aktif')) {
+    if (document.getElementById("selection-datatable-ujian-aktif")) {
         window.tableUjianAktif = initDatatable({
             selector: "#selection-datatable-ujian-aktif",
             // filterWrapperSelector: "#custom-filters-ujian-aktif",s
@@ -137,7 +136,7 @@ function initDataTables() {
         });
     }
 
-    if (document.getElementById('selection-datatable-ujian-draft')) {
+    if (document.getElementById("selection-datatable-ujian-draft")) {
         window.tableUjianDraft = initDatatable({
             selector: "#selection-datatable-ujian-draft",
             // filterWrapperSelector: "#custom-filters-ujian-draft",s
@@ -146,7 +145,7 @@ function initDataTables() {
         });
     }
 
-    if (document.getElementById('selection-datatable-ujian-selesai')) {
+    if (document.getElementById("selection-datatable-ujian-selesai")) {
         window.tableUjianSelesai = initDatatable({
             selector: "#selection-datatable-ujian-selesai",
             // filterWrapperSelector: "#custom-filters-ujian-selesai",s
@@ -184,56 +183,76 @@ function initDataTables() {
 // Function to show delete confirmation
 window.showDeleteConfirmation = function (id) {
     currentUjianId = id;
-    $('#modal-hapus').modal('show');
+    $("#modal-hapus").modal("show");
 };
 
 // Handle delete confirmation
-$(document).on('click', '#btn-hapus-confirm', function () {
+$(document).on("click", "#btn-hapus-confirm", function () {
     if (currentUjianId) {
         const $btn = $(this);
-        const $spinner = $btn.find('.spinner-border');
+        const $spinner = $btn.find(".spinner-border");
 
         // Show loading state
-        $btn.prop('disabled', true);
-        $spinner.removeClass('d-none');
+        $btn.prop("disabled", true);
+        $spinner.removeClass("d-none");
 
         // Make delete request
         $.ajax({
             url: `/ujian/${currentUjianId}`,
-            method: 'DELETE',
+            method: "DELETE",
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
             },
             success: function (response) {
                 if (response.success) {
-                    $('#modal-hapus').modal('hide');
+                    $("#modal-hapus").modal("hide");
 
                     // Refresh all tables
-                    if (window.tableUjianSemua) window.tableUjianSemua.ajax.reload();
-                    if (window.tableUjianAktif) window.tableUjianAktif.ajax.reload();
-                    if (window.tableUjianDraft) window.tableUjianDraft.ajax.reload();
-                    if (window.tableUjianSelesai) window.tableUjianSelesai.ajax.reload();
+                    if (window.tableUjianSemua)
+                        window.tableUjianSemua.ajax.reload();
+                    if (window.tableUjianAktif)
+                        window.tableUjianAktif.ajax.reload();
+                    if (window.tableUjianDraft)
+                        window.tableUjianDraft.ajax.reload();
+                    if (window.tableUjianSelesai)
+                        window.tableUjianSelesai.ajax.reload();
 
                     // Show success message
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success('Ujian berhasil dihapus');
+                    if (typeof toastr !== "undefined") {
+                        toastr.success("Ujian berhasil dihapus");
                     }
                 } else {
-                    alert('Error: ' + response.message);
+                    alert("Error: " + response.message);
                 }
             },
             error: function (xhr) {
-                alert('Terjadi kesalahan saat menghapus ujian');
-                console.error('Delete error:', xhr);
+                alert("Terjadi kesalahan saat menghapus ujian");
+                console.error("Delete error:", xhr);
             },
             complete: function () {
                 // Hide loading state
-                $btn.prop('disabled', false);
-                $spinner.addClass('d-none');
+                $btn.prop("disabled", false);
+                $spinner.addClass("d-none");
                 currentUjianId = null;
-            }
+            },
         });
     }
 });
 
+// Salin link saat tombol dengan class .copy-link diklik
+$(document).on('click', '.copy-link', function () {
+    const link = $(this).data('link');
+
+    // Hilangkan tanda kutip tambahan jika ada
+    const cleanLink = link.replace(/^'+|'+$/g, '');
+
+    navigator.clipboard.writeText(cleanLink)
+        .then(() => {
+            alert('Link berhasil disalin ke clipboard');
+        })
+        .catch((err) => {
+            console.error('Gagal menyalin:', err);
+            alert('Gagal menyalin link');
+        });
+});
 

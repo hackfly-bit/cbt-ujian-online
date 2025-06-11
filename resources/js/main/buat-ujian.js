@@ -674,15 +674,15 @@ import flatpickr from "flatpickr";
 
                 let ujianId = null;
                 const urlParts = window.location.pathname.split('/');
-                if (urlParts.length > 2 && urlParts[1] === 'ujian') {
-                    ujianId = urlParts[2]; // Assuming the second part is the ID
-                }
-
                 let url = '/ujian';
                 let method = 'POST';
-                if (ujianId) {
-                    url += `/${ujianId}`;
-                    method = 'PUT'; // Use PUT for updating existing ujian
+                
+                if (urlParts.length > 2 && urlParts[1] === 'ujian') {
+                    const potentialId = urlParts[2];
+                    if (potentialId && potentialId.match(/^\d+$/)) {
+                        url += `/${potentialId}`;
+                        method = 'PUT';
+                    }
                 }
 
                 $.ajax({
