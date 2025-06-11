@@ -4,10 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\BankSoalController;
 use App\Http\Controllers\FilterController;
+use App\Http\Controllers\JenisUjianController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UjianController;
 use App\Http\Controllers\SubKategoriController;
 use App\Http\Controllers\SertifikatController;
+use App\Models\JenisUjian;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -70,6 +72,15 @@ Route::group(['prefix' => 'kategori', 'as' => 'kategori.', 'middleware' => 'auth
     Route::get('/{id}', [KategoriController::class, 'show'])->name('show');
 });
 
+// jenis-ujian
+
+Route::group(['prefix' => 'jenis-ujian', 'as' => 'jenis-ujian.', 'middleware' => 'auth'], function () {
+    Route::get('/', [JenisUjianController::class, 'index'])->name('index');
+    Route::post('/', [JenisUjianController::class, 'store'])->name('store');
+    Route::put('/{id}', [JenisUjianController::class, 'update'])->name('update');
+    Route::delete('/{id}', [JenisUjianController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [JenisUjianController::class, 'show'])->name('show');
+});
 
 Route::group(['prefix' => 'filter', 'as' => 'filter.', 'middleware' => 'auth'], function () {
     Route::get('/soals', [FilterController::class, 'getSoals'])->name('soals');

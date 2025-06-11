@@ -44,7 +44,7 @@
                     </div>
 
                     <!-- Tanggal Kedaluwarsa -->
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label for="tanggal_kedaluwarsa" class="form-label">Tanggal Kedaluwarsa (Opsional)</label>
                         <div class="input-group mb-1">
                             <span class="input-group-text"><i class="bi bi-calendar"></i></span>
@@ -53,6 +53,20 @@
                         </div>
                         <span>Ujian tidak dapat diakses setelah tanggal ini</span>
                     </div>
+
+                    <!-- Status Ujian -->
+                    <div class="col-md-6 mb-3"">
+                        <label for="status_ujian" class="form-label">Status Ujian</label>
+                        <select id="status_ujian" name="status_ujian" class="form-select">
+                            <option value="">Pilih Status</option>
+                            <option value="draft" > Draft</option>
+                            <option value="aktif" > Aktif</option>
+                            <option value="selesai" > Selesai</option>
+                        </select>
+                    </div>
+
+
+
                 </div>
 
                 <!-- Tombol Navigasi -->

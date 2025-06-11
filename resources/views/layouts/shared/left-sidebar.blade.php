@@ -67,7 +67,7 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="{{route('ujian.index')}}" class="side-nav-link">
+                <a href="{{ route('ujian.index') }}" class="side-nav-link">
                     <i class="ri-file-edit-line"></i>
                     <span> Ujian </span>
                 </a>
@@ -85,14 +85,17 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarMaster" aria-expanded="false"
-                    aria-controls="sidebarMaster" class="side-nav-link">
+                <a data-bs-toggle="collapse" href="#sidebarMaster" aria-expanded="false" aria-controls="sidebarMaster"
+                    class="side-nav-link">
                     <i class="ri-database-2-line"></i>
                     <span> Master Data </span>
                     <span class="menu-arrow"></span>
                 </a>
                 <div class="collapse" id="sidebarMaster">
                     <ul class="side-nav-second-level mt-2">
+                        <li class="side-nav-second-level mb-1">
+                            <a href="{{ route('jenis-ujian.index') }}">Jenis Ujian</a>
+                        </li>
                         <li class="side-nav-second-level mb-1">
                             <a href="{{ route('kategori.index') }}">Kategori</a>
                         </li>
