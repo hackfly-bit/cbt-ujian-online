@@ -606,24 +606,7 @@
                                 </li>
                             @endif
                         @else
-                            
-                            <li class="answer-option">
-                                <input type="radio" name="jawaban" id="option1" value="option1">
-                                <label for="option1">فنون</label>
-                            </li>
-                            <li class="answer-option">
-                                <input type="radio" name="jawaban" id="option2" value="option2">
-                                <label for="option2">فنات</label>
-                            </li>
-                            <li class="answer-option">
-                                <input type="radio" name="jawaban" id="option3" value="option3">
-                                <label for="option3">فنادق</label>
-                            </li>
-                            <li class="answer-option">
-                                <input type="radio" name="jawaban" id="option4" value="option4">
-                                <label for="option4">فنادق</label>
-                            </li>
-
+                            {{-- No dummy question/answer here, only show if data exists --}}
                         @endif
                     </ul>
                 </form>
@@ -792,9 +775,12 @@
 
 @section('script')
     <!-- SweetAlert2 JS -->
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         console.log(@json($ujian ?? 'TEST'));
+
+        console.log(@json(Session::all()));
 
 
         let currentQuestion = {{ $currentQuestionNumber ?? 1 }};
@@ -1050,7 +1036,9 @@
 
         // Listen for answer changes (radio buttons and text inputs)
         document.addEventListener('change', function(e) {
+            //   console.log('Jawaban berubah:', e.target.name, e.target.value);
             if (e.target.name && e.target.name.startsWith('jawaban_')) {
+                console.log('Jawaban berubah:', e.target.name, e.target.value);
                 saveAnswer();
             }
         });
