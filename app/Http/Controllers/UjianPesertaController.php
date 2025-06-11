@@ -57,7 +57,7 @@ class UjianPesertaController extends Controller
         session([
             'ujian_id' => $ujian->id,
             'ujian_link' => $request->ujian_link,
-            'name' => $request->name,
+            'name' => $request->nama,
             'email' => $request->email,
             'exam_start_time' => now(),
             'answered_questions' => []
