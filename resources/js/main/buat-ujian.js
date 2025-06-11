@@ -90,11 +90,16 @@ import flatpickr from "flatpickr";
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Metode Penilaian</label>
-                                <select class="form-select" name="metode_penilaian">
+                                <select class="form-select metode-penilaian-dropdown" name="metode_penilaian">
                                     <option value="">Pilih Metode</option>
                                     <option value="otomatis">Otomatis</option>
                                     <option value="manual">Manual</option>
                                 </select>
+                            </div>
+                            <div class="mb-2 formula-input-group" style="display: none;">
+                                <label class="form-label">Masukan Rumus Custom</label>
+                                <small class="form-text text-muted">Contoh: <code>0.4 * A + 0.6 * B</code> (A = nilai soal pilihan ganda, B = nilai soal esai)</small>
+                                <input type="text" class="form-control" name="formula" placeholder="Masukkan nama formula">
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Kategori Soal</label>
@@ -172,11 +177,16 @@ import flatpickr from "flatpickr";
                     </div>
                     <div class="mb-2">
                         <label class="form-label">Metode Penilaian</label>
-                        <select class="form-select" name="metode_penilaian">
+                        <select class="form-select metode-penilaian-dropdown" name="metode_penilaian">
                         <option value="">Pilih Metode</option>
                         <option value="otomatis" ${section.metode_penilaian === 'otomatis' ? 'selected' : ''}>Otomatis</option>
                         <option value="manual" ${section.metode_penilaian === 'manual' ? 'selected' : ''}>Manual</option>
                         </select>
+                    </div>
+                    <div class="mb-2 formula-input-group" style="display: ${section.metode_penilaian === 'manual' ? 'block' : 'none'};">
+                        <label class="form-label">Masukan Rumus Custom</label>
+                        <small class="form-text text-muted">Contoh: <code>0.4 * A + 0.6 * B</code> (A = nilai soal pilihan ganda, B = nilai soal esai)</small>
+                        <input type="text" class="form-control" name="formula" placeholder="Masukkan rumus" value="${section.formula || ''}">
                     </div>
                     <div class="mb-2">
                         <label class="form-label">Kategori Soal</label>
@@ -234,6 +244,19 @@ import flatpickr from "flatpickr";
                     new bootstrap.Collapse(this).hide();
                 }
             });
+        });
+
+        // Handle metode penilaian change
+        $("#section-container").on("change", ".metode-penilaian-dropdown", function () {
+            const $dropdown = $(this);
+            const selectedValue = $dropdown.val();
+            const $formulaGroup = $dropdown.closest('.section-form').find('.formula-input-group');
+
+            if (selectedValue === 'manual') {
+                $formulaGroup.show();
+            } else {
+                $formulaGroup.hide();
+            }
         });
 
         // Handle category selection change

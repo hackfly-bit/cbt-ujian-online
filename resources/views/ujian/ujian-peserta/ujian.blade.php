@@ -530,7 +530,7 @@
                     <span style="color: #999;">(Section {{ $currentSectionNumber ?? 1 }})</span>
                 </div>
 
-                @if ($currentQuestion && $currentQuestion->jenis_isian)
+                @if (isset($currentQuestion) && $currentQuestion->jenis_isian)
                     <div
                         class="question-type-indicator
                         @if ($currentQuestion->jenis_isian === 'multiple_choice' || $currentQuestion->jenis_isian === 'pilihan_ganda') type-multiple-choice

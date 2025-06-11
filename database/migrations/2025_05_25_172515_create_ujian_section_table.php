@@ -22,7 +22,8 @@ return new class extends Migration
             // $table->string('instruksi', 65535)->nullable();
             $table->text('instruksi')->nullable();
             $table->string('metode_penilaian')->nullable();
-                  $table->timestamps();
+            $table->string('formula')->nullable();
+            $table->timestamps();
         });
     }
 

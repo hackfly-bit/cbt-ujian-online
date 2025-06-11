@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $bobot_nilai
  * @property string $instruksi
  * @property string $metode_penilaian
+ * @property string $formula
  * @property string $created_at
  * @property string $updated_at
  * @property UjianSectionSoal[] $ujianSectionSoals
@@ -30,7 +31,7 @@ class UjianSection extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ujian_id', 'kategori_id','nama_section', 'bobot_nilai', 'instruksi', 'metode_penilaian', 'created_at', 'updated_at'];
+    protected $fillable = ['ujian_id', 'kategori_id','nama_section', 'bobot_nilai', 'instruksi', 'metode_penilaian', 'formula', 'created_at', 'updated_at'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

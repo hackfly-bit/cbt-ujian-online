@@ -359,6 +359,10 @@
                     <span class="info-value">{{ $examSummary['total_correct'] }} jawaban</span>
                 </div>
                 <div class="info-row">
+                    <span class="info-label">Jawaban Salah:</span>
+                    <span class="info-value">{{ $examSummary['total_incorrect'] }} jawaban</span>
+                </div>
+                <div class="info-row">
                     <span class="info-label">Durasi Pengerjaan:</span>
                     <span class="info-value">{{ $examSummary['exam_duration_minutes'] }} menit</span>
                 </div>
@@ -413,6 +417,10 @@
                                 <div class="stat-item">
                                     <div class="stat-value">{{ $section['correct_answers'] }}</div>
                                     <div class="stat-label">Benar</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ $section['incorrect_answers'] }}</div>
+                                    <div class="stat-label">Salah</div>
                                 </div>
                                 <div class="stat-item">
                                     <div class="stat-value">{{ $section['completion_percentage'] }}%</div>

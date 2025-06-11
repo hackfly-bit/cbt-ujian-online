@@ -152,6 +152,7 @@ class UjianController extends Controller
                 $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
                 $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
                 $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
+                $ujianSection->formula = $sectionData['formula'] ?? null;
                 $ujianSection->kategori_id = $sectionData['kategori_id'];
                 $ujianSection->save();
 
@@ -264,6 +265,7 @@ class UjianController extends Controller
                 $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
                 $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
                 $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
+                $ujianSection->formula = $sectionData['formula'] ?? null;
                 $ujianSection->kategori_id = $sectionData['kategori_id'];
                 $ujianSection->save();
 

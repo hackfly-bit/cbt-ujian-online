@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Log;
 class UjianPesertaController extends Controller
 {
     //
-
-
     public function ujianLogin($link)
     {
 
@@ -393,6 +391,8 @@ class UjianPesertaController extends Controller
         $totalQuestions = 0;
         $totalAnswered = 0;
         $totalCorrect = 0;
+        $totalIncorrect = 0;
+        $totalScoreSections = 0;
         $totalScore = 0;
 
         foreach ($ujian->ujianSections as $sectionIndex => $section) {
@@ -400,6 +400,7 @@ class UjianPesertaController extends Controller
             $sectionAnswered = 0;
             $sectionCorrect = 0;
             $sectionScore = 0;
+            $sectionIncorrect = 0;
 
             foreach ($section->ujianSectionSoals as $sectionSoal) {
                 $soal = $sectionSoal->soal;
@@ -415,20 +416,26 @@ class UjianPesertaController extends Controller
                     // Check if answer is correct (for multiple choice and true/false)
                     if ($soal->jenis_isian === 'multiple_choice' || $soal->jenis_isian === 'pilihan_ganda') {
                         if ($savedAnswer->jawaban_soal_id) {
-                            $correctAnswer = $soal->jawabanSoals->where('is_correct', true)->first();
+                            $correctAnswer = $soal->jawabanSoals->where('jawaban_benar', true)->first();
                             if ($correctAnswer && $savedAnswer->jawaban_soal_id == $correctAnswer->id) {
                                 $sectionCorrect++;
                                 $totalCorrect++;
+                            } else {
+                                $sectionIncorrect++;
+                                $totalIncorrect++;
                             }
                         }
                     } elseif ($soal->jenis_isian === 'true_false') {
                         // For true/false, check against correct answer from jawaban_soals
-                        $correctAnswer = $soal->jawabanSoals->where('is_correct', true)->first();
+                        $correctAnswer = $soal->jawabanSoals->where('jawaban_benar', true)->first();
                         if ($correctAnswer && $savedAnswer->jawaban_text) {
                             $correctValue = strtolower($correctAnswer->jawaban) === 'true' ? 'true' : 'false';
                             if ($savedAnswer->jawaban_text === $correctValue) {
                                 $sectionCorrect++;
                                 $totalCorrect++;
+                            } else {
+                                $sectionIncorrect++;
+                                $totalIncorrect++;
                             }
                         }
                     }
@@ -436,7 +443,38 @@ class UjianPesertaController extends Controller
                 }
             }
 
-            // Calculate section score
+            // Calculate section score using custom formula
+            // $sectionScore = 0;
+
+            // // Get custom formula from section or ujian settings
+            // $customFormula = $section->rumus_nilai ?? $ujian->rumus_nilai ?? null;
+
+            // if ($customFormula && !empty(trim($customFormula))) {
+            //     try {
+            //         // Sanitize and evaluate the custom formula
+            //         $sectionScore = $this->evaluateCustomFormula($customFormula, $sectionCorrect);
+            //     } catch (\Exception $e) {
+            //         // If formula evaluation fails, fallback to percentage calculation
+            //         Log::warning('Custom formula evaluation failed: ' . $e->getMessage());
+            //         $sectionScore = $sectionQuestions > 0 ? ($sectionCorrect / $sectionQuestions) * 100 : 0;
+            //     }
+            // } else {
+            //     // Default percentage calculation
+            //     $sectionScore = $sectionQuestions > 0 ? ($sectionCorrect / $sectionQuestions) * 100 : 0;
+            // }
+
+            // $sectionScore = 0;
+            if ($section->metode_penilaian == 'manual') {
+                $getFormula = $section->formula ?? null;
+                if ($getFormula == null || $getFormula == '') {
+                    $countScore = ($sectionCorrect / $section->bobot_nilai) * 100;
+                    $totalScoreSections += $countScore;
+                }
+            } else {
+                $countScore = ($sectionCorrect / $section->bobot_nilai) * 100;
+                $totalScoreSections += $countScore;
+            }
+
             if ($sectionQuestions > 0) {
                 $sectionScore = ($sectionCorrect / $sectionQuestions) * 100;
             }
@@ -447,6 +485,7 @@ class UjianPesertaController extends Controller
                 'total_questions' => $sectionQuestions,
                 'answered_questions' => $sectionAnswered,
                 'correct_answers' => $sectionCorrect,
+                'incorrect_answers' => $sectionIncorrect,
                 'score_percentage' => round($sectionScore, 2),
                 'completion_percentage' => $sectionQuestions > 0 ? round(($sectionAnswered / $sectionQuestions) * 100, 2) : 0
             ];
@@ -454,7 +493,8 @@ class UjianPesertaController extends Controller
 
         // Calculate total score
         if ($totalQuestions > 0) {
-            $totalScore = ($totalCorrect / $totalQuestions) * 100;
+            // $totalScore = ($totalCorrect / $totalQuestions) * 100;
+            $totalScore = round($totalScoreSections, 2);
         }
 
         // Calculate exam duration
@@ -470,8 +510,9 @@ class UjianPesertaController extends Controller
             'total_questions' => $totalQuestions,
             'total_answered' => $totalAnswered,
             'total_correct' => $totalCorrect,
+            'total_incorrect' => $totalIncorrect,
             'total_score' => round($totalScore, 2),
-            'completion_percentage' => $totalQuestions > 0 ? round(($totalAnswered / $totalQuestions) * 100, 2) : 0,
+            'completion_percentage' => $totalQuestions > 0 ? round(($totalAnswered / max($totalQuestions, 1)) * 100, 2) : 0,
             'exam_duration_minutes' => $examDuration,
             'exam_start_time' => $examStartTime,
             'exam_end_time' => $examEndTime,
@@ -514,5 +555,21 @@ class UjianPesertaController extends Controller
             'examSummary' => $examSummary,
             'ujian' => $ujian
         ]);
+    }
+
+    private function evaluateCustomFormula($formula, $correctAnswers)
+    {
+        // Sanitize and prepare the formula
+        $sanitizedFormula = preg_replace('/[^0-9+\-*\/().]/', '', $formula);
+        $sanitizedFormula = str_replace('x', $correctAnswers, $sanitizedFormula);
+
+        // Evaluate the formula using eval (make sure to handle potential security risks)
+        $result = eval("return $sanitizedFormula;");
+
+        if ($result === false) {
+            throw new \Exception('Invalid formula');
+        }
+
+        return $result;
     }
 }
