@@ -95,7 +95,7 @@
                 </div>
             </li>
             <li class="side-nav-item">
-                <a href="{{ route('second', ['pengaturan', 'index']) }}" class="side-nav-link">
+                <a href="{{ route('pengaturan.index') }}" class="side-nav-link">
                     <i class="ri-settings-3-line"></i>
                     <span> Pengaturan </span>
                 </a>

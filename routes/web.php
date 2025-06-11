@@ -9,6 +9,8 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UjianController;
 use App\Http\Controllers\SubKategoriController;
 use App\Http\Controllers\SertifikatController;
+use App\Http\Controllers\SystemSettingController;
+use App\Http\Controllers\UserController;
 use App\Models\JenisUjian;
 use Illuminate\Support\Facades\Auth;
 
@@ -108,6 +110,18 @@ Route::middleware(['auth'])->prefix('sertifikat')->as('sertifikat.')->group(func
     Route::delete('/{id}', [SertifikatController::class, 'destroy'])->name('destroy');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/pengaturan', [SystemSettingController::class, 'index'])->name('pengaturan.index');
+    Route::put('/pengaturan/profil', [SystemSettingController::class, 'updateProfil'])->name('pengaturan.updateProfil');
+    Route::put('/pengaturan/logo', [SystemSettingController::class, 'updateLogo'])->name('pengaturan.updateLogo');
+    // Manajemen User
+    Route::get('/pengaturan/users', [UserController::class, 'datatable'])->name('pengaturan.users.datatable');
+    Route::put('/pengaturan/users/{user}/status', [UserController::class, 'updateStatus'])->name('pengaturan.users.updateStatus');
+    Route::put('/pengaturan/users/{user}/role', [UserController::class, 'updateRole'])->name('pengaturan.users.updateRole');
+    Route::delete('/pengaturan/users/{user}', [UserController::class, 'destroy'])->name('pengaturan.users.destroy');
+    // Reset Password
+    Route::put('/pengaturan/reset-password', [SystemSettingController::class, 'resetPassword'])->name('pengaturan.resetPassword');
+});
 
 
 Route::get('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::class, 'ujianLogin'])->name('ujian.login');

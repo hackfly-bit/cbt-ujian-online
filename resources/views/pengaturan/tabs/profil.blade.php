@@ -5,14 +5,13 @@
                 <h3 class="fw-bold mb-2">Informasi Profil</h3>
                 <p class="mb-4">Lihat dan perbarui informasi profil Anda</p>
 
-                <form action="" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pengaturan.updateProfil') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-
                     <div class="row">
                         <!-- Kolom Kiri - Preview Gambar -->
                         <div class="col-md-4">
-                            <img id="preview" src="{{ asset('images/placeholder.jpeg') }}" alt="Preview"
+                            <img id="preview" src="{{ $profil['image'] ? asset($profil['image']) : asset('images/placeholder.jpeg') }}" alt="Preview"
                                 class="img-thumbnail" style="width: 100%; height: 400px; object-fit: cover;">
                         </div>
 
@@ -24,14 +23,14 @@
                                     <div class="col-md-12 mb-3">
                                         <label for="nama" class="form-label">Nama</label>
                                         <input type="text" id="nama" name="nama" class="form-control"
-                                            placeholder="Masukkan nama lengkap" required>
+                                            placeholder="Masukkan nama lengkap" value="{{ $profil['nama'] }}">
                                     </div>
 
                                     <!-- Email -->
                                     <div class="col-md-12 mb-3">
                                         <label for="email" class="form-label">Email</label>
                                         <input type="email" id="email" name="email" class="form-control"
-                                            placeholder="Masukkan alamat email">
+                                            placeholder="Masukkan alamat email" value="{{ $profil['email'] }}">
                                     </div>
                                     <div class="col-md-12 mb-3">
                                         <label for="image" class="form-label">Upload Profile</label>

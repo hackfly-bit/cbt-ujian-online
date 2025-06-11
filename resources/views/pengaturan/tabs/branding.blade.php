@@ -5,15 +5,15 @@
                 <h3 class="fw-bold mb-2">Upload Logo</h3>
                 <p class="mb-4">Upload dan kelola logo aplikasi</p>
 
-                <form action="" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pengaturan.updateLogo') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-
                     <div class="row">
                         <!-- Kolom Kiri - Preview Logo -->
                         <div class="col-md-4">
-                            <img id="previewLogo" src="{{ asset('images/placeholder.jpeg') }}" alt="Preview Logo"
-                                class="img-thumbnail" style="width: 100%; height: 400px; object-fit: contain;">
+                            <img id="previewLogo" src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}"
+                                alt="Preview Logo" class="img-thumbnail"
+                                style="width: 100%; height: 400px; object-fit: contain;">
                         </div>
 
                         <!-- Kolom Kanan - Form Input -->
@@ -35,7 +35,7 @@
                                 <!-- Tombol Submit -->
                                 <div class="d-flex justify-content-end mt-3">
                                     <button type="submit" class="btn btn-primary">
-                                        Simpan Perubahan</i>
+                                        Simpan Perubahan
                                     </button>
                                 </div>
                             </div>

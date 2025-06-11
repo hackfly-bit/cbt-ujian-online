@@ -5,9 +5,24 @@
                 <h3 class="fw-bold mb-2">Ubah Password</h3>
                 <p class="mb-4">Kelola pengaturan keamanan akun Anda</p>
 
-                <form action="" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pengaturan.resetPassword') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
                     <div class="row">
                         <!-- Password Saat Ini -->
