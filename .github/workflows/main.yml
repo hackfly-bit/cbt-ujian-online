@@ -39,11 +39,7 @@ jobs:
             **/.git/**
             **/node_modules/**
             **/vendor/**
-            **/tests/**
-            **/storage/**
-            **/.github/**
             .env.*
             composer.lock
             package-lock.json
-            phpunit.xml
             README.md
