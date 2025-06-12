@@ -30,20 +30,21 @@ jobs:
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_TARGET }}
-          local-dir: ./
-          exclude: |
-            **/.git/**
-            **/node_modules/**
-            **/vendor/**
-            **/tests/**
-            **/storage/**
-            **/.github/**
-            .env.*
-            composer.lock
-            package-lock.json
-            phpunit.xml
-            README.md
+            server: ${{ secrets.FTP_HOST }}
+            username: ${{ secrets.FTP_USERNAME }}
+            password: ${{ secrets.FTP_PASSWORD }}
+            server-dir: ${{ secrets.FTP_TARGET }}
+            local-dir: ./
+            exclude: |
+              **/.git/**
+              **/node_modules/**
+              **/vendor/**
+              **/tests/**
+              **/storage/**
+              **/.github/**
+              .env.*
+              composer.lock
+              package-lock.json
+              phpunit.xml
+              README.md
+              **/public/build/**
