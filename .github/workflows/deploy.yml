@@ -47,4 +47,4 @@ jobs:
               package-lock.json
               phpunit.xml
               README.md
-              **/public/build/**
+              
