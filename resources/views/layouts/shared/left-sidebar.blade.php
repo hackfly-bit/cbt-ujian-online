@@ -42,7 +42,7 @@
         <div class="leftbar-user">
             <a href="{{ route('second', ['pages', 'profile']) }}">
                 <img src="/images/users/avatar-1.jpg" alt="user-image" height="42" class="rounded-circle shadow-sm">
-                <span class="leftbar-user-name mt-2">Tosha Minner</span>
+                <span class="leftbar-user-name mt-2">{{ Auth::user()->name }}</span>
             </a>
         </div>
 
