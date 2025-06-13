@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\JawabanSoal; // add model for checking
+use App\Models\Peserta;
 use Illuminate\Support\Facades\Log;
 
 class UjianPesertaController extends Controller
@@ -43,14 +44,6 @@ class UjianPesertaController extends Controller
             return back()->withErrors(['ujian_link' => 'Ujian tidak ditemukan.']);
         }
 
-        // Cek apakah peserta terdaftar untuk ujian ini
-
-
-        // Verifikasi password (tidak di-hash, plaintext)
-        // if ($request->password !== $peserta->password) {
-        //     return back()->withErrors(['password' => 'Password tidak valid.']);
-        // }
-
         // Buat session untuk peserta ujian
         session([
             'ujian_id' => $ujian->id,
@@ -60,6 +53,49 @@ class UjianPesertaController extends Controller
             'exam_start_time' => now(),
             'answered_questions' => []
         ]);
+
+        $peserta = Peserta::updateOrCreate(
+            ['email' => $request->email],
+            [
+                'nama' => $request->nama ?? null,
+                'phone' => $request->phone ?? null,
+                'institusi' => $request->institusi ?? null,
+                'nomor_induk' => $request->nomor_induk ?? null,
+                'tanggal_lahir' => $request->tanggal_lahir ?? null,
+                'alamat' => $request->alamat ?? null,
+                'foto' => $request->file('foto') ? $request->file('foto')->store('peserta_foto', 'public') : null,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        );
+
+        if($peserta) {
+            // Simpan ID peserta di session
+            session(['peserta_id' => $peserta->id]);
+
+            $hasilUjian = \App\Models\HasilUjian::updateOrCreate(
+                ['ujian_id' => $ujian->id, 'peserta_id' => $peserta->id],
+                [
+                    'hasil_nilai' => 0,
+                    'total_soal' => 0,
+                    'soal_dijawab' => 0,
+                    'jawaban_benar' => 0,
+                    'durasi_pengerjaan' => 0,
+                    'waktu_selesai' => null, // Waktu selesai akan diisi setelah ujian selesai
+                    'waktu_selesai_timestamp' => null, // Waktu selesai timestamp akan diisi setelah ujian selesai
+                    'status' => 'in_progress', // Status awal ujian
+                    'peserta_id' => $peserta->id,
+                    'ujian_id' => $ujian->id,
+                    // Sertifikat ID akan diisi setelah ujian selesai
+                    'sertifikat_id' => null, // Sertifikat akan diisi setelah ujian selesai
+                    'waktu_mulai' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]
+            );
+        } else {
+            return back()->withErrors(['peserta' => 'Gagal menyimpan data peserta.']);
+        }
 
         // Redirect ke halaman ujian
         return redirect()->route('ujian.peserta', ['link' => $request->ujian_link]);
@@ -369,6 +405,7 @@ class UjianPesertaController extends Controller
         $ujianId = session('ujian_id');
         $email = session('email');
         $name = session('name');
+        $pesertaId = session('peserta_id');
         $examStartTime = session('exam_start_time');
 
         // Ambil data ujian dengan relasi
@@ -501,6 +538,8 @@ class UjianPesertaController extends Controller
         $examEndTime = now();
         $examDuration = $examStartTime ? $examStartTime->diffInMinutes($examEndTime) : 0;
 
+        $getSertifikat = \App\Models\Sertifikat::where('ujian_id', $ujianId)->first();
+
         // Prepare exam summary
         $examSummary = [
             'ujian_name' => $ujian->nama_ujian,
@@ -523,17 +562,17 @@ class UjianPesertaController extends Controller
         try {
             \App\Models\HasilUjian::create([
                 'ujian_id' => $ujianId,
-                'peserta_email' => $email,
-                'peserta_nama' => $name,
                 'total_soal' => $totalQuestions,
                 'soal_dijawab' => $totalAnswered,
                 'jawaban_benar' => $totalCorrect,
-                'nilai' => $totalScore,
+                'hasil_nilai' => $totalScore,
                 'durasi_pengerjaan' => $examDuration,
                 'waktu_mulai' => $examStartTime,
                 'waktu_selesai' => $examEndTime,
                 'detail_section' => json_encode($sectionResults),
-                'status' => 'completed'
+                'status' => 'completed',
+                'peserta_id' => $pesertaId,
+                'sertifikat_id' => $getSertifikat ? $getSertifikat->id : null
             ]);
         } catch (\Exception $e) {
             // If HasilUjian table doesn't exist or has different structure, continue without saving
@@ -572,4 +611,8 @@ class UjianPesertaController extends Controller
 
         return $result;
     }
+
+
+
+
 }

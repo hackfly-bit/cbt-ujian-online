@@ -23,8 +23,7 @@ return new class extends Migration
             $table->string('tanggal_lahir', 0)->nullable();
             $table->string('alamat')->nullable();
             $table->string('foto')->nullable();
-            $table->integer('ujian_id')->nullable()->index('ujian_id');
-                  $table->timestamps();
+            $table->timestamps();
         });
     }
 

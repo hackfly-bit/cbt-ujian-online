@@ -7,12 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property integer $id
  * @property integer $peserta_id
- * @property integer $sertifikat_id
+ * @property integer $ujian_id
+ * @property integer $total_soal
+ * @property integer $soal_dijawab
+ * @property integer $jawaban_benar
  * @property integer $hasil_nilai
+ * @property integer $durasi_pengerjaan
+ * @property string $waktu_mulai
  * @property string $waktu_selesai
+ * @property string $waktu_selesai_timestamp
+ * @property string $detail_section
+ * @property string $status
+ * @property integer $sertifikat_id
  * @property string $created_at
  * @property string $updated_at
  * @property Peserta $peserta
+ * @property Ujian $ujian
  * @property Sertifikat $sertifikat
  */
 class HasilUjian extends Model
@@ -27,12 +37,34 @@ class HasilUjian extends Model
     /**
      * @var array
      */
-    protected $fillable = ['peserta_id', 'sertifikat_id', 'hasil_nilai', 'waktu_selesai', 'created_at', 'updated_at'];
+    protected $fillable = [
+        'peserta_id',
+        'ujian_id',
+        'total_soal',
+        'soal_dijawab',
+        'jawaban_benar',
+        'hasil_nilai',
+        'durasi_pengerjaan',
+        'waktu_mulai',
+        'waktu_selesai',
+        'waktu_selesai_timestamp',
+        'detail_section',
+        'status',
+        'sertifikat_id'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $casts = [
+        'waktu_mulai' => 'datetime',
+        'waktu_selesai_timestamp' => 'datetime',
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function Peserta()
+    public function peserta()
     {
         return $this->belongsTo('App\Models\Peserta', 'peserta_id');
     }
@@ -40,8 +72,16 @@ class HasilUjian extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function ujian()
+    {
+        return $this->belongsTo('App\Models\Ujian', 'ujian_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function sertifikat()
     {
-        return $this->belongsTo('App\Models\Sertifikat');
+        return $this->belongsTo('App\Models\Sertifikat', 'sertifikat_id');
     }
 }
