@@ -140,6 +140,9 @@ class TestUjianSeeder extends Seeder
         // Create exam settings
         \App\Models\UjianPengaturan::create([
             'ujian_id' => $ujian->id,
+            'metode_penilaian' => 'otomatis',
+            'nilai_kelulusan' => 70,
+            'hasil_ujian_tersedia' => true,
             'acak_soal' => false,
             'acak_jawaban' => false,
             'lihat_hasil' => true,

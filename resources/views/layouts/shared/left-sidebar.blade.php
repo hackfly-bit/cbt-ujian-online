@@ -66,7 +66,7 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="{{ route('second', ['hasil-ujian', 'index']) }}" class="side-nav-link">
+                <a href="{{ route('hasil-ujian.index') }}" class="side-nav-link">
                     <i class="ri-bar-chart-box-line"></i>
                     <span> Hasil Ujian </span>
                 </a>

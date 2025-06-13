@@ -109,6 +109,7 @@ class BankSoalSeeder extends Seeder
 
             $newSoal = Soal::updateOrCreate(['id' => $soalId], [
                 'jenis_font' => $soal['jenis_font'],
+                'jenis_isian' => $soal['jawaban'][0]['jenis_isian'], // Set jenis_isian from first answer
                 'pertanyaan' => $soal['pertanyaan'],
                 'is_audio' => $soal['is_audio'],
                 'tingkat_kesulitan_id' => $soal['tingkat_kesulitan_id'],

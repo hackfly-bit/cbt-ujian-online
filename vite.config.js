@@ -40,6 +40,7 @@ export default defineConfig({
                 'resources/js/main/pengaturan.js',
                 'resources/js/main/subkategori.js',
                 'resources/js/main/ujian.js',
+                'resources/js/main/hasil-ujian.js',
                 'resources/js/pages/demo.toastr.js',
                 'resources/js/pages/component.chat.js',
                 'resources/js/pages/demo.apex-mixed.js',

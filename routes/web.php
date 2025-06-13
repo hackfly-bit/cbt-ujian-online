@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HasilUjianController;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\BankSoalController;
 use App\Http\Controllers\FilterController;
@@ -123,6 +124,13 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/pengaturan/reset-password', [SystemSettingController::class, 'resetPassword'])->name('pengaturan.resetPassword');
 });
 
+
+Route::group(['prefix' => 'hasil-ujian', 'as' => 'hasil-ujian.', 'middleware' => 'auth'], function () {
+    Route::get('/', [HasilUjianController::class, 'index'])->name('index');
+    Route::get('/{id}', [HasilUjianController::class, 'show'])->name('show');
+    Route::get('/{id}/sertifikat', [HasilUjianController::class, 'showCertificate'])->name('certificate');
+    Route::get('/download/results', [HasilUjianController::class, 'downloadResults'])->name('download');
+});
 
 Route::get('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::class, 'ujianLogin'])->name('ujian.login');
 Route::post('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::class, 'generateSession'])->name('ujian.generateSession');
