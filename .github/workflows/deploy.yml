@@ -1,4 +1,4 @@
-name: Deploy to cPanel via SFTP
+name: Deploy to cPanel via FTP
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,24 +27,21 @@ jobs:
             npm run build || true
           fi
 
-      - name: Upload files via SFTP
-        uses: appleboy/scp-action@v0.1.7
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          host: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          port: 22
-          source: "."
-          target: ${{ secrets.SFTP_TARGET }}
-          strip_components: 1
-          rm: false
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_TARGET }}
+          local-dir: ./
           exclude: |
-            .git/
-            node_modules/
-            vendor/
-            .env*
+            **/.git/**
+            **/node_modules/**
+            **/vendor/**
+            **/.github/**
             composer.lock
             package-lock.json
-            phpunit.xml
             README.md
-            public/build/
+            vite.config.js
+            webpack.mix.js
