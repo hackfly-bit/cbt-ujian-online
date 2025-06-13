@@ -22,8 +22,14 @@
     position: sticky;
     text-align: center;
     line-height: $topbar-height;
-    padding: 0 calc($leftbar-width-sm * 0.5 - $logo-sm-height * 0.7);
+    padding: 0 calc($leftbar-width-sm * 0.6 - $logo-sm-height * 0.8);
     transition: $transition-base;
+    height: $topbar-height;
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
 
     span.logo-lg {
         display: block;
@@ -373,7 +379,8 @@ html[data-sidenav-size="condensed"]:not([data-layout="topnav"]) {
     .wrapper {
         .navbar-custom {
             z-index: 1005;
-            margin-left: $leftbar-width-sm;
+            margin-left: 94px;
+            // margin-left: $leftbar-width-sm;
         }
 
         // Side menu
@@ -401,6 +408,9 @@ html[data-sidenav-size="condensed"]:not([data-layout="topnav"]) {
             .logo {
                 z-index: 1;
                 background: $menu-bg;
+                max-width: 100%;
+                height: auto;
+                padding: 0 calc($leftbar-width-sm * 0.4 - $logo-sm-height * 0.6) !important;
 
                 span.logo-lg {
                     display: none;
@@ -613,7 +623,8 @@ html[data-sidenav-size="condensed"]:not([data-layout="topnav"]) {
 
         // Content Page
         .content-page {
-            margin-left: $leftbar-width-sm;
+            margin-left: 94px;
+            // margin-left: $leftbar-width-sm;
             min-height: unset; // 1800px
             // min-height: $leftbar-condensed-height; // 1800px
         }

@@ -5,6 +5,14 @@
 @endsection
 
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+            <i class="bi bi-check-circle me-1"></i>
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Start Content-->
     <div class="container-fluid">
 
@@ -25,41 +33,49 @@
         </div>
         <!-- end page title -->
 
+        @php
+            $activeTab = request('tab', 'profil'); // default ke 'profil'
+        @endphp
+
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Tabs -->
             <ul class="nav nav-tabs" id="tabPengaturan" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="profil-tab" data-bs-toggle="tab" data-bs-target="#profil"
-                        type="button" role="tab">Profil</button>
+                    <button class="nav-link {{ $activeTab == 'profil' ? 'active' : '' }}" id="profil-tab"
+                        data-bs-toggle="tab" data-bs-target="#profil" type="button" role="tab">Profil</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="branding-tab" data-bs-toggle="tab" data-bs-target="#branding" type="button"
-                        role="tab">Branding</button>
+                    <button class="nav-link {{ $activeTab == 'branding' ? 'active' : '' }}" id="branding-tab"
+                        data-bs-toggle="tab" data-bs-target="#branding" type="button" role="tab">Branding</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="manajemen-user-tab" data-bs-toggle="tab" data-bs-target="#manajemen-user" type="button"
-                        role="tab">Manajemen User</button>
+                    <button class="nav-link {{ $activeTab == 'manajemen-user' ? 'active' : '' }}" id="manajemen-user-tab"
+                        data-bs-toggle="tab" data-bs-target="#manajemen-user" type="button" role="tab">Manajemen
+                        User</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="reset-password-tab" data-bs-toggle="tab" data-bs-target="#reset-password" type="button"
-                        role="tab">Reset Password</button>
+                    <button class="nav-link {{ $activeTab == 'reset-password' ? 'active' : '' }}" id="reset-password-tab"
+                        data-bs-toggle="tab" data-bs-target="#reset-password" type="button" role="tab">Reset
+                        Password</button>
                 </li>
             </ul>
         </div>
 
+
         <!-- Konten Tab -->
         <div class="tab-content" id="tabPengaturanContent">
-            <div class="tab-pane fade show active" id="profil" role="tabpanel">
-            @include('pengaturan.tabs.profil')
+            <div class="tab-pane fade {{ $activeTab == 'profil' ? 'show active' : '' }}" id="profil" role="tabpanel">
+                @include('pengaturan.tabs.profil')
             </div>
-            <div class="tab-pane fade" id="branding" role="tabpanel">
-            @include('pengaturan.tabs.branding')
+            <div class="tab-pane fade {{ $activeTab == 'branding' ? 'show active' : '' }}" id="branding" role="tabpanel">
+                @include('pengaturan.tabs.branding')
             </div>
-            <div class="tab-pane fade" id="manajemen-user" role="tabpanel">
-            @include('pengaturan.tabs.manajemen-user')
+            <div class="tab-pane fade {{ $activeTab == 'manajemen-user' ? 'show active' : '' }}" id="manajemen-user"
+                role="tabpanel">
+                @include('pengaturan.tabs.manajemen-user')
             </div>
-            <div class="tab-pane fade" id="reset-password" role="tabpanel">
-            @include('pengaturan.tabs.reset-password')
+            <div class="tab-pane fade {{ $activeTab == 'reset-password' ? 'show active' : '' }}" id="reset-password"
+                role="tabpanel">
+                @include('pengaturan.tabs.reset-password')
             </div>
         </div>
 

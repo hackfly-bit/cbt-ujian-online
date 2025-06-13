@@ -2,24 +2,29 @@
 <div class="leftside-menu d-flex flex-column px-2" style="padding-bottom: 0px !important;">
 
     @php
-        $logo = \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logo')->value('value') ?? null;
+        $branding = [
+            'logoPutih' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoPutih')->value('value') ?? '',
+            'logoHitam' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '',
+            'favLogoPutih' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'favLogoPutih')->value('value') ?? '',
+            'favLogoHitam' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'favLogoHitam')->value('value') ?? '',
+        ];
     @endphp
 
     <!-- Logo -->
     <a href="{{ route('any', 'index') }}" class="logo logo-light">
         <span class="logo-lg">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="logo">
+            <img src="{{ $branding['logoPutih'] ? asset($branding['logoPutih']) : asset('images/placeholder.jpeg') }}" alt="logo">
         </span>
         <span class="logo-sm">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="small logo">
+            <img src="{{ $branding['favLogoPutih'] ? asset($branding['favLogoPutih']) : asset('images/placeholder.jpeg') }}" alt="small logo">
         </span>
     </a>
     <a href="{{ route('any', 'index') }}" class="logo logo-dark">
         <span class="logo-lg">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="logo">
+            <img src="{{ $branding['logoHitam'] ? asset($branding['logoHitam']) : asset('images/placeholder.jpeg') }}" alt="logo">
         </span>
         <span class="logo-sm">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="small logo">
+            <img src="{{ $branding['favLogoHitam'] ? asset($branding['favLogoHitam']) : asset('images/placeholder.jpeg') }}" alt="small logo">
         </span>
     </a>
 

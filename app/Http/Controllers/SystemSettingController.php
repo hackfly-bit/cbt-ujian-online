@@ -18,8 +18,13 @@ class SystemSettingController extends Controller
             'image' => SystemSetting::where('group', 'profil')->where('key', 'image')->value('value') ?? '',
         ];
         // Ambil data logo
-        $logo = SystemSetting::where('group', 'branding')->where('key', 'logo')->value('value') ?? '';
-        return view('pengaturan.index', compact('profil', 'logo'));
+        $branding = [
+            'logoPutih' => SystemSetting::where('group', 'branding')->where('key', 'logoPutih')->value('value') ?? '',
+            'logoHitam' => SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '',
+            'favLogoPutih' => SystemSetting::where('group', 'branding')->where('key', 'favLogoPutih')->value('value') ?? '',
+            'favLogoHitam' => SystemSetting::where('group', 'branding')->where('key', 'favLogoHitam')->value('value') ?? '',
+        ];
+        return view('pengaturan.index', compact('profil', 'branding'));
     }
 
     public function updateProfil(Request $request)
@@ -57,19 +62,31 @@ class SystemSettingController extends Controller
     public function updateLogo(Request $request)
     {
         $request->validate([
-            'logoImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logoPutih' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logoHitam' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'favLogoPutih' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'favLogoHitam' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        if ($request->hasFile('logoImage')) {
-            $file = $request->file('logoImage');
-            $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('image'), $filename);
-            $url = 'image/' . $filename;
-            SystemSetting::updateOrCreate(
-                ['group' => 'branding', 'key' => 'logo'],
-                ['value' => $url, 'type' => 'string']
-            );
+
+        // dd($request->all());
+
+        $logoTypes = ['logoPutih', 'logoHitam', 'favLogoPutih', 'favLogoHitam'];
+        
+        foreach ($logoTypes as $type) {
+            if ($request->hasFile($type)) {
+                $file = $request->file($type);
+                $filename = strtolower($type) . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('image'), $filename);
+                $url = 'image/' . $filename;
+                
+                SystemSetting::updateOrCreate(
+                    ['group' => 'branding', 'key' => $type],
+                    ['value' => $url, 'type' => 'string']
+                );
+            }
         }
-        return redirect()->route('pengaturan.index')->with('success', 'Logo berhasil diperbarui');
+
+        return redirect()->route('pengaturan.index', ['tab' => 'branding'])->with('success', 'Logo berhasil diperbarui');
     }
 
     public function resetPassword(Request $request)
