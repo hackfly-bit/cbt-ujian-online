@@ -183,8 +183,16 @@
 
                         <!-- Logo -->
                         <div class="card-header py-4 text-center bg-primary">
-                            <a href="{{ route('any', 'index') }}ml">
-                                <span><img src="/images/logo.png" alt="logo" height="22"></span>
+                            <a href="{{ route('any', 'index') }}">
+                                @php
+                                    $branding = [
+                                        'logoPutih' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoPutih')->value('value') ?? '',
+                                        'favLogoPutih' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'favLogoPutih')->value('value') ?? '',
+                                    ];
+                                @endphp
+                                <span>
+                                    <img src="{{ $branding['logoPutih'] ? asset($branding['logoPutih']) : asset('images/placeholder.jpeg') }}" alt="logo" height="40">
+                                </span>
                             </a>
                         </div>
 
