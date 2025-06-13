@@ -46,11 +46,13 @@ window.addEventListener("DOMContentLoaded", () => {
             .catch(error => {
                 console.error("Error loading template:", error);
                 // Fallback to white background
-                canvas.setBackgroundColor("#fff", canvas.renderAll.bind(canvas));
+                canvas.set('backgroundColor', '#fff');
+                canvas.renderAll();
             });
     } else {
         // Set white background if no template
-        canvas.setBackgroundColor("#fff", canvas.renderAll.bind(canvas));
+        canvas.set('backgroundColor', '#fff');
+        canvas.renderAll();
     }
     window.certificateCanvas = canvas;
 
@@ -694,9 +696,10 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     // Misalnya kamu panggil ini saat klik "Generate Sertifikat"
-    document
-        .getElementById("generate")
-        .addEventListener("click", renderPlaceholdersFromData);
+    const generateBtn = document.getElementById("generate");
+    if (generateBtn) {
+        generateBtn.addEventListener("click", renderPlaceholdersFromData);
+    }
 
     // Resize canvas
     if (sizeSelector) {
