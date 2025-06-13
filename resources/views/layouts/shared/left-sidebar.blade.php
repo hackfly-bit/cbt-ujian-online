@@ -1,21 +1,25 @@
 <!-- ========== Left Sidebar Start ========== -->
 <div class="leftside-menu d-flex flex-column px-2" style="padding-bottom: 0px !important;">
 
+    @php
+        $logo = \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logo')->value('value') ?? null;
+    @endphp
+
     <!-- Logo -->
     <a href="{{ route('any', 'index') }}" class="logo logo-light">
         <span class="logo-lg">
-            <img src="/images/logo.png" alt="logo">
+            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="logo">
         </span>
         <span class="logo-sm">
-            <img src="/images/logo-sm.png" alt="small logo">
+            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="small logo">
         </span>
     </a>
     <a href="{{ route('any', 'index') }}" class="logo logo-dark">
         <span class="logo-lg">
-            <img src="/images/logo-dark.png" alt="logo">
+            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="logo">
         </span>
         <span class="logo-sm">
-            <img src="/images/logo-sm.png" alt="small logo">
+            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="small logo">
         </span>
     </a>
 
