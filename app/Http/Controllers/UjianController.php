@@ -34,14 +34,14 @@ class UjianController extends Controller
                     return $row->durasi . ' menit';
                 })
                 ->addColumn('peserta', function ($row) {
-                    return $row->pesertas->count();
+                    return $row->hasilUjian->count();
                 })
                 ->addColumn('tanggal_selesai', function ($row) {
                     return $row->tanggal_selesai ? date('d-m-Y H:i', strtotime($row->tanggal_selesai)) : '-';
                 })
                 ->addColumn('action', function ($row) {
                     $url = route('ujian.login', $row->link);
-                    
+
                     return '<div class="action-icons d-flex gap-2 justify-content-center">
                         <a href="' . route('ujian.show', $row->id) . '" class="text-primary" title="Edit">
                             <i class="ri-edit-2-line"></i>

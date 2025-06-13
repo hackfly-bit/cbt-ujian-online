@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property UjianPesertaForm $ujianPesertaForm
  * @property UjianSection[] $ujianSections
  * @property JenisUjian $jenisUjian
+ * @property HasilUjian[] $hasilUjian
  */
 class Ujian extends Model
 {
@@ -83,4 +84,16 @@ class Ujian extends Model
     {
         return $this->belongsTo('App\Models\JenisUjian');
     }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function hasilUjian()
+    {
+        return $this->hasMany('App\Models\HasilUjian', 'ujian_id');
+    }
+
+
 }
