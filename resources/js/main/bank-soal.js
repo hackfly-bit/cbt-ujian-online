@@ -1,6 +1,7 @@
 import $ from "jquery";
 import DataTable from "datatables.net-bs5";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
+import Swal from 'sweetalert2';
 
 window.$ = $;
 window.jQuery = $;
@@ -11,7 +12,7 @@ let jawabanCounter = 0;
 
 // Inisialisasi DataTable untuk halaman Bank Soal
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Bank Soal JS loaded");
+    console.log("Bank Soal JS loaded - DOM ready");
 
     // Initialize DataTables
     initDataTables();
@@ -21,6 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Load dropdown data
     loadDropdownData();
+
+    console.log("Bank Soal initialization completed");
 });
 
 function initDataTables() {
@@ -172,8 +175,11 @@ function initDataTables() {
 
 // Fungsi untuk inisialisasi form events
 function initFormEvents() {
+    console.log("Initializing form events...");
+
     // Event untuk checkbox audio
     $("#is_audio").on("change", function () {
+        console.log("Audio checkbox changed:", this.checked);
         if (this.checked) {
             $("#audio-file-container").show();
         } else {
@@ -184,51 +190,106 @@ function initFormEvents() {
 
     // Event untuk perubahan jenis soal
     $("#jenis_soal").on("change", function () {
+        console.log("Jenis soal changed:", this.value);
         generateJawabanForm(this.value);
     });
 
     // Event untuk perubahan kategori
     $("#kategori").on("change", function () {
+        console.log("Kategori changed:", this.value);
         loadSubKategori(this.value);
     });
 
     // Event untuk perubahan jenis font - Arabic RTL Support
     $("#jenis_font").on("change", function () {
+        console.log("Font type changed:", this.value);
         handleFontChange(this.value);
     });
 
     // Event submit form
     $("#form-bank-soal").on("submit", function (e) {
         e.preventDefault();
+        console.log("Form submitted via form event");
         submitForm();
+    });
+
+    // Event untuk tombol submit (karena tombol berada di luar form)
+    $(document).on("click", "#btn-submit", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Submit button clicked (delegated event)");
+
+        const form = $("#form-bank-soal")[0];
+        if (!form) {
+            console.error("Form not found!");
+            return;
+        }
+
+        console.log("Form found, checking validity...");
+
+        // Cek apakah form valid menggunakan HTML5 validation
+        if (form.checkValidity()) {
+            console.log("Form is valid, submitting...");
+            submitForm();
+        } else {
+            console.log("Form validation failed, showing validation messages");
+            // Trigger validasi HTML5 untuk menampilkan pesan error
+            form.reportValidity();
+        }
+    });
+
+    // Backup event handler langsung ke button
+    $("#btn-submit").off("click.backup").on("click.backup", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Submit button clicked (backup event)");
+
+        const form = $("#form-bank-soal")[0];
+        if (form && form.checkValidity()) {
+            submitForm();
+        } else if (form) {
+            form.reportValidity();
+        }
     });
 
     // Event untuk reset modal saat ditutup
     $("#tambah-bank-soal").on("hidden.bs.modal", function () {
+        console.log("Modal closed, resetting form");
         resetForm();
     });
 
     // Event konfirmasi hapus
     $("#btn-hapus-confirm").on("click", function () {
+        console.log("Delete confirmation clicked, soal ID:", currentSoalId);
         if (currentSoalId) {
             deleteSoal(currentSoalId);
         }
     });
+
+    console.log("Form events initialized successfully");
 }
 
 function generateJawabanForm(jenisSoal) {
+    console.log("Generating jawaban form for:", jenisSoal);
+
     const container = $("#jawaban-container");
     const wrapper = $("#jawaban-wrapper");
+
+    // Clear container terlebih dahulu
     container.empty();
     jawabanCounter = 0;
 
     // Sembunyikan dulu wrapper-nya
     wrapper.addClass("d-none");
 
-    if (!jenisSoal) return;
+    if (!jenisSoal) {
+        console.log("No jenis soal selected, hiding wrapper");
+        return;
+    }
 
     // Tampilkan wrapper saat jenis soal valid
     wrapper.removeClass("d-none");
+    console.log("Wrapper shown for jenis soal:", jenisSoal);
 
     if (jenisSoal === "pilihan_ganda") {
         generatePilihanGandaForm(container);
@@ -237,6 +298,8 @@ function generateJawabanForm(jenisSoal) {
     } else if (jenisSoal === "isian") {
         generateIsianForm(container);
     }
+
+    console.log("Jawaban form generated successfully");
 }
 
 // Generate form pilihan ganda
@@ -299,6 +362,7 @@ function addPilihanGanda(label) {
                        name="jawaban_soal[${jawabanCounter}][jawaban]"
                        placeholder="Masukkan jawaban pilihan ${label}" required>
                 <input type="hidden" name="jawaban_soal[${jawabanCounter}][jenis_isian]" value="pilihan_ganda">
+                <input type="hidden" name="jawaban_soal[${jawabanCounter}][jawaban_benar]" value="${isFirst ? 1 : 0}">
             </div>
             <div class="col-1">
                 ${
@@ -331,6 +395,7 @@ function addPilihanGanda(label) {
         .off("change")
         .on("change", function () {
             updateLabelBenar();
+            updateJawabanBenarValues();
         });
 }
 
@@ -341,6 +406,16 @@ function updateLabelBenar() {
         .closest(".form-check")
         .find(".label-benar")
         .show(); // Tampilkan hanya label pada radio yang dipilih
+}
+
+// Fungsi untuk update nilai jawaban_benar hidden inputs
+function updateJawabanBenarValues() {
+    const selectedValue = $("input[name='jawaban_benar']:checked").val();
+
+    $("#pilihan-container .pilihan-item").each(function(index) {
+        const isCorrect = index == selectedValue;
+        $(this).find("input[name*='[jawaban_benar]']").val(isCorrect ? 1 : 0);
+    });
 }
 
 // Update indexes setelah hapus pilihan
@@ -503,13 +578,65 @@ function handleFontChange(fontType) {
 
 // Submit form
 function submitForm() {
+    console.log("Submitting form...");
+
+    // Validasi form terlebih dahulu
     const form = document.getElementById("form-bank-soal");
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Validasi khusus untuk jawaban
+    const jenisSoal = $("#jenis_soal").val();
+    if (!jenisSoal) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Silakan pilih jenis soal terlebih dahulu.',
+            confirmButtonColor: '#d33'
+        });
+        return;
+    }
+
+    // Validasi jawaban berdasarkan jenis soal
+    if (jenisSoal === "pilihan_ganda") {
+        const jawabanInputs = $("#pilihan-container input[name*='[jawaban]']");
+        let hasEmptyAnswer = false;
+        jawabanInputs.each(function() {
+            if (!$(this).val().trim()) {
+                hasEmptyAnswer = true;
+                return false;
+            }
+        });
+
+        if (hasEmptyAnswer) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Semua pilihan jawaban harus diisi.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        if (!$('input[name="jawaban_benar"]:checked').length) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Silakan pilih jawaban yang benar.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+    }
+
     const formData = new FormData(form);
     const method = $("#form-method").val();
     const isEdit = method === "PUT";
 
     // Set jawaban_benar untuk setiap jawaban
-    if ($("#jenis_soal").val() === "pilihan_ganda") {
+    if (jenisSoal === "pilihan_ganda") {
         const selectedIndex = $('input[name="jawaban_benar"]:checked').val();
         $("#pilihan-container .pilihan-item").each(function (index) {
             const isCorrect = index == selectedIndex;
@@ -519,7 +646,7 @@ function submitForm() {
                 }">`
             );
         });
-    } else if ($("#jenis_soal").val() === "benar_salah") {
+    } else if (jenisSoal === "benar_salah") {
         const selectedValue = $('input[name="jawaban_benar"]:checked').val();
         formData.append(
             "jawaban_soal[0][jawaban_benar]",
@@ -529,12 +656,12 @@ function submitForm() {
             "jawaban_soal[1][jawaban_benar]",
             selectedValue == 1 ? 1 : 0
         );
-    } else if ($("#jenis_soal").val() === "isian") {
+    } else if (jenisSoal === "isian") {
         formData.append("jawaban_soal[0][jawaban_benar]", 1);
     }
 
     // Add jenis_soal to formData
-    formData.append("jenis_soal", $("#jenis_soal").val());
+    formData.append("jenis_soal", jenisSoal);
 
     const btn = $("#btn-submit");
     const spinner = btn.find(".spinner-border");
@@ -567,12 +694,26 @@ function submitForm() {
                 if (window.tableGrammar) window.tableGrammar.ajax.reload();
                 if (window.tableListening) window.tableListening.ajax.reload();
 
-                showAlert("success", response.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: response.message,
+                    timer: 3000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
             } else {
-                showAlert("error", response.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message,
+                    confirmButtonColor: '#d33'
+                });
             }
         },
         error: function (xhr) {
+            console.error("AJAX Error:", xhr);
             let message = "Terjadi kesalahan saat menyimpan data.";
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 message = xhr.responseJSON.message;
@@ -580,7 +721,12 @@ function submitForm() {
                 const errors = Object.values(xhr.responseJSON.errors).flat();
                 message = errors.join("<br>");
             }
-            showAlert("error", message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                html: message,
+                confirmButtonColor: '#d33'
+            });
         },
         complete: function () {
             btn.prop("disabled", false);
@@ -653,7 +799,12 @@ function editSoal(id) {
             $("#tambah-bank-soal").modal("show");
         }
     }).fail(function () {
-        showAlert("error", "Gagal memuat data soal.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Gagal memuat data soal.',
+            confirmButtonColor: '#d33'
+        });
     });
 }
 
@@ -722,13 +873,31 @@ function deleteSoal(id) {
                 if (window.tableGrammar) window.tableGrammar.ajax.reload();
                 if (window.tableListening) window.tableListening.ajax.reload();
 
-                showAlert("success", response.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: response.message,
+                    timer: 3000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
             } else {
-                showAlert("error", response.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message,
+                    confirmButtonColor: '#d33'
+                });
             }
         },
         error: function () {
-            showAlert("error", "Gagal menghapus soal.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Gagal menghapus soal.',
+                confirmButtonColor: '#d33'
+            });
         },
         complete: function () {
             btn.prop("disabled", false);
@@ -741,16 +910,47 @@ function deleteSoal(id) {
 // Show delete confirmation
 function showDeleteConfirmation(id) {
     currentSoalId = id;
-    $("#modal-hapus").modal("show");
+
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Data yang dihapus tidak dapat dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteSoal(currentSoalId);
+        } else {
+            currentSoalId = null;
+        }
+    });
 }
 
 // Reset form
 function resetForm() {
-    document.getElementById("form-bank-soal").reset();
+    console.log("Resetting form...");
+
+    // Reset form HTML
+    const form = document.getElementById("form-bank-soal");
+    if (form) {
+        form.reset();
+    }
+
+    // Reset modal title dan method
     $("#modal-title").text("Tambah Soal Baru");
     $("#form-method").val("POST");
+
+    // Hide audio container
     $("#audio-file-container").hide();
+
+    // Clear jawaban container
     $("#jawaban-container").empty();
+    $("#jawaban-wrapper").addClass("d-none");
+
+    // Reset sub kategori dropdown
     $("#sub_kategori")
         .empty()
         .append('<option value="">Pilih Sub Kategori</option>');
@@ -758,36 +958,51 @@ function resetForm() {
     // Reset font styling to default (Latin)
     handleFontChange("Latin");
 
+    // Reset jenis font dropdown
+    $("#jenis_font").val("").trigger('change');
+
+    // Reset all form validation states
+    form.classList.remove('was-validated');
+    $(form).find('.is-invalid').removeClass('is-invalid');
+    $(form).find('.invalid-feedback').remove();
+
+    // Reset global variables
     currentSoalId = null;
     jawabanCounter = 0;
+
+    console.log("Form reset completed");
 }
 
-// Show alert
-function showAlert(type, message) {
-    const alertClass = type === "success" ? "alert-success" : "alert-danger";
-    const iconClass =
-        type === "success" ? "ri-check-line" : "ri-error-warning-line";
+// Test function untuk debugging - hapus di production
+function testBankSoal() {
+    console.log("=== TESTING BANK SOAL FUNCTIONALITY ===");
 
-    const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            <i class="${iconClass} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
+    // Test button exists
+    const submitBtn = $("#btn-submit");
+    console.log("Submit button found:", submitBtn.length > 0);
 
-    // Remove existing alerts
-    $(".alert").remove();
+    // Test form exists
+    const form = $("#form-bank-soal");
+    console.log("Form found:", form.length > 0);
 
-    // Add new alert at the top of container
-    $(".container-fluid").prepend(alertHtml);
+    // Test modal exists
+    const modal = $("#tambah-bank-soal");
+    console.log("Modal found:", modal.length > 0);
 
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-        $(".alert").fadeOut();
-    }, 5000);
+    // Test dropdowns
+    console.log("Jenis font dropdown:", $("#jenis_font").length > 0);
+    console.log("Jenis soal dropdown:", $("#jenis_soal").length > 0);
+    console.log("Kategori dropdown:", $("#kategori").length > 0);
+    console.log("Tingkat kesulitan dropdown:", $("#tingkat_kesulitan").length > 0);
+
+    // Test CSRF token
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    console.log("CSRF token found:", csrfToken !== undefined);
+
+    console.log("=== END TEST ===");
 }
 
 // Make functions globally available
 window.editSoal = editSoal;
 window.showDeleteConfirmation = showDeleteConfirmation;
+window.testBankSoal = testBankSoal;

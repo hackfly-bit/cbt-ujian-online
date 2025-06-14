@@ -154,25 +154,30 @@ class BankSoalController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'jenis_font' => 'required|string|max:255',
-            'pertanyaan' => 'required|string',
-            'jenis_soal' => 'required|in:pilihan_ganda,benar_salah,isian',
-            'is_audio' => 'nullable|boolean',
-            'audio_file' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
-            'tingkat_kesulitan_id' => 'required|exists:tingkat_kesulitan,id',
-            'kategori_id' => 'required|exists:kategori,id',
-            'sub_kategori_id' => 'nullable|exists:sub_kategori,id',
-            'penjelasan_jawaban' => 'nullable|string',
-            'tag' => 'nullable|string|max:255',
-            'jawaban_soal' => 'required|array|min:1',
-            'jawaban_soal.*.jawaban' => 'required|string',
-            'jawaban_soal.*.jenis_isian' => 'required|string',
-            'jawaban_soal.*.jawaban_benar' => 'required|boolean',
-        ]);
-
-        DB::beginTransaction();
         try {
+            Log::info('Store request received', ['request_data' => $request->all()]);
+
+            $validated = $request->validate([
+                'jenis_font' => 'required|string|max:255',
+                'pertanyaan' => 'required|string',
+                'jenis_soal' => 'required|in:pilihan_ganda,benar_salah,isian',
+                'is_audio' => 'nullable|boolean',
+                'audio_file' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
+                'tingkat_kesulitan_id' => 'required|exists:tingkat_kesulitan,id',
+                'kategori_id' => 'required|exists:kategori,id',
+                'sub_kategori_id' => 'nullable|exists:sub_kategori,id',
+                'penjelasan_jawaban' => 'nullable|string',
+                'tag' => 'nullable|string|max:255',
+                'jawaban_soal' => 'required|array|min:1',
+                'jawaban_soal.*.jawaban' => 'required|string',
+                'jawaban_soal.*.jenis_isian' => 'required|string',
+                'jawaban_soal.*.jawaban_benar' => 'required|boolean',
+            ]);
+
+            Log::info('Validation passed', ['validated_data' => $validated]);
+
+            DB::beginTransaction();
+
             $soal = new \App\Models\Soal();
             $soal->jenis_font = $validated['jenis_font'];
             $soal->pertanyaan = $validated['pertanyaan'];
@@ -188,31 +193,45 @@ class BankSoalController extends Controller
             if ($request->hasFile('audio_file')) {
                 $path = $request->file('audio_file')->store('audio_files', 'public');
                 $soal->audio_file = $path;
+                Log::info('Audio file saved', ['path' => $path]);
             } else {
                 $soal->audio_file = null;
             }
 
             $soal->save();
+            Log::info('Soal saved', ['soal_id' => $soal->id]);
 
             // Simpan jawaban soal
-            foreach ($validated['jawaban_soal'] as $jawaban) {
+            foreach ($validated['jawaban_soal'] as $index => $jawaban) {
                 $newJawaban = new \App\Models\JawabanSoal();
                 $newJawaban->soal_id = $soal->id;
                 $newJawaban->jenis_isian = $jawaban['jenis_isian'];
                 $newJawaban->jawaban = $jawaban['jawaban'];
                 $newJawaban->jawaban_benar = $jawaban['jawaban_benar'];
                 $newJawaban->save();
+                Log::info('Jawaban saved', ['jawaban_id' => $newJawaban->id, 'index' => $index]);
             }
 
             DB::commit();
+            Log::info('Transaction committed successfully');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Soal berhasil ditambahkan.',
-                'data' => $soal
+                'data' => $soal->load('jawabanSoals')
             ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            Log::error('Validation error', ['errors' => $e->errors()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak valid.',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Store error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan soal: ' . $e->getMessage(),
