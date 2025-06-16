@@ -92,6 +92,12 @@ class UjianController extends Controller
         Log::info("message", [
             'request' => $request->all(),
         ]);
+
+        // Add debug logging for pengaturan data
+        Log::info("pengaturan data", [
+            'pengaturan_raw' => $request->input('pengaturan'),
+            'pengaturan_decoded' => json_decode($request->input('pengaturan'), true)
+        ]);
         // Validation
         // $request->validate([
         //     'detail.nama' => 'required|string|max:255',
@@ -138,7 +144,8 @@ class UjianController extends Controller
             $ujianPengaturan->ujian_id = $ujian->id;
             $ujianPengaturan->metode_penilaian = $pengaturan['metode_penilaian'];
             $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
-            $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'];
+            $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian_tersedia'];
+            $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
             $ujianPengaturan->save();
 
             // Create ujian peserta form
@@ -161,7 +168,7 @@ class UjianController extends Controller
             $ujianThema->institution_name = $request->input('institution_name');
             $ujianThema->welcome_message = $request->input('welcome_message');
             $ujianThema->use_custom_color = $request->input('use_custom_color', false);
-            
+
             if ($request->input('use_custom_color')) {
                 $ujianThema->custom_color_1 = $request->input('custom_color_1');
                 $ujianThema->custom_color_2 = $request->input('custom_color_2');
@@ -256,6 +263,7 @@ class UjianController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // dd($request);
         Log::info("message update", [
             'request' => $request->all(),
         ]);
@@ -268,6 +276,13 @@ class UjianController extends Controller
             $peserta = json_decode($request->input('peserta'), true) ?? $request->peserta ?? [];
             $pengaturan = json_decode($request->input('pengaturan'), true) ?? $request->pengaturan ?? [];
             $sections = json_decode($request->input('sections'), true) ?? $request->sections ?? [];
+
+            Log::info("Parsed Data", [
+                'detail' => $detail,
+                'peserta' => $peserta,
+                'pengaturan' => $pengaturan,
+                'sections' => $sections,
+            ]);
 
             // Find existing ujian
             $ujian = Ujian::findOrFail($id);
@@ -284,6 +299,7 @@ class UjianController extends Controller
             $ujianPengaturan->metode_penilaian = $pengaturan['metode_penilaian'];
             $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
             $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'];
+            $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
             $ujianPengaturan->save();
 
             // Update ujian peserta form
@@ -304,12 +320,12 @@ class UjianController extends Controller
                 $ujianThema = new \App\Models\UjianThema();
                 $ujianThema->ujian_id = $ujian->id;
             }
-            
+
             $ujianThema->theme = $request->input('theme', 'classic');
             $ujianThema->institution_name = $request->input('institution_name');
             $ujianThema->welcome_message = $request->input('welcome_message');
             $ujianThema->use_custom_color = $request->input('use_custom_color', false);
-            
+
             if ($request->input('use_custom_color')) {
                 $ujianThema->custom_color_1 = $request->input('custom_color_1');
                 $ujianThema->custom_color_2 = $request->input('custom_color_2');
@@ -371,7 +387,7 @@ class UjianController extends Controller
                 // Create ujian section soals
                 foreach ($sectionData['selected_questions'] as $soalId) {
                     $ujianSectionSoal = new \App\Models\UjianSectionSoal();
-                    $ujianSectionSoal->ujian_section_id = $ujianSection->id;
+                    $ujianSectionSoal->ujian_section = $ujianSection->id;
                     $ujianSectionSoal->soal_id = $soalId;
                     $ujianSectionSoal->save();
                 }
@@ -386,6 +402,8 @@ class UjianController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollback();
+
+            // Log::error($e);
 
             return response()->json([
                 'success' => false,

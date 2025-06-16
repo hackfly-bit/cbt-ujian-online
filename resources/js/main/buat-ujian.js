@@ -593,57 +593,43 @@ import flatpickr from "flatpickr";
     window.handleSaveUjian = function () {
         const sectionData = getSectionData();
 
-        // Check if Swal is available
         if (typeof Swal === 'undefined') {
-            // console.error('SweetAlert2 is not loaded');
-            alert('Harap tambahkan minimal satu seksi ujian.'); // Fallback
+            alert('Harap tambahkan minimal satu seksi ujian.');
             return;
         }
 
-        // Validate that at least one section exists
         if (sectionData.length === 0) {
-            Swal.fire({
+            return Swal.fire({
                 icon: 'warning',
                 title: 'Peringatan',
                 text: 'Harap tambahkan minimal satu seksi ujian.',
                 confirmButtonText: 'OK'
-            }).then(() => {
-                goToNextTab('seksi');
-            });
-            return;
+            }).then(() => goToNextTab('seksi'));
         }
 
-        // Validate each section
         for (let i = 0; i < sectionData.length; i++) {
             const section = sectionData[i];
 
             if (!section.nama_section) {
-                Swal.fire({
+                return Swal.fire({
                     icon: 'warning',
                     title: 'Peringatan',
                     text: `Harap isi nama seksi untuk Seksi ${i + 1}.`,
                     confirmButtonText: 'OK'
-                }).then(() => {
-                    goToNextTab('seksi');
-                });
-                return;
+                }).then(() => goToNextTab('seksi'));
             }
 
             if (section.selected_questions.length === 0) {
-                Swal.fire({
+                return Swal.fire({
                     icon: 'warning',
                     title: 'Peringatan',
                     text: `Harap pilih minimal satu soal untuk ${section.nama_section}.`,
                     confirmButtonText: 'OK'
-                }).then(() => {
-                    goToNextTab('seksi');
-                });
-                return;
+                }).then(() => goToNextTab('seksi'));
             }
         }
 
-        // Show confirmation
-        const totalQuestions = sectionData.reduce((total, section) => total + section.selected_questions.length, 0);
+        const totalQuestions = sectionData.reduce((sum, section) => sum + section.selected_questions.length, 0);
         const confirmMessage = `Anda akan menyimpan ujian dengan ${sectionData.length} seksi dan total ${totalQuestions} soal. Lanjutkan?`;
 
         Swal.fire({
@@ -656,116 +642,98 @@ import flatpickr from "flatpickr";
             confirmButtonText: 'Ya, Simpan!',
             cancelButtonText: 'Batal'
         }).then((result) => {
-            if (result.isConfirmed) {
-                // Show loading
-                Swal.fire({
-                    title: 'Menyimpan...',
-                    text: 'Mohon tunggu sebentar',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
+            if (!result.isConfirmed) return;
 
-                // Here you would send the data to your Laravel backend
-                // console.log('Section data to save:', sectionData);
-                // cek url http://127.0.0.1:8000/ujian/6
-                // get id from url
+            Swal.fire({
+                title: 'Menyimpan...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
 
-                let ujianId = null;
-                const urlParts = window.location.pathname.split('/');
-                let url = '/ujian';
-                let method = 'POST';
-                
-                if (urlParts.length > 2 && urlParts[1] === 'ujian') {
-                    const potentialId = urlParts[2];
-                    if (potentialId && potentialId.match(/^\d+$/)) {
-                        url += `/${potentialId}`;
-                        method = 'PUT';
-                    }
-                }
+            // Ambil ID dari URL jika ada
+            const urlParts = window.location.pathname.split('/');
+            let ujianId = (urlParts[1] === 'ujian' && /^\d+$/.test(urlParts[2])) ? urlParts[2] : null;
+            const url = ujianId ? `/ujian/${ujianId}` : '/ujian';
+            const method = ujianId ? 'POST' : 'POST'; // Jika pakai Route::put(), ganti method jadi PUT
 
-                // Prepare form data with files
-                const tampilanData = getTampilanData();
-                
-                // Add other data to FormData
-                tampilanData.append('sections', JSON.stringify(sectionData));
-                tampilanData.append('detail', JSON.stringify({
-                    nama: $('#nama_ujian').val(),
-                    deskripsi: $('#deskripsi').val(),
-                    durasi: $('#durasi_ujian').val() || 120,
-                    jenis_ujian: $('#jenis_ujian').val(),
-                    tanggal_selesai: $('#tanggal_kedaluwarsa').val(),
-                }));
-                tampilanData.append('peserta', JSON.stringify({
-                    nama: $('#nama').is(':checked'),
-                    email: $('#email').is(':checked'),
-                    phone: $('#telp').is(':checked'),
-                    institusi: $('#sekolah').is(':checked'),
-                    nomor_induk: $('#no_induk').is(':checked'),
-                    tanggal_lahir: $('#tanggal_lahir').is(':checked'),
-                    alamat: $('#alamat').is(':checked')
-                }));
-                tampilanData.append('pengaturan', JSON.stringify({
-                    metode_penilaian: $('#metode_penilaian').val(),
-                    nilai_kelulusan: $('#nilai_kelulusan').val(),
-                    hasil_ujian: $('#hasil_ujian_tersedia').val(),
-                }));
+            const tampilanData = getTampilanData(); // Pastikan return-nya adalah FormData
 
-                $.ajax({
-                    url: url,
-                    method: method,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    processData: false,
-                    contentType: false,
-                    data: tampilanData,
-                    success: function (data) {
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Ujian berhasil disimpan!',
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                window.location.href = '/ujian';
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Error: ' + data.message,
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        // console.error('AJAX Error:', status, error);
+            // append put
+            tampilanData.append('_method', 'PUT');
+
+            // Tambah data tambahan
+            tampilanData.append('sections', JSON.stringify(sectionData));
+            tampilanData.append('detail', JSON.stringify({
+                nama: $('#nama_ujian').val(),
+                deskripsi: $('#deskripsi').val(),
+                durasi: $('#durasi_ujian').val() || 120,
+                jenis_ujian: $('#jenis_ujian').val(),
+                tanggal_selesai: $('#tanggal_kedaluwarsa').val(),
+            }));
+            tampilanData.append('peserta', JSON.stringify({
+                nama: $('#nama').is(':checked'),
+                email: $('#email').is(':checked'),
+                phone: $('#telp').is(':checked'),
+                institusi: $('#sekolah').is(':checked'),
+                nomor_induk: $('#no_induk').is(':checked'),
+                tanggal_lahir: $('#tanggal_lahir').is(':checked'),
+                alamat: $('#alamat').is(':checked')
+            }));
+            tampilanData.append('pengaturan', JSON.stringify({
+                metode_penilaian: $('#metode_penilaian').val(),
+                nilai_kelulusan: $('#nilai_kelulusan').val(),
+                hasil_ujian: $('#hasil_ujian_tersedia').val(),
+                // tampilkan_nilai: $('#tampilkan_nilai').is(':checked'),
+                lockscreen: $('#lockscreen').is(':checked'),
+            }));
+
+            $.ajax({
+                url: url,
+                type: method,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                processData: false,
+                contentType: false,
+                data: tampilanData,
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Ujian berhasil disimpan!',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/ujian';
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: 'Terjadi kesalahan saat menyimpan ujian.',
+                            title: 'Gagal',
+                            text: response.message || 'Gagal menyimpan ujian.',
                             confirmButtonText: 'OK'
                         });
                     }
-                });
-            }
-        }).catch((error) => {
-            // console.error('SweetAlert2 error:', error);
-            // Fallback to regular confirm
-            if (confirm(confirmMessage)) {
-                // Continue with save logic using regular alerts
-                // console.log('Using fallback confirmation');
-            }
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan ujian.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
         });
     };
+
     // Prevent form submission on Enter key in section for
 
     // Theme and appearance functionality
-    window.initThemePreview = function() {
+    window.initThemePreview = function () {
         // Toggle custom colors visibility
-        $('#use_custom_color').on('change', function() {
+        $('#use_custom_color').on('change', function () {
             if ($(this).is(':checked')) {
                 $('#custom-colors').show();
                 $('#default-colors').hide();
@@ -777,26 +745,26 @@ import flatpickr from "flatpickr";
         });
 
         // Theme selection
-        $('input[name="theme"]').on('change', function() {
+        $('input[name="theme"]').on('change', function () {
             updatePreview();
         });
 
         // Color changes
-        $('input[type="color"]').on('input', function() {
+        $('input[type="color"]').on('input', function () {
             updatePreview();
         });
 
         // Text input changes
-        $('#institution_name, #welcome_message').on('input', function() {
+        $('#institution_name, #welcome_message').on('input', function () {
             updatePreview();
         });
 
         // File upload preview
-        $('#logo').on('change', function() {
+        $('#logo').on('change', function () {
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     $('.preview-logo .logo-placeholder').html(`<img src="${e.target.result}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">`);
                 };
                 reader.readAsDataURL(file);
@@ -808,14 +776,14 @@ import flatpickr from "flatpickr";
         toggleCustomColors();
     };
 
-    window.updatePreview = function() {
+    window.updatePreview = function () {
         const theme = $('input[name="theme"]:checked').val();
         const useCustomColor = $('#use_custom_color').is(':checked');
         const institutionName = $('#institution_name').val() || 'Nama Institusi';
         const welcomeMessage = $('#welcome_message').val() || 'Pesan sambutan akan ditampilkan di sini...';
-        
+
         let colors = {};
-        
+
         if (useCustomColor) {
             colors = {
                 primary: $('#custom_color_1').val(),
@@ -832,22 +800,22 @@ import flatpickr from "flatpickr";
         applyThemeToPreview(theme, colors, institutionName, welcomeMessage, useCustomColor);
     };
 
-    window.applyThemeToPreview = function(theme, colors, institutionName, welcomeMessage, useCustomColor) {
+    window.applyThemeToPreview = function (theme, colors, institutionName, welcomeMessage, useCustomColor) {
         const $preview = $('#live-preview');
         const $header = $preview.find('.preview-header');
         const $content = $preview.find('.preview-content');
         const $examCard = $preview.find('.exam-card');
-        
+
         // Reset classes
         $preview.removeClass('classic-preview modern-preview glow-preview minimal-preview');
         $preview.addClass(theme + '-preview');
-        
+
         // Update text content
         $('#preview-institution-name').text(institutionName);
         $('#preview-welcome-message').text(welcomeMessage);
-        
+
         // Apply theme-specific styles
-        switch(theme) {
+        switch (theme) {
             case 'classic':
                 if (useCustomColor) {
                     $header.css({
@@ -867,7 +835,7 @@ import flatpickr from "flatpickr";
                     $content.css('background', colors.background);
                 }
                 break;
-                
+
             case 'modern':
                 if (useCustomColor) {
                     $header.css({
@@ -887,7 +855,7 @@ import flatpickr from "flatpickr";
                     $content.css('background', colors.background);
                 }
                 break;
-                
+
             case 'glow':
                 if (useCustomColor) {
                     $header.css({
@@ -902,7 +870,7 @@ import flatpickr from "flatpickr";
                 }
                 $content.css('background', 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)');
                 break;
-                
+
             case 'minimal':
                 if (useCustomColor) {
                     $header.css({
@@ -921,7 +889,7 @@ import flatpickr from "flatpickr";
         }
     };
 
-    window.toggleCustomColors = function() {
+    window.toggleCustomColors = function () {
         const useCustomColor = $('#use_custom_color').is(':checked');
         if (useCustomColor) {
             $('#custom-colors').show();
@@ -933,25 +901,25 @@ import flatpickr from "flatpickr";
     };
 
     // Initialize on DOM ready
-    $(document).ready(function() {
+    $(document).ready(function () {
         if ($('#tampilan-form').length) {
             initThemePreview();
         }
-        
+
         // Trigger initial state for custom colors
         $('#use_custom_color').trigger('change');
     });
 
     // Function to get tampilan data
-    window.getTampilanData = function() {
+    window.getTampilanData = function () {
         const formData = new FormData();
-        
+
         // Theme data
         formData.append('theme', $('input[name="theme"]:checked').val() || 'classic');
         formData.append('institution_name', $('#institution_name').val() || '');
         formData.append('welcome_message', $('#welcome_message').val() || '');
         formData.append('use_custom_color', $('#use_custom_color').is(':checked') ? 1 : 0);
-        
+
         // Colors
         if ($('#use_custom_color').is(':checked')) {
             formData.append('custom_color_1', $('#custom_color_1').val() || '');
@@ -961,23 +929,23 @@ import flatpickr from "flatpickr";
             formData.append('background_color', $('#background_color').val() || '#ffffff');
             formData.append('header_color', $('#header_color').val() || '#f8f9fa');
         }
-        
+
         // Files
         const logoFile = $('#logo')[0].files[0];
         if (logoFile) {
             formData.append('logo', logoFile);
         }
-        
+
         const backgroundFile = $('#background_image')[0].files[0];
         if (backgroundFile) {
             formData.append('background_image', backgroundFile);
         }
-        
+
         const headerFile = $('#header_image')[0].files[0];
         if (headerFile) {
             formData.append('header_image', headerFile);
         }
-        
+
         return formData;
     };
 

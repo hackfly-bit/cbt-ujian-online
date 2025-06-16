@@ -483,11 +483,76 @@
             color: #d33 !important;
             font-weight: bold;
         }
+
+        /* Lockscreen styles */
+        .lockscreen-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+        }
+
+        .lockscreen-indicator.active {
+            background: #28a745;
+        }
+
+        .lockscreen-warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.1);
+            z-index: 999;
+            pointer-events: none;
+            display: none;
+        }
+
+        .lockscreen-warning-overlay.show {
+            display: block;
+            animation: flash 0.5s ease-in-out;
+        }
+
+        @keyframes flash {
+            0%, 100% { background: rgba(220, 53, 69, 0.1); }
+            50% { background: rgba(220, 53, 69, 0.3); }
+        }
+
+        /* Disable text selection when lockscreen is active */
+        .lockscreen-active {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .lockscreen-active input,
+        .lockscreen-active textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
     </style>
 @endsection
 
 @section('content')
-    <div class="exam-container">
+    <!-- Lockscreen Indicator -->
+    @if($lockscreenEnabled)
+        <div class="lockscreen-indicator active" id="lockscreenIndicator">
+            🔒 LOCKSCREEN AKTIF
+        </div>
+        <div class="lockscreen-warning-overlay" id="lockscreenOverlay"></div>
+    @endif
+
+    <div class="exam-container @if($lockscreenEnabled) lockscreen-active @endif">
         <!-- Header -->
         <div class="exam-header">
             <div>
@@ -791,6 +856,242 @@
         let timeRemaining = {{ $timeRemaining ?? 7151 }}; // in seconds
         let sectionTimeRemaining = {{ $sectionTimeRemaining ?? 'null' }}; // section time limit
         let answeredQuestionsInSection = @json($answeredQuestionsInSection ?? []);
+        let lockscreenEnabled = {{ $lockscreenEnabled ? 'true' : 'false' }};
+
+        // Lockscreen functionality
+        if (lockscreenEnabled) {
+            // Track tab switching
+            let isTabActive = true;
+            let tabSwitchCount = 0;
+            const maxTabSwitches = 3; // Maximum allowed tab switches
+
+            // Prevent context menu (right click)
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                showLockscreenWarning('Context menu dinonaktifkan selama ujian berlangsung.');
+                return false;
+            });
+
+            // Prevent keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Prevent F12 (Developer Tools)
+                if (e.keyCode === 123) {
+                    e.preventDefault();
+                    showLockscreenWarning('Developer tools dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Ctrl+Shift+I (Developer Tools)
+                if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                    e.preventDefault();
+                    showLockscreenWarning('Developer tools dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Ctrl+Shift+C (Select Element)
+                if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+                    e.preventDefault();
+                    showLockscreenWarning('Inspect element dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Ctrl+U (View Source)
+                if (e.ctrlKey && e.keyCode === 85) {
+                    e.preventDefault();
+                    showLockscreenWarning('View source dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Ctrl+S (Save Page)
+                if (e.ctrlKey && e.keyCode === 83) {
+                    e.preventDefault();
+                    showLockscreenWarning('Menyimpan halaman dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Ctrl+A (Select All) - optional, might be needed for text inputs
+                // if (e.ctrlKey && e.keyCode === 65) {
+                //     e.preventDefault();
+                //     return false;
+                // }
+
+                // Prevent Ctrl+C (Copy) - allow in input fields
+                if (e.ctrlKey && e.keyCode === 67 && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+                    e.preventDefault();
+                    showLockscreenWarning('Copy dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Ctrl+V (Paste) - allow in input fields
+                if (e.ctrlKey && e.keyCode === 86 && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+                    e.preventDefault();
+                    showLockscreenWarning('Paste dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Alt+Tab (Task switching) - limited effectiveness
+                if (e.altKey && e.keyCode === 9) {
+                    e.preventDefault();
+                    showLockscreenWarning('Task switching dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+
+                // Prevent Windows key
+                if (e.keyCode === 91 || e.keyCode === 92) {
+                    e.preventDefault();
+                    showLockscreenWarning('Windows key dinonaktifkan selama ujian berlangsung.');
+                    return false;
+                }
+            });
+
+            // Track page visibility (tab switching detection)
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    isTabActive = false;
+                    tabSwitchCount++;
+                    console.log('Tab switched away, count:', tabSwitchCount);
+
+                    // Store tab switch in session/local storage for tracking
+                    localStorage.setItem('tabSwitchCount', tabSwitchCount);
+
+                    // Update indicator
+                    updateLockscreenIndicator(tabSwitchCount);
+
+                    if (tabSwitchCount >= maxTabSwitches) {
+                        // Force submit exam after maximum violations
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ujian Berakhir!',
+                            html: `
+                                <p>Anda telah melakukan pelanggaran terlalu banyak kali.</p>
+                                <p>Ujian akan otomatis diselesaikan.</p>
+                            `,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            timer: 3000
+                        }).then(() => {
+                            // Auto submit exam
+                            navigateToUrl(`{{ route('ujian.submit', $ujian->link) }}`);
+                        });
+                    }
+                } else {
+                    isTabActive = true;
+                    if (tabSwitchCount > 0 && tabSwitchCount < maxTabSwitches) {
+                        showTabSwitchWarning();
+                    }
+                }
+            });
+
+            // Prevent printing
+            window.addEventListener('beforeprint', function(e) {
+                e.preventDefault();
+                showLockscreenWarning('Mencetak halaman dinonaktifkan selama ujian berlangsung.');
+                return false;
+            });
+
+            // Monitor for developer tools (basic detection)
+            let devtools = {
+                open: false,
+                orientation: null
+            };
+
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
+                    if (!devtools.open) {
+                        devtools.open = true;
+                        showLockscreenWarning('Developer tools terdeteksi. Harap tutup untuk melanjutkan ujian.');
+                    }
+                } else {
+                    devtools.open = false;
+                }
+            }, 500);
+
+            function showLockscreenWarning(message) {
+                // Show visual overlay
+                const overlay = document.getElementById('lockscreenOverlay');
+                if (overlay) {
+                    overlay.classList.add('show');
+                    setTimeout(() => {
+                        overlay.classList.remove('show');
+                    }, 1000);
+                }
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan Lockscreen!',
+                    text: message,
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+
+            function showTabSwitchWarning() {
+                const remaining = maxTabSwitches - tabSwitchCount;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Peringatan: Tab Switching Terdeteksi!',
+                    html: `
+                        <p>Anda telah beralih tab sebanyak <strong>${tabSwitchCount}</strong> kali.</p>
+                        <p>Peringatan tersisa: <strong>${remaining}</strong></p>
+                        <p class="text-danger">Jika Anda mencapai batas maksimum, ujian akan otomatis berakhir!</p>
+                    `,
+                    confirmButtonText: 'Saya Mengerti',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+
+            // Show initial lockscreen info
+            Swal.fire({
+                icon: 'info',
+                title: 'Lockscreen Aktif',
+                html: `
+                    <p>Ujian ini menggunakan sistem lockscreen untuk menjaga integritas.</p>
+                    <p><strong>Yang tidak diperbolehkan:</strong></p>
+                    <ul style="text-align: left; margin-left: 20px;">
+                        <li>Beralih tab (maksimal ${maxTabSwitches} kali)</li>
+                        <li>Membuka context menu (klik kanan)</li>
+                        <li>Menggunakan developer tools</li>
+                        <li>Menggunakan shortcut keyboard tertentu</li>
+                        <li>Mencetak halaman</li>
+                    </ul>
+                    <p class="text-warning">Pelanggaran berulang akan mengakhiri ujian secara otomatis!</p>
+                `,
+                confirmButtonText: 'Saya Mengerti dan Siap Memulai',
+                confirmButtonColor: '#007bff',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            });
+
+            // Load tab switch count from storage if exists
+            const storedCount = localStorage.getItem('tabSwitchCount');
+            if (storedCount) {
+                tabSwitchCount = parseInt(storedCount);
+            }
+
+            // Add lockscreen class to body
+            document.body.classList.add('lockscreen-active');
+
+            // Update lockscreen indicator
+            function updateLockscreenIndicator(violations) {
+                const indicator = document.getElementById('lockscreenIndicator');
+                if (indicator) {
+                    if (violations >= maxTabSwitches) {
+                        indicator.style.background = '#dc3545';
+                        indicator.innerHTML = '🚫 LOCKSCREEN - VIOLATION LIMIT';
+                    } else if (violations > 0) {
+                        indicator.style.background = '#ffc107';
+                        indicator.innerHTML = `⚠️ LOCKSCREEN - ${violations}/${maxTabSwitches} VIOLATIONS`;
+                    } else {
+                        indicator.style.background = '#28a745';
+                        indicator.innerHTML = '🔒 LOCKSCREEN AKTIF';
+                    }
+                }
+            }
+
+            // Initial indicator update
+            updateLockscreenIndicator(tabSwitchCount);
+        }
 
         // Update navigation buttons on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -923,15 +1224,15 @@
         // Question navigation
         function goToQuestion(questionNum) {
             if (questionNum >= 1 && questionNum <= totalQuestionsInSection) {
-                window.location.href =
-                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`;
+                navigateToUrl(
+                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`);
             }
         }
 
         function goToSection(sectionNum) {
             if (sectionNum >= 1 && sectionNum <= totalSections) {
-                window.location.href =
-                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${sectionNum}&question=1`;
+                navigateToUrl(
+                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${sectionNum}&question=1`);
             }
         }
 
@@ -940,8 +1241,8 @@
                 goToQuestion(currentQuestion - 1);
             } else if (currentSection > 1) {
                 // Pindah ke section sebelumnya, soal terakhir
-                window.location.href =
-                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection - 1}&question=last`;
+                navigateToUrl(
+                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection - 1}&question=last`);
             }
         }
 
@@ -1106,7 +1407,7 @@
                         }
                     });
 
-                    window.location.href = '{{ route('ujian.submit', $ujian->link ?? 'test') }}';
+                    navigateToUrl('{{ route('ujian.submit', $ujian->link ?? 'test') }}');
                 }
             });
         }
@@ -1149,5 +1450,30 @@
         //     e.preventDefault();
         //     e.returnValue = 'Anda akan keluar dari ujian. Pastikan jawaban sudah tersimpan.';
         // });
+
+        // Cleanup lockscreen data when exam is submitted
+        function cleanupLockscreenData() {
+            if (lockscreenEnabled) {
+                localStorage.removeItem('tabSwitchCount');
+                document.body.classList.remove('lockscreen-active');
+            }
+        }
+
+        // Safe navigation function that maintains lockscreen state
+        function navigateToUrl(url) {
+            // Don't cleanup on normal navigation, only on exam end
+            if (url.includes('submit')) {
+                cleanupLockscreenData();
+            }
+            window.location.href = url;
+        }
+
+        // Add cleanup to exam submission
+        window.addEventListener('beforeunload', function(e) {
+            // Only cleanup if we're actually leaving the exam domain
+            if (!window.location.href.includes('ujian')) {
+                cleanupLockscreenData();
+            }
+        });
     </script>
 @endsection

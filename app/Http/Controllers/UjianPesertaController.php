@@ -38,7 +38,7 @@ class UjianPesertaController extends Controller
         ]);
 
         // Ambil data ujian berdasarkan link
-        $ujian = \App\Models\Ujian::where('link', $request->ujian_link)->first();
+        $ujian = \App\Models\Ujian::where('link', $request->ujian_link)->with(['ujianPengaturan'])->first();
 
         if (!$ujian) {
             return back()->withErrors(['ujian_link' => 'Ujian tidak ditemukan.']);
@@ -51,7 +51,8 @@ class UjianPesertaController extends Controller
             'name' => $request->nama,
             'email' => $request->email,
             'exam_start_time' => now(),
-            'answered_questions' => []
+            'answered_questions' => [],
+            'lockscreen_enabled' => $ujian->ujianPengaturan->lockscreen ?? false
         ]);
 
         $peserta = Peserta::updateOrCreate(
@@ -299,7 +300,8 @@ class UjianPesertaController extends Controller
             'sectionQuestions' => $sectionQuestions,
             'selectedAnswers' => $selectedAnswers,
             'savedTextAnswers' => $savedTextAnswers,
-            'savedAnswers' => $savedAnswers // Pass saved answers for section completion calculation
+            'savedAnswers' => $savedAnswers, // Pass saved answers for section completion calculation
+            'lockscreenEnabled' => $ujian->ujianPengaturan->lockscreen ?? false
         ]);
     }
 
@@ -587,7 +589,8 @@ class UjianPesertaController extends Controller
             'email',
             'answered_questions',
             'exam_start_time',
-            'section_start_times'
+            'section_start_times',
+            'lockscreen_enabled'
         ]);
 
         return view('ujian.ujian-peserta.ujian-selesai', [

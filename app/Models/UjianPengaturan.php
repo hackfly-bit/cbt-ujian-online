@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $acak_soal
  * @property boolean $acak_jawaban
  * @property boolean $lihat_hasil
- * @property boolean $lihat_pembahasan
+ * @property boolean $lockscreen
  */
 class UjianPengaturan extends Model
 {
@@ -53,6 +53,7 @@ class UjianPengaturan extends Model
         'acak_jawaban',
         'lihat_hasil',
         'lihat_pembahasan',
+        'lockscreen',
         'created_at',
         'updated_at'
     ];

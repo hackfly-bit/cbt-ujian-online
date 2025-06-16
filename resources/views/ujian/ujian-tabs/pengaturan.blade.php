@@ -22,6 +22,16 @@
                         <label for="hasil_ujian_tersedia" class="form-label">Hasil Ujian Tersedia (%)</label>
                         <input type="number" class="form-control" id="hasil_ujian_tersedia" name="hasil_ujian_tersedia" min="1" max="100" value="{{ old('hasil_ujian_tersedia', $ujian->ujianPengaturan->hasil_ujian_tersedia ?? '') }}" placeholder="e.g., 80">
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="lockscreen" name="lockscreen" value="1" {{ old('lockscreen', $ujian->ujianPengaturan->lockscreen ?? false) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="lockscreen">
+                                <strong>Aktifkan Lockscreen</strong>
+                                <br>
+                                <small class="text-muted">Mencegah peserta beralih tab, klik kanan, dan menggunakan shortcut keyboard selama ujian</small>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Tombol Navigasi -->
