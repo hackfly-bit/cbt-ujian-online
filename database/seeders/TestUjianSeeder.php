@@ -13,16 +13,27 @@ class TestUjianSeeder extends Seeder
     public function run(): void
     {
         // Create test categories
-        $kategori = \App\Models\Kategori::create([
+        // Create test categories with random ID
+        $kategoriId = rand(1, 3);
+        $kategori = \App\Models\Kategori::find($kategoriId);
+
+        if (!$kategori) {
+            $kategori = \App\Models\Kategori::create([
             'nama' => 'Bahasa Arab',
             'deskripsi' => 'Kategori soal bahasa Arab'
-        ]);
+            ]);
+        }
 
-        // Create difficulty level
-        $tingkatKesulitan = \App\Models\TingkatKesulitan::create([
+        // Create difficulty level with random ID
+        $tingkatKesulitanId = rand(1, 3);
+        $tingkatKesulitan = \App\Models\TingkatKesulitan::find($tingkatKesulitanId);
+
+        if (!$tingkatKesulitan) {
+            $tingkatKesulitan = \App\Models\TingkatKesulitan::create([
             'nama' => 'Mudah',
             'deskripsi' => 'Tingkat kesulitan mudah'
-        ]);
+            ]);
+        }
 
         // Create exam type
         $jenisUjian = \App\Models\JenisUjian::create([

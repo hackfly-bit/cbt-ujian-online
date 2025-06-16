@@ -6,6 +6,7 @@ use App\Models\Ujian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class UjianController extends Controller
@@ -115,40 +116,81 @@ class UjianController extends Controller
         try {
             DB::beginTransaction();
 
+            // Parse JSON data from FormData
+            $detail = json_decode($request->input('detail'), true) ?? $request->detail ?? [];
+            $peserta = json_decode($request->input('peserta'), true) ?? $request->peserta ?? [];
+            $pengaturan = json_decode($request->input('pengaturan'), true) ?? $request->pengaturan ?? [];
+            $sections = json_decode($request->input('sections'), true) ?? $request->sections ?? [];
+
             // Create ujian
             $ujian = new Ujian();
-            $ujian->nama_ujian   = $request->detail['nama'];
-            $ujian->deskripsi = $request->detail['deskripsi'];
-            $ujian->durasi = $request->detail['durasi'];
-            $ujian->jenis_ujian_id = $request->detail['jenis_ujian'];
-            $ujian->tanggal_selesai = $request->detail['tanggal_selesai'];
-            $ujian->status = $request->detail['status'] ?? 'draft'; // Default to 'draft' if not provided
+            $ujian->nama_ujian   = $detail['nama'];
+            $ujian->deskripsi = $detail['deskripsi'];
+            $ujian->durasi = $detail['durasi'];
+            $ujian->jenis_ujian_id = $detail['jenis_ujian'];
+            $ujian->tanggal_selesai = $detail['tanggal_selesai'];
+            $ujian->status = $detail['status'] ?? 'draft'; // Default to 'draft' if not provided
             $ujian->link = Str::uuid()->toString(); // Generate a unique link for the ujian
             $ujian->save();
 
             // Create ujian settings
             $ujianPengaturan = new \App\Models\UjianPengaturan();
             $ujianPengaturan->ujian_id = $ujian->id;
-            $ujianPengaturan->metode_penilaian = $request->pengaturan['metode_penilaian'];
-            $ujianPengaturan->nilai_kelulusan = $request->pengaturan['nilai_kelulusan'];
-            $ujianPengaturan->hasil_ujian_tersedia = $request->pengaturan['hasil_ujian'];
+            $ujianPengaturan->metode_penilaian = $pengaturan['metode_penilaian'];
+            $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
+            $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'];
             $ujianPengaturan->save();
 
             // Create ujian peserta form
             $ujianPesertaForm = new \App\Models\UjianPesertaForm();
             $ujianPesertaForm->ujian_id = $ujian->id;
-            $ujianPesertaForm->nama = $request->peserta['nama'] ?? false;
-            $ujianPesertaForm->phone = $request->peserta['phone'] ?? false;
-            $ujianPesertaForm->email = $request->peserta['email'] ?? false;
-            $ujianPesertaForm->institusi = $request->peserta['institusi'] ?? false;
-            $ujianPesertaForm->nomor_induk = $request->peserta['nomor_induk'] ?? false;
-            $ujianPesertaForm->tanggal_lahir = $request->peserta['tanggal_lahir'] ?? false;
-            $ujianPesertaForm->alamat = $request->peserta['alamat'] ?? false;
-            $ujianPesertaForm->foto = $request->peserta['foto'] ?? false;
+            $ujianPesertaForm->nama = $peserta['nama'] ?? false;
+            $ujianPesertaForm->phone = $peserta['phone'] ?? false;
+            $ujianPesertaForm->email = $peserta['email'] ?? false;
+            $ujianPesertaForm->institusi = $peserta['institusi'] ?? false;
+            $ujianPesertaForm->nomor_induk = $peserta['nomor_induk'] ?? false;
+            $ujianPesertaForm->tanggal_lahir = $peserta['tanggal_lahir'] ?? false;
+            $ujianPesertaForm->alamat = $peserta['alamat'] ?? false;
+            $ujianPesertaForm->foto = $peserta['foto'] ?? false;
             $ujianPesertaForm->save();
 
+            // Create ujian theme
+            $ujianThema = new \App\Models\UjianThema();
+            $ujianThema->ujian_id = $ujian->id;
+            $ujianThema->theme = $request->input('theme', 'classic');
+            $ujianThema->institution_name = $request->input('institution_name');
+            $ujianThema->welcome_message = $request->input('welcome_message');
+            $ujianThema->use_custom_color = $request->input('use_custom_color', false);
+            
+            if ($request->input('use_custom_color')) {
+                $ujianThema->custom_color_1 = $request->input('custom_color_1');
+                $ujianThema->custom_color_2 = $request->input('custom_color_2');
+                $ujianThema->custom_color_3 = $request->input('custom_color_3');
+            } else {
+                $ujianThema->background_color = $request->input('background_color', '#ffffff');
+                $ujianThema->header_color = $request->input('header_color', '#f8f9fa');
+            }
+
+            // Handle file uploads
+            if ($request->hasFile('logo')) {
+                $logoPath = $request->file('logo')->store('ujian/logos', 'public');
+                $ujianThema->logo_path = $logoPath;
+            }
+
+            if ($request->hasFile('background_image')) {
+                $backgroundPath = $request->file('background_image')->store('ujian/backgrounds', 'public');
+                $ujianThema->background_image_path = $backgroundPath;
+            }
+
+            if ($request->hasFile('header_image')) {
+                $headerPath = $request->file('header_image')->store('ujian/headers', 'public');
+                $ujianThema->header_image_path = $headerPath;
+            }
+
+            $ujianThema->save();
+
             // Create ujian sections
-            foreach ($request->sections as $sectionData) {
+            foreach ($sections as $sectionData) {
                 $ujianSection = new \App\Models\UjianSection();
                 $ujianSection->ujian_id = $ujian->id;
                 $ujianSection->nama_section = $sectionData['nama_section'];
@@ -162,7 +204,7 @@ class UjianController extends Controller
                 // Create ujian section soals
                 foreach ($sectionData['selected_questions'] as $soalId) {
                     $ujianSectionSoal = new \App\Models\UjianSectionSoal();
-                    $ujianSectionSoal->ujian_section = $ujianSection->id;
+                    $ujianSectionSoal->ujian_section_id = $ujianSection->id;
                     $ujianSectionSoal->soal_id = $soalId;
                     $ujianSectionSoal->save();
                 }
@@ -194,7 +236,7 @@ class UjianController extends Controller
     {
         // return all relational of ujian
         $jenisUjian = \App\Models\JenisUjian::all();
-        $ujian = Ujian::with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals.soal'])->findOrFail($id);
+        $ujian = Ujian::with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals.soal', 'ujianThema'])->findOrFail($id);
 
         return view('ujian.buat-ujian', [
             'title' => $ujian->nama_ujian,
@@ -221,34 +263,91 @@ class UjianController extends Controller
         try {
             DB::beginTransaction();
 
+            // Parse JSON data from FormData
+            $detail = json_decode($request->input('detail'), true) ?? $request->detail ?? [];
+            $peserta = json_decode($request->input('peserta'), true) ?? $request->peserta ?? [];
+            $pengaturan = json_decode($request->input('pengaturan'), true) ?? $request->pengaturan ?? [];
+            $sections = json_decode($request->input('sections'), true) ?? $request->sections ?? [];
+
             // Find existing ujian
             $ujian = Ujian::findOrFail($id);
-            $ujian->nama_ujian   = $request->detail['nama'];
-            $ujian->deskripsi = $request->detail['deskripsi'];
-            $ujian->durasi = $request->detail['durasi'];
-            $ujian->jenis_ujian_id = $request->detail['jenis_ujian'];
-            $ujian->tanggal_selesai = $request->detail['tanggal_selesai'];
-            $ujian->status = $request->detail['status'] ?? 'draft'; // Default to 'draft' if not provided
+            $ujian->nama_ujian   = $detail['nama'];
+            $ujian->deskripsi = $detail['deskripsi'];
+            $ujian->durasi = $detail['durasi'];
+            $ujian->jenis_ujian_id = $detail['jenis_ujian'];
+            $ujian->tanggal_selesai = $detail['tanggal_selesai'];
+            $ujian->status = $detail['status'] ?? 'draft'; // Default to 'draft' if not provided
             $ujian->save();
 
             // Update ujian settings
             $ujianPengaturan = $ujian->ujianPengaturan;
-            $ujianPengaturan->metode_penilaian = $request->pengaturan['metode_penilaian'];
-            $ujianPengaturan->nilai_kelulusan = $request->pengaturan['nilai_kelulusan'];
-            $ujianPengaturan->hasil_ujian_tersedia = $request->pengaturan['hasil_ujian'];
+            $ujianPengaturan->metode_penilaian = $pengaturan['metode_penilaian'];
+            $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
+            $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'];
             $ujianPengaturan->save();
 
             // Update ujian peserta form
             $ujianPesertaForm = $ujian->ujianPesertaForm;
-            $ujianPesertaForm->nama = $request->peserta['nama'] ?? false;
-            $ujianPesertaForm->phone = $request->peserta['phone'] ?? false;
-            $ujianPesertaForm->email = $request->peserta['email'] ?? false;
-            $ujianPesertaForm->institusi = $request->peserta['institusi'] ?? false;
-            $ujianPesertaForm->nomor_induk = $request->peserta['nomor_induk'] ?? false;
-            $ujianPesertaForm->tanggal_lahir = $request->peserta['tanggal_lahir'] ?? false;
-            $ujianPesertaForm->alamat = $request->peserta['alamat'] ?? false;
-            $ujianPesertaForm->foto = $request->peserta['foto'] ?? false;
+            $ujianPesertaForm->nama = $peserta['nama'] ?? false;
+            $ujianPesertaForm->phone = $peserta['phone'] ?? false;
+            $ujianPesertaForm->email = $peserta['email'] ?? false;
+            $ujianPesertaForm->institusi = $peserta['institusi'] ?? false;
+            $ujianPesertaForm->nomor_induk = $peserta['nomor_induk'] ?? false;
+            $ujianPesertaForm->tanggal_lahir = $peserta['tanggal_lahir'] ?? false;
+            $ujianPesertaForm->alamat = $peserta['alamat'] ?? false;
+            $ujianPesertaForm->foto = $peserta['foto'] ?? false;
             $ujianPesertaForm->save();
+
+            // Update ujian theme
+            $ujianThema = $ujian->ujianThema;
+            if (!$ujianThema) {
+                $ujianThema = new \App\Models\UjianThema();
+                $ujianThema->ujian_id = $ujian->id;
+            }
+            
+            $ujianThema->theme = $request->input('theme', 'classic');
+            $ujianThema->institution_name = $request->input('institution_name');
+            $ujianThema->welcome_message = $request->input('welcome_message');
+            $ujianThema->use_custom_color = $request->input('use_custom_color', false);
+            
+            if ($request->input('use_custom_color')) {
+                $ujianThema->custom_color_1 = $request->input('custom_color_1');
+                $ujianThema->custom_color_2 = $request->input('custom_color_2');
+                $ujianThema->custom_color_3 = $request->input('custom_color_3');
+            } else {
+                $ujianThema->background_color = $request->input('background_color', '#ffffff');
+                $ujianThema->header_color = $request->input('header_color', '#f8f9fa');
+            }
+
+            // Handle file uploads
+            if ($request->hasFile('logo')) {
+                // Delete old logo if exists
+                if ($ujianThema->logo_path && Storage::disk('public')->exists($ujianThema->logo_path)) {
+                    Storage::disk('public')->delete($ujianThema->logo_path);
+                }
+                $logoPath = $request->file('logo')->store('ujian/logos', 'public');
+                $ujianThema->logo_path = $logoPath;
+            }
+
+            if ($request->hasFile('background_image')) {
+                // Delete old background if exists
+                if ($ujianThema->background_image_path && Storage::disk('public')->exists($ujianThema->background_image_path)) {
+                    Storage::disk('public')->delete($ujianThema->background_image_path);
+                }
+                $backgroundPath = $request->file('background_image')->store('ujian/backgrounds', 'public');
+                $ujianThema->background_image_path = $backgroundPath;
+            }
+
+            if ($request->hasFile('header_image')) {
+                // Delete old header if exists
+                if ($ujianThema->header_image_path && Storage::disk('public')->exists($ujianThema->header_image_path)) {
+                    Storage::disk('public')->delete($ujianThema->header_image_path);
+                }
+                $headerPath = $request->file('header_image')->store('ujian/headers', 'public');
+                $ujianThema->header_image_path = $headerPath;
+            }
+
+            $ujianThema->save();
 
             // Update ujian sections
             // Delete existing section soals first
@@ -258,7 +357,7 @@ class UjianController extends Controller
 
             // Then delete the sections
             $ujian->ujianSections()->delete();
-            foreach ($request->sections as $sectionData) {
+            foreach ($sections as $sectionData) {
                 $ujianSection = new \App\Models\UjianSection();
                 $ujianSection->ujian_id = $ujian->id;
                 $ujianSection->nama_section = $sectionData['nama_section'];
@@ -272,7 +371,7 @@ class UjianController extends Controller
                 // Create ujian section soals
                 foreach ($sectionData['selected_questions'] as $soalId) {
                     $ujianSectionSoal = new \App\Models\UjianSectionSoal();
-                    $ujianSectionSoal->ujian_section = $ujianSection->id;
+                    $ujianSectionSoal->ujian_section_id = $ujianSection->id;
                     $ujianSectionSoal->soal_id = $soalId;
                     $ujianSectionSoal->save();
                 }
