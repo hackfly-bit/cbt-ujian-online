@@ -97,7 +97,13 @@
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="ujian_id" class="form-label">Pilih Ujian</label>
-                                                    <input type="text" class="form-control" id="ujian_id" name="ujian_id">
+                                                    {{-- <input type="text" class="form-control" id="ujian_id" name="ujian_id"> --}}
+                                                    <select name="ujian_id" id="ujian_id" class="form-select" required>
+                                                        <option value="">Pilih Ujian</option>
+                                                        @foreach (App\Models\Ujian::all() as $ujian)
+                                                            <option value="{{ $ujian->id }}">{{ $ujian->nama_ujian }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
 
                                                 {{-- <div class="mb-3">

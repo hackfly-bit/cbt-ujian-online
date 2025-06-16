@@ -1,0 +1,150 @@
+/*
+ * Quill Editor RTL Support
+ * Custom styling for Arabic RTL text direction
+ */
+
+/* Font change animation */
+.font-change-animation {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+/* RTL Support for Quill Editor */
+.ql-editor[lang="ar"] {
+    direction: rtl !important;
+    text-align: right !important;
+    font-family: Arial, "Times New Roman", "Amiri", "Scheherazade New", sans-serif !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    unicode-bidi: plaintext !important;
+}
+
+/* RTL Support for Quill Container */
+.ql-container[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+.ql-container[dir="rtl"] .ql-editor {
+    direction: rtl;
+    text-align: right;
+}
+
+/* RTL Support for Quill Toolbar */
+.ql-toolbar[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+.ql-toolbar[dir="rtl"] .ql-formats {
+    margin-right: 0;
+    margin-left: 15px;
+}
+
+.ql-toolbar[dir="rtl"] .ql-formats:first-child {
+    margin-left: 0;
+}
+
+/* Arabic font families */
+.arabic-font {
+    font-family: Arial, "Times New Roman", "Amiri", "Scheherazade New", sans-serif;
+}
+
+/* Placeholder styling for RTL */
+.ql-editor[data-placeholder]:empty:before {
+    color: #aaa;
+    font-style: italic;
+    pointer-events: none;
+}
+
+.ql-editor[lang="ar"][data-placeholder]:empty:before {
+    text-align: right;
+    direction: rtl;
+}
+
+/* Arabic indicator badge */
+.arabic-indicator {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+/* RTL direction for lists */
+.ql-editor[lang="ar"] ol,
+.ql-editor[lang="ar"] ul {
+    direction: rtl;
+    text-align: right;
+    padding-right: 1.5em;
+    padding-left: 0;
+}
+
+.ql-editor[lang="ar"] li {
+    direction: rtl;
+    text-align: right;
+}
+
+/* RTL direction for blockquotes */
+.ql-editor[lang="ar"] blockquote {
+    direction: rtl;
+    text-align: right;
+    border-right: 4px solid #ccc;
+    border-left: none;
+    margin-right: 0;
+    margin-left: 1.5em;
+    padding-right: 1em;
+    padding-left: 0;
+}
+
+/* Custom Quill toolbar button for RTL */
+.ql-direction .ql-picker-label[data-value="rtl"]:before {
+    content: "↻";
+}
+
+.ql-direction .ql-picker-item[data-value="rtl"]:before {
+    content: "Right to Left";
+}
+
+/* Smooth transition for direction changes */
+.ql-editor {
+    transition: direction 0.3s ease, text-align 0.3s ease;
+}
+
+/* Enhanced visibility for RTL mode */
+.rtl-mode-active {
+    border: 2px solid #0d6efd;
+    border-radius: 0.375rem;
+}
+
+/* Custom scrollbar for RTL content */
+.ql-editor[lang="ar"]::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ql-editor[lang="ar"]::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.ql-editor[lang="ar"]::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.ql-editor[lang="ar"]::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Better support for mixed content (Arabic + English) */
+.ql-editor[lang="ar"] p:has(> span[dir="ltr"]) {
+    unicode-bidi: bidi-override;
+}
+
+/* Responsive adjustments for RTL */
+@media (max-width: 768px) {
+    .ql-editor[lang="ar"] {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+}

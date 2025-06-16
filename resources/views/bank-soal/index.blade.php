@@ -2,6 +2,8 @@
 
 @section('css')
     @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css'])
+    @vite(['node_modules/quill/dist/quill.core.css', 'node_modules/quill/dist/quill.snow.css'])
+    @vite(['node_modules/select2/dist/css/select2.min.css', 'node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css'])
 
     <style>
         .action-icons {
@@ -44,6 +46,61 @@
         .arabic-indicator {
             font-size: 0.75em;
             vertical-align: middle;
+        }
+
+        /* Select2 Bootstrap 5 custom styling */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: calc(1.5em + 0.75rem + 2px);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 0.375rem;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single {
+            height: calc(1.5em + 0.75rem + 2px) !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            line-height: calc(1.5em + 0.75rem);
+            padding-left: 0;
+            padding-right: 20px;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+            height: calc(1.5em + 0.75rem);
+            right: 3px;
+        }
+
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .select2-dropdown {
+            border-radius: 0.375rem;
+            border-color: #dee2e6;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--highlighted {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        /* RTL support for Select2 */
+        .select2-container[dir="rtl"] .select2-selection--single .select2-selection__rendered {
+            padding-right: 0;
+            padding-left: 20px;
+            text-align: right;
+        }
+
+        .select2-container[dir="rtl"] .select2-selection--single .select2-selection__arrow {
+            left: 3px;
+            right: auto;
         }
     </style>
 @endsection
@@ -127,7 +184,7 @@
                         <form id="form-bank-soal" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" id="soal-id" name="soal_id">
-                            <input type="hidden" id="form-method" name="_method" value="POST">
+                            <input type="hidden" id="form-method" name="_method">
                             <div class="row">
                                 <!-- Jenis Font -->
                                 <div class="col-md-12 mb-3">
@@ -146,10 +203,12 @@
 
                                 <!-- Pertanyaan -->
                                 <div class="col-12 mb-3">
-                                    <label for="pertanyaan" class="form-label">Pertanyaan <span
-                                            class="text-danger">*</span></label>
-                                    <textarea class="form-control mb-1" id="pertanyaan" name="pertanyaan" rows="4" required></textarea>
-                                    <span>Teks pertanyaan yang akan ditampilkan kepada peserta</span>
+                                    <label for="pertanyaan" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                                    <div id="snow-editor" style="height: 200px;">
+                                        <h3>Tulis pertanyaan di sini...</h3>
+                                        <p>Teks pertanyaan yang akan ditampilkan kepada peserta</p>
+                                    </div>
+                                    <input type="hidden" id="pertanyaan" name="pertanyaan" required>
                                 </div>
 
                                 <div class="col-12 mb-3">

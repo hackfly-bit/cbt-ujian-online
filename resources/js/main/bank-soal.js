@@ -2,6 +2,14 @@ import $ from "jquery";
 import DataTable from "datatables.net-bs5";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import Swal from 'sweetalert2';
+import Quill from 'quill/dist/quill.js';
+import 'quill/dist/quill.snow.css';
+import select2 from 'select2';
+import 'select2/dist/css/select2.min.css';
+import 'select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css';
+
+// Initialize Select2 with jQuery
+select2($);
 
 window.$ = $;
 window.jQuery = $;
@@ -10,9 +18,134 @@ window.jQuery = $;
 let currentSoalId = null;
 let jawabanCounter = 0;
 
+// Initialize Quill editor
+let quill = new Quill('#snow-editor', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{ 'font': [] }], // Add font dropdown
+            ['bold', 'italic', 'underline'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            [{ 'direction': 'rtl' }], // Add RTL direction support
+            [{ 'align': [] }], // Add text alignment options
+            ['clean']
+        ]
+    },
+    placeholder: 'Tulis pertanyaan di sini...'
+});
+
+// Update hidden input when Quill content changes
+quill.on('text-change', function () {
+    const pertanyaanInput = document.getElementById('pertanyaan');
+    if (pertanyaanInput) {
+        pertanyaanInput.value = quill.root.innerHTML;
+    }
+});
+
+// Ensure Quill is ready before any operations
+let quillReady = false;
+quill.on('editor-change', function () {
+    if (!quillReady) {
+        quillReady = true;
+        console.log('Quill editor is ready');
+    }
+});
+
+// Initialize with default content
+quill.root.innerHTML = '<h3>Tulis pertanyaan di sini...</h3><p>Teks pertanyaan yang akan ditampilkan kepada peserta</p>';
+
+// Initialize Select2 for all select elements
+function initSelect2() {
+    console.log("Initializing Select2...");
+
+    // Select2 options
+    const select2Options = {
+        theme: "bootstrap-5",
+        width: '100%',
+        placeholder: function () {
+            return $(this).data('placeholder') || 'Pilih...';
+        },
+        allowClear: false,
+        language: {
+            noResults: function () {
+                return "Tidak ada hasil yang ditemukan";
+            },
+            searching: function () {
+                return "Mencari...";
+            }
+        }
+    };
+
+    // Initialize Select2 on all select elements
+    $('#jenis_font, #jenis_soal, #tingkat_kesulitan, #kategori, #sub_kategori').each(function () {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+            $(this).select2(select2Options);
+        }
+    });
+
+    // Filter selects
+    $('#filter-difficulty-semua, #filter-category-semua, #filter-difficulty-reading, #filter-difficulty-listening, #filter-difficulty-grammar').each(function () {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+            $(this).select2(select2Options);
+        }
+    });
+
+    console.log("Select2 initialized successfully");
+}
+
+// Initialize Select2 specific event handlers
+function initSelect2Events() {
+    console.log("Initializing Select2 events...");
+
+    // Font change event
+    $('#jenis_font').on('select2:select', function (e) {
+        const fontType = e.params.data.text;
+        console.log("Font changed via Select2:", fontType);
+        handleFontChange(fontType);
+    });
+
+    // Question type change event
+    $('#jenis_soal').on('select2:select', function (e) {
+        const jenisSoal = e.params.data.id;
+        console.log("Jenis soal changed via Select2:", jenisSoal);
+        generateJawabanForm(jenisSoal);
+    });
+
+    // Category change event
+    $('#kategori').on('select2:select', function (e) {
+        const kategoriId = e.params.data.id;
+        console.log("Kategori changed via Select2:", kategoriId);
+        loadSubKategori(kategoriId);
+    });
+
+    console.log("Select2 events initialized");
+}
+
+// Reinitialize Select2 in modal
+function reinitializeSelect2InModal() {
+    console.log("Reinitializing Select2 in modal...");
+
+    // Destroy existing Select2 instances in modal
+    $('#tambah-bank-soal select').each(function () {
+        if ($(this).hasClass('select2-hidden-accessible')) {
+            $(this).select2('destroy');
+        }
+    });
+
+    // Reinitialize Select2 for modal elements
+    setTimeout(() => {
+        initSelect2();
+        initSelect2Events();
+        console.log("Select2 reinitialized in modal");
+    }, 100);
+}
+
 // Inisialisasi DataTable untuk halaman Bank Soal
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Bank Soal JS loaded - DOM ready");
+
+    // Initialize Select2 for all select elements
+    initSelect2();
 
     // Initialize DataTables
     initDataTables();
@@ -22,6 +155,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Load dropdown data
     loadDropdownData();
+
+    // Make functions globally available for inline event handlers
+    window.editSoal = editSoal;
+    window.populateFormWithData = populateFormWithData;
+    window.loadDropdownData = loadDropdownData;
+    window.loadSubKategori = loadSubKategori;
+    window.showDeleteConfirmation = showDeleteConfirmation;
+    window.testBankSoal = testBankSoal;
+    window.populateJawabanSoal = populateJawabanSoal;
+    window.populatePilihanGanda = populatePilihanGanda;
+    window.populateBenarSalah = populateBenarSalah;
+    window.populateIsian = populateIsian;
+    window.bindPilihanGandaEvents = bindPilihanGandaEvents;
+    window.ensureDropdownDataLoaded = ensureDropdownDataLoaded;
+    window.initSelect2 = initSelect2;
+    window.reinitializeSelect2InModal = reinitializeSelect2InModal;
 
     console.log("Bank Soal initialization completed");
 });
@@ -66,7 +215,18 @@ function initDataTables() {
                     searchable: false,
                     className: "text-center",
                 },
-                { data: "pertanyaan", name: "pertanyaan" },
+                {
+                    data: "pertanyaan",
+                    name: "pertanyaan",
+                    render: function(data, type, row) {
+                        if (type === 'display' || type === 'type') {
+                            // Strip HTML tags and trim to 50 characters minimum
+                            const textContent = data ? data.replace(/<[^>]+>/g, '') : '';
+                            return textContent.length > 50 ? textContent.substring(0, 50) + '...' : textContent;
+                        }
+                        return data;
+                    }
+                },
                 {
                     data: "kategori",
                     name: "kategori",
@@ -206,10 +366,20 @@ function initFormEvents() {
         handleFontChange(this.value);
     });
 
+    // Select2 specific event handlers
+    initSelect2Events();
+
     // Event submit form
     $("#form-bank-soal").on("submit", function (e) {
         e.preventDefault();
         console.log("Form submitted via form event");
+
+        // Update hidden input with Quill content before submit
+        const pertanyaanInput = document.getElementById('pertanyaan');
+        if (pertanyaanInput) {
+            pertanyaanInput.value = quill.root.innerHTML;
+        }
+
         submitForm();
     });
 
@@ -256,6 +426,20 @@ function initFormEvents() {
     $("#tambah-bank-soal").on("hidden.bs.modal", function () {
         console.log("Modal closed, resetting form");
         resetForm();
+    });
+
+    // Event untuk inisialisasi modal saat dibuka untuk tambah data baru
+    $("#tambah-bank-soal").on("show.bs.modal", function (e) {
+        // Check if this is for adding new data (not editing)
+        const button = $(e.relatedTarget);
+        if (!button.hasClass('edit-btn')) {
+            console.log("Modal opened for new data, resetting form");
+            setTimeout(() => {
+                resetForm();
+                // Reinitialize Select2 for the modal
+                reinitializeSelect2InModal();
+            }, 100);
+        }
     });
 
     // Event konfirmasi hapus
@@ -365,15 +549,14 @@ function addPilihanGanda(label) {
                 <input type="hidden" name="jawaban_soal[${jawabanCounter}][jawaban_benar]" value="${isFirst ? 1 : 0}">
             </div>
             <div class="col-1">
-                ${
-                    jawabanCounter > 3
-                        ? `
+                ${jawabanCounter > 3
+            ? `
                     <button type="button" class="btn btn-sm btn-outline-danger remove-pilihan">
                         <i class="ri-delete-bin-line"></i>
                     </button>
                 `
-                        : ""
-                }
+            : ""
+        }
             </div>
         </div>
     `;
@@ -412,7 +595,7 @@ function updateLabelBenar() {
 function updateJawabanBenarValues() {
     const selectedValue = $("input[name='jawaban_benar']:checked").val();
 
-    $("#pilihan-container .pilihan-item").each(function(index) {
+    $("#pilihan-container .pilihan-item").each(function (index) {
         const isCorrect = index == selectedValue;
         $(this).find("input[name*='[jawaban_benar]']").val(isCorrect ? 1 : 0);
     });
@@ -477,78 +660,228 @@ function generateIsianForm(container) {
 
 // Load dropdown data
 function loadDropdownData() {
+    console.log("Loading dropdown data...");
+
     // Load tingkat kesulitan
-    $.get("/filter/tingkat-kesulitan", function (data) {
-        const select = $("#tingkat_kesulitan");
-        select
-            .empty()
-            .append('<option value="">Pilih Tingkat Kesulitan</option>');
-        data.forEach((item) => {
-            select.append(`<option value="${item.id}">${item.nama}</option>`);
-        });
-    }).fail(function () {
-        console.error("Failed to load tingkat kesulitan");
+    $.ajax({
+        url: '/filter/tingkat-kesulitan',
+        type: 'GET',
+        success: function (response) {
+            console.log("Tingkat kesulitan loaded:", response);
+
+            const select = $("#tingkat_kesulitan");
+            select.empty().append('<option value="">Pilih Tingkat Kesulitan</option>');
+
+            if (response && Array.isArray(response)) {
+                response.forEach(function (item) {
+                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                });
+            } else if (response.data && Array.isArray(response.data)) {
+                response.data.forEach(function (item) {
+                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                });
+            }
+
+            // Trigger Select2 update
+            select.trigger('change');
+        },
+        error: function (xhr) {
+            console.error("Error loading tingkat kesulitan:", xhr.responseText);
+        }
     });
 
     // Load kategori
-    $.get("/filter/kategori", function (data) {
-        const select = $("#kategori");
-        select.empty().append('<option value="">Pilih Kategori</option>');
-        data.forEach((item) => {
-            select.append(`<option value="${item.id}">${item.nama}</option>`);
-        });
-    }).fail(function () {
-        console.error("Failed to load kategori");
+    $.ajax({
+        url: '/filter/kategori',
+        type: 'GET',
+        success: function (response) {
+            console.log("Kategori loaded:", response);
+
+            const select = $("#kategori");
+            select.empty().append('<option value="">Pilih Kategori</option>');
+
+            if (response && Array.isArray(response)) {
+                response.forEach(function (item) {
+                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                });
+            } else if (response.data && Array.isArray(response.data)) {
+                response.data.forEach(function (item) {
+                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                });
+            }
+
+            // Trigger Select2 update
+            select.trigger('change');
+        },
+        error: function (xhr) {
+            console.error("Error loading kategori:", xhr.responseText);
+        }
     });
 }
 
 // Load sub kategori berdasarkan kategori
 function loadSubKategori(kategoriId) {
+    console.log("Loading sub kategori for kategori ID:", kategoriId);
+
     const select = $("#sub_kategori");
     select.empty().append('<option value="">Pilih Sub Kategori</option>');
 
-    if (!kategoriId) return;
+    // Trigger Select2 update after clearing
+    select.trigger('change');
 
-    $.get(`/filter/sub-kategori/${kategoriId}`, function (data) {
-        data.forEach((item) => {
-            select.append(`<option value="${item.id}">${item.nama}</option>`);
-        });
-    }).fail(function () {
-        console.error("Failed to load sub kategori");
+    if (!kategoriId) {
+        return;
+    }
+
+    $.ajax({
+        url: `/filter/sub-kategori/${kategoriId}`,
+        type: 'GET',
+        success: function (response) {
+            console.log("Sub kategori loaded:", response);
+
+            if (response && Array.isArray(response)) {
+                response.forEach(function (item) {
+                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                });
+            } else if (response.data && Array.isArray(response.data)) {
+                response.data.forEach(function (item) {
+                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                });
+            }
+
+            // Trigger Select2 update after loading data
+            select.trigger('change');
+        },
+        error: function (xhr) {
+            console.error("Error loading sub kategori:", xhr.responseText);
+        }
     });
 }
 
-// Handle font change - Arabic RTL Support
+// Robust function to load content into Quill editor
+function loadQuillContent(htmlContent, fontType = 'Latin') {
+    // Wait for Quill to be ready
+    const doLoad = () => {
+        try {
+            if (!htmlContent || htmlContent.trim() === '') {
+                console.log('No content to load, clearing editor');
+                quill.setText('');
+                return;
+            }
+
+            console.log('Loading content into Quill:', htmlContent);
+
+            // Clear existing content first
+            quill.setText('');
+
+            // Method 1: Using clipboard API (recommended for HTML)
+            quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
+
+            // Verify content was set and fallback if needed
+            setTimeout(() => {
+                if (quill.root.innerHTML.trim() === '' || quill.root.innerHTML === '<p><br></p>') {
+                    console.warn('Content may not have loaded properly, trying direct innerHTML');
+                    quill.root.innerHTML = htmlContent;
+                }
+
+                // Apply formatting after content is confirmed loaded
+                setTimeout(() => {
+                    const direction = fontType === 'Arab (RTL)' ? 'rtl' : 'ltr';
+                    applyTextDirectionFormatting(direction);
+
+                    // Update hidden input
+                    const pertanyaanInput = document.getElementById('pertanyaan');
+                    if (pertanyaanInput) {
+                        pertanyaanInput.value = quill.root.innerHTML;
+                    }
+
+                    console.log('Content loaded and formatted successfully');
+                }, 100);
+            }, 50);
+
+        } catch (error) {
+            console.error('Error loading content into Quill:', error);
+            // Fallback: just set text content
+            const textContent = htmlContent.replace(/<[^>]*>/g, '');
+            quill.setText(textContent);
+        }
+    };
+
+    // Check if Quill is ready, if not wait a bit
+    if (quillReady) {
+        doLoad();
+    } else {
+        console.log('Waiting for Quill to be ready...');
+        setTimeout(() => {
+            doLoad();
+        }, 200);
+    }
+}
+
+// Helper function to apply text direction formatting to existing content
+function applyTextDirectionFormatting(direction = 'ltr') {
+    const currentLength = quill.getLength();
+    if (currentLength > 1) { // Quill always has at least 1 character (newline)
+        try {
+            if (direction === 'rtl') {
+                quill.formatText(0, currentLength, 'direction', 'rtl');
+                quill.formatText(0, currentLength, 'align', 'right');
+                console.log('Applied RTL formatting to existing content');
+            } else {
+                quill.formatText(0, currentLength, 'direction', 'ltr');
+                quill.formatText(0, currentLength, 'align', 'left');
+                console.log('Applied LTR formatting to existing content');
+            }
+        } catch (error) {
+            console.warn('Could not apply text direction formatting:', error);
+        }
+    }
+}
+
+// Handle font change - Arabic RTL Support with Quill.js
 function handleFontChange(fontType) {
-    const questionTextarea = $("#pertanyaan");
+    const quillContainer = document.querySelector('#snow-editor');
+    const quillEditor = quillContainer.querySelector('.ql-editor');
+    const toolbar = quillContainer.querySelector('.ql-toolbar');
     const fontLabel = $("label[for='pertanyaan']");
 
     if (fontType === "Arab (RTL)") {
-        // Apply Arabic RTL styling
-        questionTextarea.css({
+        // Apply Arabic RTL styling to Quill editor
+        $(quillEditor).css({
             'direction': 'rtl',
             'text-align': 'right',
-            'font-family': 'Arial, "Times New Roman", "Amiri", "Scheherazade New", sans-serif',
+            'font-family': '"Amiri", "Scheherazade New", Arial, "Times New Roman", sans-serif',
             'font-size': '16px',
             'line-height': '1.6',
             'unicode-bidi': 'plaintext'
         });
 
         // Add Arabic language attribute for better rendering
-        questionTextarea.attr('lang', 'ar');
+        $(quillEditor).attr('lang', 'ar');
+        $(quillContainer).attr('dir', 'rtl');
 
-        // Update placeholder text
-        questionTextarea.attr('placeholder', 'اكتب السؤال هنا... (Arabic RTL mode)');
+        // Update Quill editor placeholder
+        quill.root.dataset.placeholder = 'اكتب السؤال هنا... (Arabic RTL mode)';
 
-        // Add visual indicator to the label
-        if (!fontLabel.find('.arabic-indicator').length) {
-            fontLabel.append(' <span class="arabic-indicator badge bg-info ms-2">العربية RTL</span>');
+        // Apply RTL direction using Quill's format system only if there's content
+        // Note: This will be called separately after content is loaded in edit mode
+        const currentLength = quill.getLength();
+        if (currentLength > 1) { // Quill always has at least 1 character (newline)
+            applyTextDirectionFormatting('rtl');
         }
 
-        console.log('Arabic RTL mode activated');
+        // Update container and toolbar styling
+        $(quillContainer).addClass('rtl-mode-active');
+        $(toolbar).css('direction', 'rtl');
+
+        // Add visual indicator to the label
+        fontLabel.find('.arabic-indicator').remove();
+        fontLabel.append(' <span class="arabic-indicator badge bg-info ms-2">العربية RTL</span>');
+
+        console.log('Arabic RTL mode activated for Quill editor');
     } else {
         // Reset to default Latin styling
-        questionTextarea.css({
+        $(quillEditor).css({
             'direction': 'ltr',
             'text-align': 'left',
             'font-family': '',
@@ -558,27 +891,67 @@ function handleFontChange(fontType) {
         });
 
         // Remove Arabic language attribute
-        questionTextarea.removeAttr('lang');
+        $(quillEditor).removeAttr('lang');
+        $(quillContainer).removeAttr('dir');
 
-        // Reset placeholder text
-        questionTextarea.attr('placeholder', 'Masukkan pertanyaan soal...');
+        // Reset Quill editor placeholder
+        quill.root.dataset.placeholder = 'Tulis pertanyaan di sini...';
+
+        // Reset RTL direction using Quill's format system only if there's content
+        // Note: This will be called separately after content is loaded in edit mode
+        const currentLength = quill.getLength();
+        if (currentLength > 1) { // Quill always has at least 1 character (newline)
+            applyTextDirectionFormatting('ltr');
+        }
+
+        // Reset container and toolbar styling
+        $(quillContainer).removeClass('rtl-mode-active');
+        $(toolbar).css('direction', 'ltr');
 
         // Remove visual indicator from the label
         fontLabel.find('.arabic-indicator').remove();
 
-        console.log('Latin LTR mode activated');
+        console.log('Latin LTR mode activated for Quill editor');
     }
 
-    // Add a subtle animation effect
-    questionTextarea.addClass('font-change-animation');
+    // Add a subtle animation effect to the Quill container
+    $(quillContainer).addClass('font-change-animation');
     setTimeout(() => {
-        questionTextarea.removeClass('font-change-animation');
+        $(quillContainer).removeClass('font-change-animation');
     }, 300);
+
+    // Update the hidden input with current content
+    const pertanyaanInput = document.getElementById('pertanyaan');
+    if (pertanyaanInput) {
+        pertanyaanInput.value = quill.root.innerHTML;
+    }
+
+    // Trigger change event for form validation
+    $(pertanyaanInput).trigger('change');
 }
 
 // Submit form
 function submitForm() {
     console.log("Submitting form...");
+
+    // Update hidden input with current Quill content
+    const pertanyaanInput = document.getElementById('pertanyaan');
+    if (pertanyaanInput) {
+        pertanyaanInput.value = quill.root.innerHTML;
+    }
+
+    // Validasi konten Quill editor
+    const quillContent = quill.getText().trim();
+    if (!quillContent || quillContent.length === 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Pertanyaan tidak boleh kosong. Silakan masukkan pertanyaan terlebih dahulu.',
+            confirmButtonColor: '#d33'
+        });
+        quill.focus();
+        return;
+    }
 
     // Validasi form terlebih dahulu
     const form = document.getElementById("form-bank-soal");
@@ -603,7 +976,7 @@ function submitForm() {
     if (jenisSoal === "pilihan_ganda") {
         const jawabanInputs = $("#pilihan-container input[name*='[jawaban]']");
         let hasEmptyAnswer = false;
-        jawabanInputs.each(function() {
+        jawabanInputs.each(function () {
             if (!$(this).val().trim()) {
                 hasEmptyAnswer = true;
                 return false;
@@ -629,52 +1002,50 @@ function submitForm() {
             });
             return;
         }
-    }
-
-    const formData = new FormData(form);
-    const method = $("#form-method").val();
-    const isEdit = method === "PUT";
-
-    // Set jawaban_benar untuk setiap jawaban
-    if (jenisSoal === "pilihan_ganda") {
-        const selectedIndex = $('input[name="jawaban_benar"]:checked').val();
-        $("#pilihan-container .pilihan-item").each(function (index) {
-            const isCorrect = index == selectedIndex;
-            $(this).append(
-                `<input type="hidden" name="jawaban_soal[${index}][jawaban_benar]" value="${
-                    isCorrect ? 1 : 0
-                }">`
-            );
-        });
-    } else if (jenisSoal === "benar_salah") {
-        const selectedValue = $('input[name="jawaban_benar"]:checked').val();
-        formData.append(
-            "jawaban_soal[0][jawaban_benar]",
-            selectedValue == 0 ? 1 : 0
-        );
-        formData.append(
-            "jawaban_soal[1][jawaban_benar]",
-            selectedValue == 1 ? 1 : 0
-        );
     } else if (jenisSoal === "isian") {
-        formData.append("jawaban_soal[0][jawaban_benar]", 1);
+        const jawabanIsian = $('input[name="jawaban_soal[0][jawaban]"]').val();
+        if (!jawabanIsian || !jawabanIsian.trim()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Jawaban isian harus diisi.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
     }
 
-    // Add jenis_soal to formData
-    formData.append("jenis_soal", jenisSoal);
+    console.log("All validations passed, proceeding with form submission");
 
-    const btn = $("#btn-submit");
-    const spinner = btn.find(".spinner-border");
+    // Tampilkan loading
+    Swal.fire({
+        title: "Menyimpan...",
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+    });
 
-    btn.prop("disabled", true);
-    spinner.removeClass("d-none");
+    // Ambil form data
+    const formData = new FormData(form);
 
-    const url = isEdit ? `/bank-soal/${currentSoalId}` : "/bank-soal";
+    // Tentukan URL dan method berdasarkan mode edit atau create
+    let url = "/bank-soal";
+    let methodValue = $("#form-method").get(0)?.value ;
+    let soal_id = $("#soal-id").get(0)?.value || null;
+    console.log("Form method:", methodValue, "Soal ID:", soal_id);
 
-    if (isEdit) {
+    if (soal_id) {
+        url = `/bank-soal/${soal_id}`;
         formData.append("_method", "PUT");
     }
 
+    // Debug: check methodValue and soal_id before submission
+    console.log('Form submission method:', methodValue);
+    console.log('Soal ID:', soal_id);
+    console.log('Form submission URL:', url);
+
+    // Submit dengan AJAX
     $.ajax({
         url: url,
         type: "POST",
@@ -685,177 +1056,453 @@ function submitForm() {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         success: function (response) {
+            console.log("Form submitted successfully:", response);
+            Swal.close();
+
             if (response.success) {
-                $("#tambah-bank-soal").modal("hide");
-
-                // Refresh all tables
-                if (window.tableSemua) window.tableSemua.ajax.reload();
-                if (window.tableReading) window.tableReading.ajax.reload();
-                if (window.tableGrammar) window.tableGrammar.ajax.reload();
-                if (window.tableListening) window.tableListening.ajax.reload();
-
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: response.message,
-                    timer: 3000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
+                    icon: "success",
+                    title: "Berhasil!",
+                    text: response.message || "Data berhasil disimpan!",
+                    confirmButtonColor: "#28a745",
+                }).then(() => {
+                    // Tutup modal
+                    $("#tambah-bank-soal").modal("hide");
+
+                    // Refresh datatables
+                    if (window.tableSemua) window.tableSemua.ajax.reload();
+                    if (window.tableReading) window.tableReading.ajax.reload();
+                    if (window.tableListening) window.tableListening.ajax.reload();
+                    if (window.tableGrammar) window.tableGrammar.ajax.reload();
+
+                    // Reset form
+                    resetForm();
                 });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: response.message || "Terjadi kesalahan saat menyimpan data.",
+                    confirmButtonColor: "#d33",
+                });
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Form submission error:", xhr.responseText);
+            Swal.close();
+
+            let errorMessage = "Terjadi kesalahan saat menyimpan data.";
+
+            if (xhr.responseJSON) {
+                if (xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.responseJSON.errors) {
+                    // Handle validation errors
+                    const errors = xhr.responseJSON.errors;
+                    const firstError = Object.values(errors)[0];
+                    if (Array.isArray(firstError) && firstError.length > 0) {
+                        errorMessage = firstError[0];
+                    }
+                }
+            }
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: errorMessage,
+                confirmButtonColor: "#d33",
+            });
+        },
+    });
+}
+
+// Reset form
+function resetForm() {
+    console.log("Resetting form...");
+
+    // Reset form fields
+    const form = document.getElementById("form-bank-soal");
+    if (form) {
+        form.reset();
+    }
+
+    // Reset Quill editor
+    quill.root.innerHTML = '<h3>Tulis pertanyaan di sini...</h3><p>Teks pertanyaan yang akan ditampilkan kepada peserta</p>';
+
+    // Reset global variables
+    currentSoalId = null;
+    jawabanCounter = 0;
+
+    // Reset hidden method input
+    $("#form-method").val("POST");
+
+    // Clear jawaban container
+    $("#jawaban-container").empty();
+    $("#jawaban-wrapper").addClass("d-none");
+
+    // Hide audio container
+    $("#audio-file-container").hide();
+
+    // Reset modal title
+    $("#modal-title").text("Tambah Soal Baru");
+
+    // Reset Select2 dropdowns
+    $("#jenis_font, #jenis_soal, #tingkat_kesulitan, #kategori, #sub_kategori").val('').trigger('change');
+
+    // Clear sub kategori
+    $("#sub_kategori").empty().append('<option value="">Pilih Sub Kategori</option>').trigger('change');
+
+    console.log("Form reset completed");
+}
+
+// Main edit function
+function editSoal(id) {
+    console.log("Edit soal with ID:", id);
+
+
+
+    // Set current soal ID
+    currentSoalId = id;
+
+    // Show loading
+    Swal.fire({
+        title: 'Memuat data...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Fetch data from server
+    $.ajax({
+        url: `/bank-soal/${id}`,
+        type: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (response) {
+            console.log("Edit data received:", response);
+
+            Swal.close();
+
+            if (response.success && response.data) {
+                // Change modal title
+                $("#modal-title").text("Edit Soal");
+
+                // Ensure dropdown data is loaded before populating form
+                ensureDropdownDataLoaded(() => {
+                    // Populate form with data
+                    populateFormWithData(response.data);
+
+                    // Show modal after a short delay to ensure all data is loaded
+                    setTimeout(() => {
+                        $("#tambah-bank-soal").modal('show');
+                    }, 100);
+                });
+
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: response.message,
-                    confirmButtonColor: '#d33'
+                    text: 'Data tidak ditemukan atau format response tidak valid'
                 });
             }
         },
-        error: function (xhr) {
-            console.error("AJAX Error:", xhr);
-            let message = "Terjadi kesalahan saat menyimpan data.";
+        error: function (xhr, status, error) {
+            console.error("Error fetching edit data:", xhr.responseText);
+
+            Swal.close();
+
+            let errorMessage = 'Terjadi kesalahan saat memuat data';
+
             if (xhr.responseJSON && xhr.responseJSON.message) {
-                message = xhr.responseJSON.message;
-            } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                const errors = Object.values(xhr.responseJSON.errors).flat();
-                message = errors.join("<br>");
+                errorMessage = xhr.responseJSON.message;
+            } else if (xhr.status === 404) {
+                errorMessage = 'Data tidak ditemukan';
+            } else if (xhr.status === 403) {
+                errorMessage = 'Anda tidak memiliki akses untuk mengedit data ini';
             }
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                html: message,
-                confirmButtonColor: '#d33'
+                text: errorMessage
             });
-        },
-        complete: function () {
-            btn.prop("disabled", false);
-            spinner.addClass("d-none");
-        },
+        }
     });
 }
 
-// Edit soal
-function editSoal(id) {
-    currentSoalId = id;
+// Populate form with data (modular approach)
+function populateFormWithData(data) {
+    console.log("Populating form with data:", data);
 
-    $.get(`/bank-soal/${id}`, function (response) {
-        console.log("Response data:", response);
-        if (response.success) {
-            const data = response.data;
+    try {
+        // Set method to PUT for editing
+        $("#form-method").val("PUT");
+        $("#soal-id").val(data.id || '');
 
-            // Set modal title
-            $("#modal-title").text("Edit Soal");
-            $("#form-method").val("PUT");
+        // Set basic form fields
+        $("#is_audio").prop("checked", data.is_audio == 1);
+        setTimeout(() => {
+            $("#penjelasan_jawaban").val(data.penjelasan_jawaban || '');
+            $("#tag").val(data.tag || '');
+        }, 500);
 
-            // Fill form fields
-            $("#pertanyaan").val(data.pertanyaan);
-            $("#jenis_font").val(data.jenis_font);
-            $("#is_audio").prop("checked", data.is_audio == 1);
-            $("#tingkat_kesulitan").val(data.tingkat_kesulitan_id);
-            $("#kategori").val(data.kategori_id);
-            $("#penjelasan_jawaban").val(data.penjelasan_jawaban);
-            $("#tag").val(data.tag);
-
-            // Apply font styling based on selected font type
-            handleFontChange(data.jenis_font);
-
-            // Show/hide audio container
-            if (data.is_audio) {
-                $("#audio-file-container").show();
-            }
-
-            // Load sub kategori and set value
-            if (data.kategori_id) {
-                loadSubKategori(data.kategori_id);
-                setTimeout(() => {
-                    $("#sub_kategori").val(data.sub_kategori_id);
-                }, 500);
-            }
-
-            // Detect jenis soal from jawaban
-            let jenisSoal = "isian";
-            if (data.jawaban_soals && data.jawaban_soals.length > 0) {
-                if (
-                    data.jawaban_soals.length === 2 &&
-                    data.jawaban_soals.some((j) => j.jawaban === "Benar") &&
-                    data.jawaban_soals.some((j) => j.jawaban === "Salah")
-                ) {
-                    jenisSoal = "benar_salah";
-                } else if (data.jawaban_soals.length > 1) {
-                    jenisSoal = "pilihan_ganda";
-                }
-            }
-
-            $("#jenis_soal").val(jenisSoal);
-            generateJawabanForm(jenisSoal);
-
-            // Fill jawaban data
-            setTimeout(() => {
-                fillJawabanData(data.jawaban_soals, jenisSoal);
-            }, 100);
-
-            // Show modal
-            $("#tambah-bank-soal").modal("show");
+        // Show/hide audio container
+        if (data.is_audio == 1) {
+            $("#audio-file-container").show();
+        } else {
+            $("#audio-file-container").hide();
         }
-    }).fail(function () {
+
+        // Set Select2 dropdowns
+        if (data.jenis_font) {
+            setTimeout(() => {
+                $("#jenis_font").val(data.jenis_font).trigger('change');
+            }, 500);
+        }
+
+        if (data.tingkat_kesulitan_id) {
+            setTimeout(() => {
+                $("#tingkat_kesulitan").val(data.tingkat_kesulitan_id).trigger('change');
+            }, 500);
+        }
+
+        if (data.kategori_id) {
+            setTimeout(() => {
+                $("#kategori").val(data.kategori_id).trigger('change');
+            }, 500);
+
+            // Load sub kategori after kategori is set
+            if (data.sub_kategori_id) {
+                setTimeout(() => {
+                    loadSubKategori(data.kategori_id);
+                    setTimeout(() => {
+                        $("#sub_kategori").val(data.sub_kategori_id).trigger('change');
+                    }, 500);
+                }, 400);
+            }
+        }
+
+        // Set jenis soal and generate jawaban form
+        if (data.jenis_isian) {
+            setTimeout(() => {
+                $("#jenis_soal").val(data.jenis_isian).trigger('change');
+            }, 500);
+
+            //Generate jawaban form and populate answers
+            setTimeout(() => {
+                generateJawabanForm(data.jenis_isian);
+
+                if (data.jawaban_soals && data.jawaban_soals.length > 0) {
+                    setTimeout(() => {
+                        populateJawabanSoal(data.jawaban_soals, data.jenis_isian);
+                    }, 300);
+                }
+            }, 100);
+        }
+
+        // Load content into Quill editor
+        if (data.pertanyaan) {
+            setTimeout(() => {
+                loadQuillContent(data.pertanyaan, data.jenis_font || 'Latin');
+            }, 500);
+        }
+
+        console.log("Form populated successfully");
+
+    } catch (error) {
+        console.error("Error populating form:", error);
+
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Gagal memuat data soal.',
-            confirmButtonColor: '#d33'
+            text: 'Terjadi kesalahan saat memuat data ke form'
         });
+    }
+}
+
+// Populate jawaban soal (modular approach)
+function populateJawabanSoal(jawabanSoals, jenisSoal) {
+    console.log("Populating jawaban soal:", jawabanSoals, "for type:", jenisSoal);
+
+    if (!jawabanSoals || jawabanSoals.length === 0) {
+        console.log("No jawaban soals to populate");
+        return;
+    }
+
+    try {
+        if (jenisSoal === "pilihan_ganda") {
+            populatePilihanGanda(jawabanSoals);
+        } else if (jenisSoal === "benar_salah") {
+            populateBenarSalah(jawabanSoals);
+        } else if (jenisSoal === "isian") {
+            populateIsian(jawabanSoals);
+        }
+
+        console.log("Jawaban soal populated successfully");
+    } catch (error) {
+        console.error("Error populating jawaban soal:", error);
+    }
+}
+
+// Populate pilihan ganda answers
+function populatePilihanGanda(jawabanSoals) {
+    console.log("Populating pilihan ganda with:", jawabanSoals);
+
+    // Wait for pilihan container to be ready
+    const populateWhenReady = () => {
+        const container = $("#pilihan-container");
+
+        if (container.length === 0 || container.children().length === 0) {
+            setTimeout(populateWhenReady, 50);
+            return;
+        }
+
+        // Clear existing options first
+        container.empty();
+        jawabanCounter = 0;
+
+        // Add options based on jawaban data
+        jawabanSoals.forEach((jawaban, index) => {
+            const label = jawaban.label_jawaban ?
+                jawaban.label_jawaban.replace('Pilihan ', '') :
+                String.fromCharCode(65 + index);
+
+            const isCorrect = jawaban.jawaban_benar == 1;
+
+            const pilihanHtml = `
+                <div class="row align-items-center mb-2 pilihan-item" data-index="${jawabanCounter}">
+                    <div class="col-1">
+                        <div class="form-check d-flex align-items-center gap-1">
+                            <input
+                                class="form-check-input jawaban-radio"
+                                type="radio"
+                                name="jawaban_benar"
+                                value="${jawabanCounter}"
+                                id="jawaban_${jawabanCounter}"
+                                ${isCorrect ? "checked" : ""}
+                                required
+                            >
+                            <label
+                                class="form-check-label label-benar"
+                                for="jawaban_${jawabanCounter}"
+                                style="display: ${isCorrect ? "inline" : "none"}"
+                            >Benar</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control form-control-sm"
+                               name="jawaban_soal[${jawabanCounter}][label_jawaban]"
+                               value="Pilihan ${label}" readonly>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" class="form-control"
+                               name="jawaban_soal[${jawabanCounter}][jawaban]"
+                               value="${jawaban.jawaban}"
+                               placeholder="Masukkan jawaban pilihan ${label}" required>
+                        <input type="hidden" name="jawaban_soal[${jawabanCounter}][jenis_isian]" value="pilihan_ganda">
+                        <input type="hidden" name="jawaban_soal[${jawabanCounter}][jawaban_benar]" value="${isCorrect ? 1 : 0}">
+                        <input type="hidden" name="jawaban_soal[${jawabanCounter}][id]" value="${jawaban.id}">
+                    </div>
+                    <div class="col-1">
+                        ${jawabanCounter > 3 ? `
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-pilihan">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        ` : ""}
+                    </div>
+                </div>
+            `;
+
+            container.append(pilihanHtml);
+            jawabanCounter++;
+        });
+
+        // Re-bind events
+        bindPilihanGandaEvents();
+    };
+
+    populateWhenReady();
+}
+
+// Populate benar/salah answers
+function populateBenarSalah(jawabanSoals) {
+    console.log("Populating benar salah with:", jawabanSoals);
+
+    if (jawabanSoals.length > 0) {
+        const jawaban = jawabanSoals[0];
+        const isBenar = jawaban.jawaban_benar == 1;
+
+        // Set radio button
+        $(`input[name="jawaban_benar"][value="${isBenar ? '0' : '1'}"]`).prop('checked', true);
+
+        // Set hidden inputs for both options
+        jawabanSoals.forEach((jawaban, index) => {
+            $(`input[name="jawaban_soal[${index}][id]"]`).val(jawaban.id);
+        });
+    }
+}
+
+// Populate isian answers
+function populateIsian(jawabanSoals) {
+    console.log("Populating isian with:", jawabanSoals);
+
+    if (jawabanSoals.length > 0) {
+        const jawaban = jawabanSoals[0];
+
+        // Set jawaban text
+        $('input[name="jawaban_soal[0][jawaban]"]').val(jawaban.jawaban);
+
+        // Set hidden input
+        $('input[name="jawaban_soal[0][id]"]').val(jawaban.id);
+    }
+}
+
+// Bind pilihan ganda events
+function bindPilihanGandaEvents() {
+    // Event untuk hapus pilihan
+    $(".remove-pilihan").off("click").on("click", function () {
+        $(this).closest(".pilihan-item").remove();
+        updatePilihanIndexes();
+        updateLabelBenar();
+    });
+
+    // Event untuk radio button
+    $("input[name='jawaban_benar']").off("change").on("change", function () {
+        updateLabelBenar();
+        updateJawabanBenarValues();
     });
 }
 
-// Fill jawaban data for edit
-function fillJawabanData(jawabanData, jenisSoal) {
-    if (!jawabanData || jawabanData.length === 0) return;
+// Ensure dropdown data is loaded before proceeding
+function ensureDropdownDataLoaded(callback) {
+    // Check if dropdown data is already loaded
+    const tingkatKesulitanLoaded = $("#tingkat_kesulitan option").length > 1;
+    const kategoriLoaded = $("#kategori option").length > 1;
 
-    if (jenisSoal === "pilihan_ganda") {
-        jawabanData.forEach((jawaban, index) => {
-            const input = $(`input[name="jawaban_soal[${index}][jawaban]"]`);
-            if (input.length) {
-                input.val(jawaban.jawaban);
-            } else {
-                // Add more options if needed
-                const label = String.fromCharCode(65 + index);
-                addPilihanGanda(label);
-                $(`input[name="jawaban_soal[${index}][jawaban]"]`).val(
-                    jawaban.jawaban
-                );
-            }
-
-            if (jawaban.jawaban_benar) {
-                $(`input[name="jawaban_benar"][value="${index}"]`).prop(
-                    "checked",
-                    true
-                );
-            }
-        });
-    } else if (jenisSoal === "benar_salah") {
-        const benarJawaban = jawabanData.find((j) => j.jawaban === "Benar");
-        if (benarJawaban && benarJawaban.jawaban_benar) {
-            $('input[name="jawaban_benar"][value="0"]').prop("checked", true);
-        } else {
-            $('input[name="jawaban_benar"][value="1"]').prop("checked", true);
-        }
-    } else if (jenisSoal === "isian") {
-        if (jawabanData[0]) {
-            $('input[name="jawaban_soal[0][jawaban]"]').val(
-                jawabanData[0].jawaban
-            );
-        }
+    if (tingkatKesulitanLoaded && kategoriLoaded) {
+        callback();
+    } else {
+        // Wait for data to load
+        setTimeout(() => {
+            ensureDropdownDataLoaded(callback);
+        }, 100);
     }
 }
 
 // Delete soal
 function deleteSoal(id) {
-    const btn = $("#btn-hapus-confirm");
-    const spinner = btn.find(".spinner-border");
+    console.log("Deleting soal with ID:", id);
 
-    btn.prop("disabled", true);
-    spinner.removeClass("d-none");
+    Swal.fire({
+        title: "Menghapus...",
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+    });
 
     $.ajax({
         url: `/bank-soal/${id}`,
@@ -864,145 +1511,86 @@ function deleteSoal(id) {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         success: function (response) {
+            console.log("Delete success:", response);
+            Swal.close();
+
             if (response.success) {
-                $("#modal-hapus").modal("hide");
-
-                // Refresh all tables
-                if (window.tableSemua) window.tableSemua.ajax.reload();
-                if (window.tableReading) window.tableReading.ajax.reload();
-                if (window.tableGrammar) window.tableGrammar.ajax.reload();
-                if (window.tableListening) window.tableListening.ajax.reload();
-
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: response.message,
-                    timer: 3000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
+                    icon: "success",
+                    title: "Berhasil!",
+                    text: response.message || "Data berhasil dihapus!",
+                    confirmButtonColor: "#28a745",
+                }).then(() => {
+                    // Refresh datatables
+                    if (window.tableSemua) window.tableSemua.ajax.reload();
+                    if (window.tableReading) window.tableReading.ajax.reload();
+                    if (window.tableListening) window.tableListening.ajax.reload();
+                    if (window.tableGrammar) window.tableGrammar.ajax.reload();
+
+                    // Reset current soal ID
+                    currentSoalId = null;
                 });
             } else {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.message,
-                    confirmButtonColor: '#d33'
+                    icon: "error",
+                    title: "Error",
+                    text: response.message || "Terjadi kesalahan saat menghapus data.",
+                    confirmButtonColor: "#d33",
                 });
             }
         },
-        error: function () {
+        error: function (xhr, status, error) {
+            console.error("Delete error:", xhr.responseText);
+            Swal.close();
+
+            let errorMessage = "Terjadi kesalahan saat menghapus data.";
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Gagal menghapus soal.',
-                confirmButtonColor: '#d33'
+                icon: "error",
+                title: "Error",
+                text: errorMessage,
+                confirmButtonColor: "#d33",
             });
-        },
-        complete: function () {
-            btn.prop("disabled", false);
-            spinner.addClass("d-none");
-            currentSoalId = null;
         },
     });
 }
 
 // Show delete confirmation
 function showDeleteConfirmation(id) {
+    console.log("Show delete confirmation for ID:", id);
+
     currentSoalId = id;
 
     Swal.fire({
-        title: 'Apakah Anda yakin?',
-        text: "Data yang dihapus tidak dapat dikembalikan!",
-        icon: 'warning',
+        title: "Konfirmasi Hapus",
+        text: "Apakah Anda yakin ingin menghapus soal ini? Data yang sudah dihapus tidak dapat dikembalikan.",
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Hapus!",
+        cancelButtonText: "Batal",
     }).then((result) => {
         if (result.isConfirmed) {
-            deleteSoal(currentSoalId);
-        } else {
-            currentSoalId = null;
+            deleteSoal(id);
         }
     });
 }
 
-// Reset form
-function resetForm() {
-    console.log("Resetting form...");
-
-    // Reset form HTML
-    const form = document.getElementById("form-bank-soal");
-    if (form) {
-        form.reset();
-    }
-
-    // Reset modal title dan method
-    $("#modal-title").text("Tambah Soal Baru");
-    $("#form-method").val("POST");
-
-    // Hide audio container
-    $("#audio-file-container").hide();
-
-    // Clear jawaban container
-    $("#jawaban-container").empty();
-    $("#jawaban-wrapper").addClass("d-none");
-
-    // Reset sub kategori dropdown
-    $("#sub_kategori")
-        .empty()
-        .append('<option value="">Pilih Sub Kategori</option>');
-
-    // Reset font styling to default (Latin)
-    handleFontChange("Latin");
-
-    // Reset jenis font dropdown
-    $("#jenis_font").val("").trigger('change');
-
-    // Reset all form validation states
-    form.classList.remove('was-validated');
-    $(form).find('.is-invalid').removeClass('is-invalid');
-    $(form).find('.invalid-feedback').remove();
-
-    // Reset global variables
-    currentSoalId = null;
-    jawabanCounter = 0;
-
-    console.log("Form reset completed");
-}
-
-// Test function untuk debugging - hapus di production
+// Test function for debugging
 function testBankSoal() {
-    console.log("=== TESTING BANK SOAL FUNCTIONALITY ===");
-
-    // Test button exists
-    const submitBtn = $("#btn-submit");
-    console.log("Submit button found:", submitBtn.length > 0);
-
-    // Test form exists
-    const form = $("#form-bank-soal");
-    console.log("Form found:", form.length > 0);
-
-    // Test modal exists
-    const modal = $("#tambah-bank-soal");
-    console.log("Modal found:", modal.length > 0);
-
-    // Test dropdowns
-    console.log("Jenis font dropdown:", $("#jenis_font").length > 0);
-    console.log("Jenis soal dropdown:", $("#jenis_soal").length > 0);
-    console.log("Kategori dropdown:", $("#kategori").length > 0);
-    console.log("Tingkat kesulitan dropdown:", $("#tingkat_kesulitan").length > 0);
-
-    // Test CSRF token
-    const csrfToken = $('meta[name="csrf-token"]').attr('content');
-    console.log("CSRF token found:", csrfToken !== undefined);
-
-    console.log("=== END TEST ===");
+    console.log("Testing Bank Soal functions...");
+    console.log("Current soal ID:", currentSoalId);
+    console.log("Jawaban counter:", jawabanCounter);
+    console.log("Quill ready:", quillReady);
+    console.log("Functions available:", {
+        editSoal: typeof window.editSoal,
+        populateFormWithData: typeof window.populateFormWithData,
+        loadDropdownData: typeof window.loadDropdownData,
+        showDeleteConfirmation: typeof window.showDeleteConfirmation
+    });
 }
-
-// Make functions globally available
-window.editSoal = editSoal;
-window.showDeleteConfirmation = showDeleteConfirmation;
-window.testBankSoal = testBankSoal;

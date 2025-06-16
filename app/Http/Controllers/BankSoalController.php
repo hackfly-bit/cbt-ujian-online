@@ -292,6 +292,7 @@ class BankSoalController extends Controller
             $soal->kategori_id = $validated['kategori_id'];
             $soal->sub_kategori_id = $validated['sub_kategori_id'] ?? null;
             $soal->penjelasan_jawaban = $validated['penjelasan_jawaban'] ?? null;
+            $soal->jenis_isian = $validated['jenis_soal'] ?? 'pilihan_ganda'; // Default to pilihan_ganda if not provided
             $soal->tag = $validated['tag'] ?? null;
 
             // Hapus audio lama jika ada file baru diupload
@@ -305,7 +306,6 @@ class BankSoalController extends Controller
 
             $soal->save();
 
-            // Update jawaban soal
             // Hapus jawaban lama
             \App\Models\JawabanSoal::where('soal_id', $soal->id)->delete();
             // Tambahkan jawaban baru

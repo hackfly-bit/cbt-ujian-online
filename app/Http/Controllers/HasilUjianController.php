@@ -27,7 +27,7 @@ class HasilUjianController extends Controller
                     return $row->ujian ? $row->ujian->nama_ujian : '-';
                 })
                 ->addColumn('waktu_selesai_formatted', function ($row) {
-                    return $row->waktu_selesai ? $row->waktu_selesai->format('d-m-Y H:i') : '-';
+                    return $row->waktu_selesai ? \Carbon\Carbon::parse($row->waktu_selesai)->format('d-m-Y H:i') : '-';
                 })
                 ->addColumn('skor_formatted', function ($row) {
                     return $row->hasil_nilai ? number_format($row->hasil_nilai, 2) : '0.00';
