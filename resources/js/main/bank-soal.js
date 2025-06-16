@@ -1,12 +1,12 @@
 import $ from "jquery";
 import DataTable from "datatables.net-bs5";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
-import Swal from 'sweetalert2';
-import Quill from 'quill/dist/quill.js';
-import 'quill/dist/quill.snow.css';
-import select2 from 'select2';
-import 'select2/dist/css/select2.min.css';
-import 'select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css';
+import Swal from "sweetalert2";
+import Quill from "quill/dist/quill.js";
+import "quill/dist/quill.snow.css";
+import select2 from "select2";
+import "select2/dist/css/select2.min.css";
+import "select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css";
 
 // Initialize Select2 with jQuery
 select2($);
@@ -18,41 +18,84 @@ window.jQuery = $;
 let currentSoalId = null;
 let jawabanCounter = 0;
 
-// Initialize Quill editor
-let quill = new Quill('#snow-editor', {
-    theme: 'snow',
-    modules: {
-        toolbar: [
-            [{ 'font': [] }], // Add font dropdown
-            ['bold', 'italic', 'underline'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            [{ 'direction': 'rtl' }], // Add RTL direction support
-            [{ 'align': [] }], // Add text alignment options
-            ['clean']
-        ]
-    },
-    placeholder: 'Tulis pertanyaan di sini...'
-});
-
-// Update hidden input when Quill content changes
-quill.on('text-change', function () {
-    const pertanyaanInput = document.getElementById('pertanyaan');
-    if (pertanyaanInput) {
-        pertanyaanInput.value = quill.root.innerHTML;
-    }
-});
-
-// Ensure Quill is ready before any operations
+// Global variable for Quill instance
+let quill = null;
 let quillReady = false;
-quill.on('editor-change', function () {
-    if (!quillReady) {
+
+// Inisialisasi Quill editor
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const editorElement = document.querySelector("#snow-editor");
+        if (!editorElement) {
+            console.error("Quill editor element not found");
+            return;
+        }
+
+        quill = new Quill("#snow-editor", {
+            theme: "snow",
+            modules: {
+                toolbar: [
+                    [{ font: [] }],
+                    ["bold", "italic", "underline"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    [{ direction: "rtl" }],
+                    [{ align: [] }],
+                    ["clean"],
+                ],
+            },
+            placeholder: "Tulis pertanyaan di sini...", // Default placeholder Latin
+        });
         quillReady = true;
-        console.log('Quill editor is ready');
+    } catch (error) {
+        console.error("Error initializing Quill:", error);
     }
 });
 
-// Initialize with default content
-quill.root.innerHTML = '<h3>Tulis pertanyaan di sini...</h3><p>Teks pertanyaan yang akan ditampilkan kepada peserta</p>';
+// Fungsi untuk mengatur arah teks dan placeholder
+function setEditorDirection(direction) {
+    const pertanyaanInput = document.getElementById("pertanyaan");
+
+    // Hapus seluruh isi editor
+    quill.setText("");
+
+    // Ganti placeholder
+    quill.root.dataset.placeholder =
+        direction === "rtl"
+            ? "اكتب السؤال هنا..." // Placeholder Arab
+            : "Tulis pertanyaan di sini..."; // Placeholder Latin
+
+    // Terapkan arah teks
+    quill.formatLine(0, quill.getLength(), {
+        direction: direction,
+        align: direction === "rtl" ? "right" : "left",
+    });
+
+    // Atur atribut HTML untuk arah secara eksplisit
+    quill.root.setAttribute("dir", direction);
+    quill.root.style.textAlign = direction === "rtl" ? "right" : "left";
+
+    // Kosongkan input tersembunyi juga
+    pertanyaanInput.value = "";
+}
+
+// Event saat dropdown berubah
+document.getElementById("jenis_font").addEventListener("change", function () {
+    const selectedValue = this.value;
+
+    if (selectedValue === "Arab (RTL)") {
+        setEditorDirection("rtl");
+    } else {
+        setEditorDirection("ltr");
+    }
+});
+
+// Update input tersembunyi saat teks berubah
+quill.on("text-change", function () {
+    document.getElementById("pertanyaan").value = quill.root.innerHTML;
+});
+
+// Default: set ke LTR saat load pertama
+setEditorDirection("ltr");
 
 // Initialize Select2 for all select elements
 function initSelect2() {
@@ -61,9 +104,9 @@ function initSelect2() {
     // Select2 options
     const select2Options = {
         theme: "bootstrap-5",
-        width: '100%',
+        width: "100%",
         placeholder: function () {
-            return $(this).data('placeholder') || 'Pilih...';
+            return $(this).data("placeholder") || "Pilih...";
         },
         allowClear: false,
         language: {
@@ -72,20 +115,25 @@ function initSelect2() {
             },
             searching: function () {
                 return "Mencari...";
-            }
-        }
+            },
+        },
+        minimumResultsForSearch: Infinity, 
     };
 
     // Initialize Select2 on all select elements
-    $('#jenis_font, #jenis_soal, #tingkat_kesulitan, #kategori, #sub_kategori').each(function () {
-        if (!$(this).hasClass('select2-hidden-accessible')) {
+    $(
+        "#jenis_font, #jenis_soal, #tingkat_kesulitan, #kategori, #sub_kategori"
+    ).each(function () {
+        if (!$(this).hasClass("select2-hidden-accessible")) {
             $(this).select2(select2Options);
         }
     });
 
     // Filter selects
-    $('#filter-difficulty-semua, #filter-category-semua, #filter-difficulty-reading, #filter-difficulty-listening, #filter-difficulty-grammar').each(function () {
-        if (!$(this).hasClass('select2-hidden-accessible')) {
+    $(
+        "#filter-difficulty-semua, #filter-category-semua, #filter-difficulty-reading, #filter-difficulty-listening, #filter-difficulty-grammar"
+    ).each(function () {
+        if (!$(this).hasClass("select2-hidden-accessible")) {
             $(this).select2(select2Options);
         }
     });
@@ -98,21 +146,21 @@ function initSelect2Events() {
     console.log("Initializing Select2 events...");
 
     // Font change event
-    $('#jenis_font').on('select2:select', function (e) {
+    $("#jenis_font").on("select2:select", function (e) {
         const fontType = e.params.data.text;
         console.log("Font changed via Select2:", fontType);
         handleFontChange(fontType);
     });
 
     // Question type change event
-    $('#jenis_soal').on('select2:select', function (e) {
+    $("#jenis_soal").on("select2:select", function (e) {
         const jenisSoal = e.params.data.id;
         console.log("Jenis soal changed via Select2:", jenisSoal);
         generateJawabanForm(jenisSoal);
     });
 
     // Category change event
-    $('#kategori').on('select2:select', function (e) {
+    $("#kategori").on("select2:select", function (e) {
         const kategoriId = e.params.data.id;
         console.log("Kategori changed via Select2:", kategoriId);
         loadSubKategori(kategoriId);
@@ -126,9 +174,9 @@ function reinitializeSelect2InModal() {
     console.log("Reinitializing Select2 in modal...");
 
     // Destroy existing Select2 instances in modal
-    $('#tambah-bank-soal select').each(function () {
-        if ($(this).hasClass('select2-hidden-accessible')) {
-            $(this).select2('destroy');
+    $("#tambah-bank-soal select").each(function () {
+        if ($(this).hasClass("select2-hidden-accessible")) {
+            $(this).select2("destroy");
         }
     });
 
@@ -218,14 +266,18 @@ function initDataTables() {
                 {
                     data: "pertanyaan",
                     name: "pertanyaan",
-                    render: function(data, type, row) {
-                        if (type === 'display' || type === 'type') {
+                    render: function (data, type, row) {
+                        if (type === "display" || type === "type") {
                             // Strip HTML tags and trim to 50 characters minimum
-                            const textContent = data ? data.replace(/<[^>]+>/g, '') : '';
-                            return textContent.length > 50 ? textContent.substring(0, 50) + '...' : textContent;
+                            const textContent = data
+                                ? data.replace(/<[^>]+>/g, "")
+                                : "";
+                            return textContent.length > 50
+                                ? textContent.substring(0, 50) + "..."
+                                : textContent;
                         }
                         return data;
-                    }
+                    },
                 },
                 {
                     data: "kategori",
@@ -375,7 +427,7 @@ function initFormEvents() {
         console.log("Form submitted via form event");
 
         // Update hidden input with Quill content before submit
-        const pertanyaanInput = document.getElementById('pertanyaan');
+        const pertanyaanInput = document.getElementById("pertanyaan");
         if (pertanyaanInput) {
             pertanyaanInput.value = quill.root.innerHTML;
         }
@@ -409,18 +461,20 @@ function initFormEvents() {
     });
 
     // Backup event handler langsung ke button
-    $("#btn-submit").off("click.backup").on("click.backup", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("Submit button clicked (backup event)");
+    $("#btn-submit")
+        .off("click.backup")
+        .on("click.backup", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Submit button clicked (backup event)");
 
-        const form = $("#form-bank-soal")[0];
-        if (form && form.checkValidity()) {
-            submitForm();
-        } else if (form) {
-            form.reportValidity();
-        }
-    });
+            const form = $("#form-bank-soal")[0];
+            if (form && form.checkValidity()) {
+                submitForm();
+            } else if (form) {
+                form.reportValidity();
+            }
+        });
 
     // Event untuk reset modal saat ditutup
     $("#tambah-bank-soal").on("hidden.bs.modal", function () {
@@ -432,7 +486,7 @@ function initFormEvents() {
     $("#tambah-bank-soal").on("show.bs.modal", function (e) {
         // Check if this is for adding new data (not editing)
         const button = $(e.relatedTarget);
-        if (!button.hasClass('edit-btn')) {
+        if (!button.hasClass("edit-btn")) {
             console.log("Modal opened for new data, resetting form");
             setTimeout(() => {
                 resetForm();
@@ -546,17 +600,20 @@ function addPilihanGanda(label) {
                        name="jawaban_soal[${jawabanCounter}][jawaban]"
                        placeholder="Masukkan jawaban pilihan ${label}" required>
                 <input type="hidden" name="jawaban_soal[${jawabanCounter}][jenis_isian]" value="pilihan_ganda">
-                <input type="hidden" name="jawaban_soal[${jawabanCounter}][jawaban_benar]" value="${isFirst ? 1 : 0}">
+                <input type="hidden" name="jawaban_soal[${jawabanCounter}][jawaban_benar]" value="${
+        isFirst ? 1 : 0
+    }">
             </div>
             <div class="col-1">
-                ${jawabanCounter > 3
-            ? `
+                ${
+                    jawabanCounter > 3
+                        ? `
                     <button type="button" class="btn btn-sm btn-outline-danger remove-pilihan">
                         <i class="ri-delete-bin-line"></i>
                     </button>
                 `
-            : ""
-        }
+                        : ""
+                }
             </div>
         </div>
     `;
@@ -597,7 +654,9 @@ function updateJawabanBenarValues() {
 
     $("#pilihan-container .pilihan-item").each(function (index) {
         const isCorrect = index == selectedValue;
-        $(this).find("input[name*='[jawaban_benar]']").val(isCorrect ? 1 : 0);
+        $(this)
+            .find("input[name*='[jawaban_benar]']")
+            .val(isCorrect ? 1 : 0);
     });
 }
 
@@ -664,36 +723,42 @@ function loadDropdownData() {
 
     // Load tingkat kesulitan
     $.ajax({
-        url: '/filter/tingkat-kesulitan',
-        type: 'GET',
+        url: "/filter/tingkat-kesulitan",
+        type: "GET",
         success: function (response) {
             console.log("Tingkat kesulitan loaded:", response);
 
             const select = $("#tingkat_kesulitan");
-            select.empty().append('<option value="">Pilih Tingkat Kesulitan</option>');
+            select
+                .empty()
+                .append('<option value="">Pilih Tingkat Kesulitan</option>');
 
             if (response && Array.isArray(response)) {
                 response.forEach(function (item) {
-                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                    select.append(
+                        `<option value="${item.id}">${item.nama}</option>`
+                    );
                 });
             } else if (response.data && Array.isArray(response.data)) {
                 response.data.forEach(function (item) {
-                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                    select.append(
+                        `<option value="${item.id}">${item.nama}</option>`
+                    );
                 });
             }
 
             // Trigger Select2 update
-            select.trigger('change');
+            select.trigger("change");
         },
         error: function (xhr) {
             console.error("Error loading tingkat kesulitan:", xhr.responseText);
-        }
+        },
     });
 
     // Load kategori
     $.ajax({
-        url: '/filter/kategori',
-        type: 'GET',
+        url: "/filter/kategori",
+        type: "GET",
         success: function (response) {
             console.log("Kategori loaded:", response);
 
@@ -702,20 +767,24 @@ function loadDropdownData() {
 
             if (response && Array.isArray(response)) {
                 response.forEach(function (item) {
-                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                    select.append(
+                        `<option value="${item.id}">${item.nama}</option>`
+                    );
                 });
             } else if (response.data && Array.isArray(response.data)) {
                 response.data.forEach(function (item) {
-                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                    select.append(
+                        `<option value="${item.id}">${item.nama}</option>`
+                    );
                 });
             }
 
             // Trigger Select2 update
-            select.trigger('change');
+            select.trigger("change");
         },
         error: function (xhr) {
             console.error("Error loading kategori:", xhr.responseText);
-        }
+        },
     });
 }
 
@@ -727,7 +796,7 @@ function loadSubKategori(kategoriId) {
     select.empty().append('<option value="">Pilih Sub Kategori</option>');
 
     // Trigger Select2 update after clearing
-    select.trigger('change');
+    select.trigger("change");
 
     if (!kategoriId) {
         return;
@@ -735,74 +804,83 @@ function loadSubKategori(kategoriId) {
 
     $.ajax({
         url: `/filter/sub-kategori/${kategoriId}`,
-        type: 'GET',
+        type: "GET",
         success: function (response) {
             console.log("Sub kategori loaded:", response);
 
             if (response && Array.isArray(response)) {
                 response.forEach(function (item) {
-                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                    select.append(
+                        `<option value="${item.id}">${item.nama}</option>`
+                    );
                 });
             } else if (response.data && Array.isArray(response.data)) {
                 response.data.forEach(function (item) {
-                    select.append(`<option value="${item.id}">${item.nama}</option>`);
+                    select.append(
+                        `<option value="${item.id}">${item.nama}</option>`
+                    );
                 });
             }
 
             // Trigger Select2 update after loading data
-            select.trigger('change');
+            select.trigger("change");
         },
         error: function (xhr) {
             console.error("Error loading sub kategori:", xhr.responseText);
-        }
+        },
     });
 }
 
 // Robust function to load content into Quill editor
-function loadQuillContent(htmlContent, fontType = 'Latin') {
+function loadQuillContent(htmlContent, fontType = "Latin") {
     // Wait for Quill to be ready
     const doLoad = () => {
         try {
-            if (!htmlContent || htmlContent.trim() === '') {
-                console.log('No content to load, clearing editor');
-                quill.setText('');
+            if (!htmlContent || htmlContent.trim() === "") {
+                console.log("No content to load, clearing editor");
+                quill.setText("");
                 return;
             }
 
-            console.log('Loading content into Quill:', htmlContent);
+            console.log("Loading content into Quill:", htmlContent);
 
             // Clear existing content first
-            quill.setText('');
+            quill.setText("");
 
             // Method 1: Using clipboard API (recommended for HTML)
             quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
 
             // Verify content was set and fallback if needed
             setTimeout(() => {
-                if (quill.root.innerHTML.trim() === '' || quill.root.innerHTML === '<p><br></p>') {
-                    console.warn('Content may not have loaded properly, trying direct innerHTML');
+                if (
+                    quill.root.innerHTML.trim() === "" ||
+                    quill.root.innerHTML === "<p><br></p>"
+                ) {
+                    console.warn(
+                        "Content may not have loaded properly, trying direct innerHTML"
+                    );
                     quill.root.innerHTML = htmlContent;
                 }
 
                 // Apply formatting after content is confirmed loaded
                 setTimeout(() => {
-                    const direction = fontType === 'Arab (RTL)' ? 'rtl' : 'ltr';
+                    const direction = fontType === "Arab (RTL)" ? "rtl" : "ltr";
                     applyTextDirectionFormatting(direction);
 
                     // Update hidden input
-                    const pertanyaanInput = document.getElementById('pertanyaan');
+                    const pertanyaanInput =
+                        document.getElementById("pertanyaan");
                     if (pertanyaanInput) {
                         pertanyaanInput.value = quill.root.innerHTML;
                     }
 
-                    console.log('Content loaded and formatted successfully');
+                    console.log("Content loaded and formatted successfully");
                 }, 100);
             }, 50);
-
         } catch (error) {
-            console.error('Error loading content into Quill:', error);
+            console.error("Error loading content into Quill:", error);
             // Fallback: just set text content
-            const textContent = htmlContent.replace(/<[^>]*>/g, '');
+            const textContent = htmlContent.replace(/<[^>]*>/g, "");
             quill.setText(textContent);
         }
     };
@@ -811,7 +889,7 @@ function loadQuillContent(htmlContent, fontType = 'Latin') {
     if (quillReady) {
         doLoad();
     } else {
-        console.log('Waiting for Quill to be ready...');
+        console.log("Waiting for Quill to be ready...");
         setTimeout(() => {
             doLoad();
         }, 200);
@@ -819,115 +897,121 @@ function loadQuillContent(htmlContent, fontType = 'Latin') {
 }
 
 // Helper function to apply text direction formatting to existing content
-function applyTextDirectionFormatting(direction = 'ltr') {
+function applyTextDirectionFormatting(direction = "ltr") {
     const currentLength = quill.getLength();
-    if (currentLength > 1) { // Quill always has at least 1 character (newline)
+    if (currentLength > 1) {
+        // Quill always has at least 1 character (newline)
         try {
-            if (direction === 'rtl') {
-                quill.formatText(0, currentLength, 'direction', 'rtl');
-                quill.formatText(0, currentLength, 'align', 'right');
-                console.log('Applied RTL formatting to existing content');
+            if (direction === "rtl") {
+                quill.formatText(0, currentLength, "direction", "rtl");
+                quill.formatText(0, currentLength, "align", "right");
+                console.log("Applied RTL formatting to existing content");
             } else {
-                quill.formatText(0, currentLength, 'direction', 'ltr');
-                quill.formatText(0, currentLength, 'align', 'left');
-                console.log('Applied LTR formatting to existing content');
+                quill.formatText(0, currentLength, "direction", "ltr");
+                quill.formatText(0, currentLength, "align", "left");
+                console.log("Applied LTR formatting to existing content");
             }
         } catch (error) {
-            console.warn('Could not apply text direction formatting:', error);
+            console.warn("Could not apply text direction formatting:", error);
         }
     }
 }
 
 // Handle font change - Arabic RTL Support with Quill.js
 function handleFontChange(fontType) {
-    const quillContainer = document.querySelector('#snow-editor');
-    const quillEditor = quillContainer.querySelector('.ql-editor');
-    const toolbar = quillContainer.querySelector('.ql-toolbar');
+    const quillContainer = document.querySelector("#snow-editor");
+    const quillEditor = quillContainer.querySelector(".ql-editor");
+    const toolbar = quillContainer.querySelector(".ql-toolbar");
     const fontLabel = $("label[for='pertanyaan']");
 
     if (fontType === "Arab (RTL)") {
         // Apply Arabic RTL styling to Quill editor
         $(quillEditor).css({
-            'direction': 'rtl',
-            'text-align': 'right',
-            'font-family': '"Amiri", "Scheherazade New", Arial, "Times New Roman", sans-serif',
-            'font-size': '16px',
-            'line-height': '1.6',
-            'unicode-bidi': 'plaintext'
+            direction: "rtl",
+            "text-align": "right",
+            "font-family":
+                '"Amiri", "Scheherazade New", Arial, "Times New Roman", sans-serif',
+            "font-size": "16px",
+            "line-height": "1.6",
+            "unicode-bidi": "plaintext",
         });
 
         // Add Arabic language attribute for better rendering
-        $(quillEditor).attr('lang', 'ar');
-        $(quillContainer).attr('dir', 'rtl');
+        $(quillEditor).attr("lang", "ar");
+        $(quillContainer).attr("dir", "rtl");
 
         // Update Quill editor placeholder
-        quill.root.dataset.placeholder = 'اكتب السؤال هنا... (Arabic RTL mode)';
+        quill.root.dataset.placeholder = "اكتب السؤال هنا... (Arabic RTL mode)";
 
         // Apply RTL direction using Quill's format system only if there's content
         // Note: This will be called separately after content is loaded in edit mode
         const currentLength = quill.getLength();
-        if (currentLength > 1) { // Quill always has at least 1 character (newline)
-            applyTextDirectionFormatting('rtl');
+        if (currentLength > 1) {
+            // Quill always has at least 1 character (newline)
+            applyTextDirectionFormatting("rtl");
         }
 
         // Update container and toolbar styling
-        $(quillContainer).addClass('rtl-mode-active');
-        $(toolbar).css('direction', 'rtl');
+        $(quillContainer).addClass("rtl-mode-active");
+        $(toolbar).css("direction", "rtl");
 
         // Add visual indicator to the label
-        fontLabel.find('.arabic-indicator').remove();
-        fontLabel.append(' <span class="arabic-indicator badge bg-info ms-2">العربية RTL</span>');
+        fontLabel.find(".arabic-indicator").remove();
+        fontLabel.append(
+            ' <span class="arabic-indicator badge bg-info ms-2">العربية RTL</span>'
+        );
 
-        console.log('Arabic RTL mode activated for Quill editor');
+        console.log("Arabic RTL mode activated for Quill editor");
     } else {
         // Reset to default Latin styling
         $(quillEditor).css({
-            'direction': 'ltr',
-            'text-align': 'left',
-            'font-family': '',
-            'font-size': '',
-            'line-height': '',
-            'unicode-bidi': ''
+            direction: "ltr",
+            "text-align": "left",
+            "font-family": "",
+            "font-size": "",
+            "line-height": "",
+            "unicode-bidi": "",
         });
 
         // Remove Arabic language attribute
-        $(quillEditor).removeAttr('lang');
-        $(quillContainer).removeAttr('dir');
+        $(quillEditor).removeAttr("lang");
+        $(quillContainer).removeAttr("dir");
 
         // Reset Quill editor placeholder
-        quill.root.dataset.placeholder = 'Tulis pertanyaan di sini...';
+        quill.root.dataset.placeholder = "Tulis pertanyaan di sini...";
 
         // Reset RTL direction using Quill's format system only if there's content
         // Note: This will be called separately after content is loaded in edit mode
         const currentLength = quill.getLength();
-        if (currentLength > 1) { // Quill always has at least 1 character (newline)
-            applyTextDirectionFormatting('ltr');
+        if (currentLength > 1) {
+            // Quill always has at least 1 character (newline)
+            applyTextDirectionFormatting("ltr");
         }
 
         // Reset container and toolbar styling
-        $(quillContainer).removeClass('rtl-mode-active');
-        $(toolbar).css('direction', 'ltr');
+        $(quillContainer).removeClass("rtl-mode-active");
+        $(toolbar).css("direction", "ltr");
 
         // Remove visual indicator from the label
-        fontLabel.find('.arabic-indicator').remove();
+        fontLabel.find(".arabic-indicator").remove();
 
-        console.log('Latin LTR mode activated for Quill editor');
+        console.log("Latin LTR mode activated for Quill editor");
     }
 
     // Add a subtle animation effect to the Quill container
-    $(quillContainer).addClass('font-change-animation');
+    $(quillContainer).addClass("font-change-animation");
     setTimeout(() => {
-        $(quillContainer).removeClass('font-change-animation');
+        $(quillContainer).removeClass("font-change-animation");
     }, 300);
 
     // Update the hidden input with current content
-    const pertanyaanInput = document.getElementById('pertanyaan');
+    const pertanyaanInput = document.getElementById("pertanyaan");
     if (pertanyaanInput) {
         pertanyaanInput.value = quill.root.innerHTML;
     }
 
     // Trigger change event for form validation
-    $(pertanyaanInput).trigger('change');
+    $(pertanyaanInput).trigger("change");
 }
 
 // Submit form
@@ -935,7 +1019,7 @@ function submitForm() {
     console.log("Submitting form...");
 
     // Update hidden input with current Quill content
-    const pertanyaanInput = document.getElementById('pertanyaan');
+    const pertanyaanInput = document.getElementById("pertanyaan");
     if (pertanyaanInput) {
         pertanyaanInput.value = quill.root.innerHTML;
     }
@@ -944,10 +1028,10 @@ function submitForm() {
     const quillContent = quill.getText().trim();
     if (!quillContent || quillContent.length === 0) {
         Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Pertanyaan tidak boleh kosong. Silakan masukkan pertanyaan terlebih dahulu.',
-            confirmButtonColor: '#d33'
+            icon: "error",
+            title: "Error",
+            text: "Pertanyaan tidak boleh kosong. Silakan masukkan pertanyaan terlebih dahulu.",
+            confirmButtonColor: "#d33",
         });
         quill.focus();
         return;
@@ -964,10 +1048,10 @@ function submitForm() {
     const jenisSoal = $("#jenis_soal").val();
     if (!jenisSoal) {
         Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Silakan pilih jenis soal terlebih dahulu.',
-            confirmButtonColor: '#d33'
+            icon: "error",
+            title: "Error",
+            text: "Silakan pilih jenis soal terlebih dahulu.",
+            confirmButtonColor: "#d33",
         });
         return;
     }
@@ -985,20 +1069,20 @@ function submitForm() {
 
         if (hasEmptyAnswer) {
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Semua pilihan jawaban harus diisi.',
-                confirmButtonColor: '#d33'
+                icon: "error",
+                title: "Error",
+                text: "Semua pilihan jawaban harus diisi.",
+                confirmButtonColor: "#d33",
             });
             return;
         }
 
         if (!$('input[name="jawaban_benar"]:checked').length) {
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Silakan pilih jawaban yang benar.',
-                confirmButtonColor: '#d33'
+                icon: "error",
+                title: "Error",
+                text: "Silakan pilih jawaban yang benar.",
+                confirmButtonColor: "#d33",
             });
             return;
         }
@@ -1006,10 +1090,10 @@ function submitForm() {
         const jawabanIsian = $('input[name="jawaban_soal[0][jawaban]"]').val();
         if (!jawabanIsian || !jawabanIsian.trim()) {
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Jawaban isian harus diisi.',
-                confirmButtonColor: '#d33'
+                icon: "error",
+                title: "Error",
+                text: "Jawaban isian harus diisi.",
+                confirmButtonColor: "#d33",
             });
             return;
         }
@@ -1031,7 +1115,7 @@ function submitForm() {
 
     // Tentukan URL dan method berdasarkan mode edit atau create
     let url = "/bank-soal";
-    let methodValue = $("#form-method").get(0)?.value ;
+    let methodValue = $("#form-method").get(0)?.value;
     let soal_id = $("#soal-id").get(0)?.value || null;
     console.log("Form method:", methodValue, "Soal ID:", soal_id);
 
@@ -1041,9 +1125,9 @@ function submitForm() {
     }
 
     // Debug: check methodValue and soal_id before submission
-    console.log('Form submission method:', methodValue);
-    console.log('Soal ID:', soal_id);
-    console.log('Form submission URL:', url);
+    console.log("Form submission method:", methodValue);
+    console.log("Soal ID:", soal_id);
+    console.log("Form submission URL:", url);
 
     // Submit dengan AJAX
     $.ajax({
@@ -1072,7 +1156,8 @@ function submitForm() {
                     // Refresh datatables
                     if (window.tableSemua) window.tableSemua.ajax.reload();
                     if (window.tableReading) window.tableReading.ajax.reload();
-                    if (window.tableListening) window.tableListening.ajax.reload();
+                    if (window.tableListening)
+                        window.tableListening.ajax.reload();
                     if (window.tableGrammar) window.tableGrammar.ajax.reload();
 
                     // Reset form
@@ -1082,7 +1167,9 @@ function submitForm() {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: response.message || "Terjadi kesalahan saat menyimpan data.",
+                    text:
+                        response.message ||
+                        "Terjadi kesalahan saat menyimpan data.",
                     confirmButtonColor: "#d33",
                 });
             }
@@ -1126,8 +1213,10 @@ function resetForm() {
         form.reset();
     }
 
-    // Reset Quill editor
-    quill.root.innerHTML = '<h3>Tulis pertanyaan di sini...</h3><p>Teks pertanyaan yang akan ditampilkan kepada peserta</p>';
+    // Reset Quill editor secara aman
+    quill.setText("");
+    document.getElementById("pertanyaan").value = "";
+    setEditorDirection("ltr"); // kembali ke mode Latin
 
     // Reset global variables
     currentSoalId = null;
@@ -1147,10 +1236,15 @@ function resetForm() {
     $("#modal-title").text("Tambah Soal Baru");
 
     // Reset Select2 dropdowns
-    $("#jenis_font, #jenis_soal, #tingkat_kesulitan, #kategori, #sub_kategori").val('').trigger('change');
+    $("#jenis_font, #jenis_soal, #tingkat_kesulitan, #kategori, #sub_kategori")
+        .val("")
+        .trigger("change");
 
     // Clear sub kategori
-    $("#sub_kategori").empty().append('<option value="">Pilih Sub Kategori</option>').trigger('change');
+    $("#sub_kategori")
+        .empty()
+        .append('<option value="">Pilih Sub Kategori</option>')
+        .trigger("change");
 
     console.log("Form reset completed");
 }
@@ -1159,27 +1253,25 @@ function resetForm() {
 function editSoal(id) {
     console.log("Edit soal with ID:", id);
 
-
-
     // Set current soal ID
     currentSoalId = id;
 
     // Show loading
     Swal.fire({
-        title: 'Memuat data...',
+        title: "Memuat data...",
         allowOutsideClick: false,
         didOpen: () => {
             Swal.showLoading();
-        }
+        },
     });
 
     // Fetch data from server
     $.ajax({
         url: `/bank-soal/${id}`,
-        type: 'GET',
+        type: "GET",
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         success: function (response) {
             console.log("Edit data received:", response);
@@ -1197,15 +1289,14 @@ function editSoal(id) {
 
                     // Show modal after a short delay to ensure all data is loaded
                     setTimeout(() => {
-                        $("#tambah-bank-soal").modal('show');
+                        $("#tambah-bank-soal").modal("show");
                     }, 100);
                 });
-
             } else {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Data tidak ditemukan atau format response tidak valid'
+                    icon: "error",
+                    title: "Error",
+                    text: "Data tidak ditemukan atau format response tidak valid",
                 });
             }
         },
@@ -1214,22 +1305,23 @@ function editSoal(id) {
 
             Swal.close();
 
-            let errorMessage = 'Terjadi kesalahan saat memuat data';
+            let errorMessage = "Terjadi kesalahan saat memuat data";
 
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMessage = xhr.responseJSON.message;
             } else if (xhr.status === 404) {
-                errorMessage = 'Data tidak ditemukan';
+                errorMessage = "Data tidak ditemukan";
             } else if (xhr.status === 403) {
-                errorMessage = 'Anda tidak memiliki akses untuk mengedit data ini';
+                errorMessage =
+                    "Anda tidak memiliki akses untuk mengedit data ini";
             }
 
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: errorMessage
+                icon: "error",
+                title: "Error",
+                text: errorMessage,
             });
-        }
+        },
     });
 }
 
@@ -1240,13 +1332,13 @@ function populateFormWithData(data) {
     try {
         // Set method to PUT for editing
         $("#form-method").val("PUT");
-        $("#soal-id").val(data.id || '');
+        $("#soal-id").val(data.id || "");
 
         // Set basic form fields
         $("#is_audio").prop("checked", data.is_audio == 1);
         setTimeout(() => {
-            $("#penjelasan_jawaban").val(data.penjelasan_jawaban || '');
-            $("#tag").val(data.tag || '');
+            $("#penjelasan_jawaban").val(data.penjelasan_jawaban || "");
+            $("#tag").val(data.tag || "");
         }, 500);
 
         // Show/hide audio container
@@ -1259,19 +1351,21 @@ function populateFormWithData(data) {
         // Set Select2 dropdowns
         if (data.jenis_font) {
             setTimeout(() => {
-                $("#jenis_font").val(data.jenis_font).trigger('change');
+                $("#jenis_font").val(data.jenis_font).trigger("change");
             }, 500);
         }
 
         if (data.tingkat_kesulitan_id) {
             setTimeout(() => {
-                $("#tingkat_kesulitan").val(data.tingkat_kesulitan_id).trigger('change');
+                $("#tingkat_kesulitan")
+                    .val(data.tingkat_kesulitan_id)
+                    .trigger("change");
             }, 500);
         }
 
         if (data.kategori_id) {
             setTimeout(() => {
-                $("#kategori").val(data.kategori_id).trigger('change');
+                $("#kategori").val(data.kategori_id).trigger("change");
             }, 500);
 
             // Load sub kategori after kategori is set
@@ -1279,7 +1373,9 @@ function populateFormWithData(data) {
                 setTimeout(() => {
                     loadSubKategori(data.kategori_id);
                     setTimeout(() => {
-                        $("#sub_kategori").val(data.sub_kategori_id).trigger('change');
+                        $("#sub_kategori")
+                            .val(data.sub_kategori_id)
+                            .trigger("change");
                     }, 500);
                 }, 400);
             }
@@ -1288,7 +1384,7 @@ function populateFormWithData(data) {
         // Set jenis soal and generate jawaban form
         if (data.jenis_isian) {
             setTimeout(() => {
-                $("#jenis_soal").val(data.jenis_isian).trigger('change');
+                $("#jenis_soal").val(data.jenis_isian).trigger("change");
             }, 500);
 
             //Generate jawaban form and populate answers
@@ -1297,7 +1393,10 @@ function populateFormWithData(data) {
 
                 if (data.jawaban_soals && data.jawaban_soals.length > 0) {
                     setTimeout(() => {
-                        populateJawabanSoal(data.jawaban_soals, data.jenis_isian);
+                        populateJawabanSoal(
+                            data.jawaban_soals,
+                            data.jenis_isian
+                        );
                     }, 300);
                 }
             }, 100);
@@ -1306,26 +1405,30 @@ function populateFormWithData(data) {
         // Load content into Quill editor
         if (data.pertanyaan) {
             setTimeout(() => {
-                loadQuillContent(data.pertanyaan, data.jenis_font || 'Latin');
+                loadQuillContent(data.pertanyaan, data.jenis_font || "Latin");
             }, 500);
         }
 
         console.log("Form populated successfully");
-
     } catch (error) {
         console.error("Error populating form:", error);
 
         Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Terjadi kesalahan saat memuat data ke form'
+            icon: "error",
+            title: "Error",
+            text: "Terjadi kesalahan saat memuat data ke form",
         });
     }
 }
 
 // Populate jawaban soal (modular approach)
 function populateJawabanSoal(jawabanSoals, jenisSoal) {
-    console.log("Populating jawaban soal:", jawabanSoals, "for type:", jenisSoal);
+    console.log(
+        "Populating jawaban soal:",
+        jawabanSoals,
+        "for type:",
+        jenisSoal
+    );
 
     if (!jawabanSoals || jawabanSoals.length === 0) {
         console.log("No jawaban soals to populate");
@@ -1366,9 +1469,9 @@ function populatePilihanGanda(jawabanSoals) {
 
         // Add options based on jawaban data
         jawabanSoals.forEach((jawaban, index) => {
-            const label = jawaban.label_jawaban ?
-                jawaban.label_jawaban.replace('Pilihan ', '') :
-                String.fromCharCode(65 + index);
+            const label = jawaban.label_jawaban
+                ? jawaban.label_jawaban.replace("Pilihan ", "")
+                : String.fromCharCode(65 + index);
 
             const isCorrect = jawaban.jawaban_benar == 1;
 
@@ -1388,7 +1491,9 @@ function populatePilihanGanda(jawabanSoals) {
                             <label
                                 class="form-check-label label-benar"
                                 for="jawaban_${jawabanCounter}"
-                                style="display: ${isCorrect ? "inline" : "none"}"
+                                style="display: ${
+                                    isCorrect ? "inline" : "none"
+                                }"
                             >Benar</label>
                         </div>
                     </div>
@@ -1403,15 +1508,23 @@ function populatePilihanGanda(jawabanSoals) {
                                value="${jawaban.jawaban}"
                                placeholder="Masukkan jawaban pilihan ${label}" required>
                         <input type="hidden" name="jawaban_soal[${jawabanCounter}][jenis_isian]" value="pilihan_ganda">
-                        <input type="hidden" name="jawaban_soal[${jawabanCounter}][jawaban_benar]" value="${isCorrect ? 1 : 0}">
-                        <input type="hidden" name="jawaban_soal[${jawabanCounter}][id]" value="${jawaban.id}">
+                        <input type="hidden" name="jawaban_soal[${jawabanCounter}][jawaban_benar]" value="${
+                isCorrect ? 1 : 0
+            }">
+                        <input type="hidden" name="jawaban_soal[${jawabanCounter}][id]" value="${
+                jawaban.id
+            }">
                     </div>
                     <div class="col-1">
-                        ${jawabanCounter > 3 ? `
+                        ${
+                            jawabanCounter > 3
+                                ? `
                             <button type="button" class="btn btn-sm btn-outline-danger remove-pilihan">
                                 <i class="ri-delete-bin-line"></i>
                             </button>
-                        ` : ""}
+                        `
+                                : ""
+                        }
                     </div>
                 </div>
             `;
@@ -1436,7 +1549,10 @@ function populateBenarSalah(jawabanSoals) {
         const isBenar = jawaban.jawaban_benar == 1;
 
         // Set radio button
-        $(`input[name="jawaban_benar"][value="${isBenar ? '0' : '1'}"]`).prop('checked', true);
+        $(`input[name="jawaban_benar"][value="${isBenar ? "0" : "1"}"]`).prop(
+            "checked",
+            true
+        );
 
         // Set hidden inputs for both options
         jawabanSoals.forEach((jawaban, index) => {
@@ -1463,17 +1579,21 @@ function populateIsian(jawabanSoals) {
 // Bind pilihan ganda events
 function bindPilihanGandaEvents() {
     // Event untuk hapus pilihan
-    $(".remove-pilihan").off("click").on("click", function () {
-        $(this).closest(".pilihan-item").remove();
-        updatePilihanIndexes();
-        updateLabelBenar();
-    });
+    $(".remove-pilihan")
+        .off("click")
+        .on("click", function () {
+            $(this).closest(".pilihan-item").remove();
+            updatePilihanIndexes();
+            updateLabelBenar();
+        });
 
     // Event untuk radio button
-    $("input[name='jawaban_benar']").off("change").on("change", function () {
-        updateLabelBenar();
-        updateJawabanBenarValues();
-    });
+    $("input[name='jawaban_benar']")
+        .off("change")
+        .on("change", function () {
+            updateLabelBenar();
+            updateJawabanBenarValues();
+        });
 }
 
 // Ensure dropdown data is loaded before proceeding
@@ -1524,7 +1644,8 @@ function deleteSoal(id) {
                     // Refresh datatables
                     if (window.tableSemua) window.tableSemua.ajax.reload();
                     if (window.tableReading) window.tableReading.ajax.reload();
-                    if (window.tableListening) window.tableListening.ajax.reload();
+                    if (window.tableListening)
+                        window.tableListening.ajax.reload();
                     if (window.tableGrammar) window.tableGrammar.ajax.reload();
 
                     // Reset current soal ID
@@ -1534,7 +1655,9 @@ function deleteSoal(id) {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: response.message || "Terjadi kesalahan saat menghapus data.",
+                    text:
+                        response.message ||
+                        "Terjadi kesalahan saat menghapus data.",
                     confirmButtonColor: "#d33",
                 });
             }
@@ -1591,6 +1714,6 @@ function testBankSoal() {
         editSoal: typeof window.editSoal,
         populateFormWithData: typeof window.populateFormWithData,
         loadDropdownData: typeof window.loadDropdownData,
-        showDeleteConfirmation: typeof window.showDeleteConfirmation
+        showDeleteConfirmation: typeof window.showDeleteConfirmation,
     });
 }

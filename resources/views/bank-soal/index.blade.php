@@ -191,8 +191,7 @@
                                     <label for="jenis_font" class="form-label">Jenis Font <span
                                             class="text-danger">*</span></label>
                                     <select class="form-select mb-1" id="jenis_font" name="jenis_font" required>
-                                        <option value="">Pilih Jenis Font</option>
-                                        <option value="Latin">Latin (LTR - Left to Right)</option>
+                                        <option value="Latin (LTR)" selected>Latin (LTR - Left to Right)</option>
                                         <option value="Arab (RTL)">Arab (RTL - Right to Left) - العربية</option>
                                     </select>
                                     <small class="text-muted">
@@ -205,8 +204,8 @@
                                 <div class="col-12 mb-3">
                                     <label for="pertanyaan" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
                                     <div id="snow-editor" style="height: 200px;">
-                                        <h3>Tulis pertanyaan di sini...</h3>
-                                        <p>Teks pertanyaan yang akan ditampilkan kepada peserta</p>
+                                        {{-- <h3>Tulis pertanyaan di sini...</h3>
+                                        <p>Teks pertanyaan yang akan ditampilkan kepada peserta</p> --}}
                                     </div>
                                     <input type="hidden" id="pertanyaan" name="pertanyaan" required>
                                 </div>
