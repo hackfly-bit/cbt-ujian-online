@@ -1,25 +1,40 @@
 <!-- ========== Left Sidebar Start ========== -->
-<div class="leftside-menu d-flex flex-column" style="padding-bottom: 0px !important;">
+<div class="leftside-menu d-flex flex-column px-2" style="padding-bottom: 0px !important;">
 
     @php
-        $logo = \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logo')->value('value') ?? null;
+        $branding = [
+            'logoPutih' =>
+                \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoPutih')->value('value') ?? '',
+            'logoHitam' =>
+                \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '',
+            'favLogoPutih' =>
+                \App\Models\SystemSetting::where('group', 'branding')->where('key', 'favLogoPutih')->value('value') ??
+                '',
+            'favLogoHitam' =>
+                \App\Models\SystemSetting::where('group', 'branding')->where('key', 'favLogoHitam')->value('value') ??
+                '',
+        ];
     @endphp
 
     <!-- Logo -->
     <a href="{{ route('any', 'index') }}" class="logo logo-light">
         <span class="logo-lg">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="logo">
+            <img src="{{ $branding['logoPutih'] ? asset($branding['logoPutih']) : asset('images/placeholder.jpeg') }}"
+                alt="logo">
         </span>
         <span class="logo-sm">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="small logo">
+            <img src="{{ $branding['favLogoPutih'] ? asset($branding['favLogoPutih']) : asset('images/placeholder.jpeg') }}"
+                alt="small logo">
         </span>
     </a>
     <a href="{{ route('any', 'index') }}" class="logo logo-dark">
         <span class="logo-lg">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="logo">
+            <img src="{{ $branding['logoHitam'] ? asset($branding['logoHitam']) : asset('images/placeholder.jpeg') }}"
+                alt="logo">
         </span>
         <span class="logo-sm">
-            <img src="{{ $logo ? asset($logo) : asset('images/placeholder.jpeg') }}" alt="small logo">
+            <img src="{{ $branding['favLogoHitam'] ? asset($branding['favLogoHitam']) : asset('images/placeholder.jpeg') }}"
+                alt="small logo">
         </span>
     </a>
 
@@ -40,7 +55,7 @@
             {{-- Image --}}
             <li class="side-nav-item">
                 <a href="javascript:void(0)" class="side-nav-link" id="btn-add-image">
-                    <i class="ri-award-line"></i>
+                    <i class="ri-image-line"></i>
                     <span> Image </span>
                 </a>
             </li>
@@ -55,35 +70,35 @@
 
             <li class="side-nav-item">
                 <a href="javascript:void(0)" class="side-nav-link" id="nama-peserta">
-                    <i class="ri-bar-chart-box-line"></i>
+                    <i class="ri-text"></i>
                     <span> [Nama Lengkap] </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
                 <a href="javascript:void(0)" class="side-nav-link" id="ujian">
-                    <i class="ri-bar-chart-box-line"></i>
+                    <i class="ri-file-list-3-line"></i>
                     <span> [Ujian] </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
                 <a href="javascript:void(0)" class="side-nav-link" id="tanggal-ujian">
-                    <i class="ri-bar-chart-box-line"></i>
+                    <i class="ri-calendar-line"></i>
                     <span> [Tanggal Ujian] </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
                 <a href="javascript:void(0)" class="side-nav-link" id="nilai-ujian">
-                    <i class="ri-bar-chart-box-line"></i>
+                    <i class="ri-medal-line"></i>
                     <span> [Nilai Ujian] </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
                 <a href="javascript:void(0)" class="side-nav-link" id="qr-code">
-                    <i class="ri-bar-chart-box-line"></i>
+                    <i class="ri-qr-code-line"></i>
                     <span> [QR Code] </span>
                 </a>
             </li>
@@ -98,6 +113,14 @@
     <div class="back-fixed">
         <a href="{{ route('any', 'index') }}"
             class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2 back-button">
+            <i class="ri-arrow-left-line"></i>
+            <span>Kembali ke Dashboard</span>
+        </a>
+    </div>
+
+    <div class="logout-fixed">
+        <a href="{{ route('any', 'index') }}"
+            class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2 logout-button">
             <i class="ri-arrow-left-line"></i>
             <span>Kembali ke Dashboard</span>
         </a>

@@ -77,12 +77,16 @@
             </div>
         </div>
 
+        @include('layouts.shared/footer')
+
         <!-- ============================================================== -->
         <!-- End Page content -->
         <!-- ============================================================== -->
 
         @include('sertifikat.text-properti')
         @include('sertifikat.bg-properti')
+        @include('layouts.shared/right-sidebar')
+        @include('layouts.shared/footer-script')
 
     </div>
 
