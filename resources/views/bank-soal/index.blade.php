@@ -102,6 +102,11 @@
             left: 3px;
             right: auto;
         }
+
+        .ql-direction {
+            display: none !important;
+        }
+
     </style>
 @endsection
 
@@ -196,13 +201,15 @@
                                     </select>
                                     <small class="text-muted">
                                         <i class="ri-information-line"></i>
-                                        Pilih "Arab (RTL)" untuk menulis soal dengan huruf Arab. Teks akan otomatis berubah ke arah kanan ke kiri.
+                                        Pilih "Arab (RTL)" untuk menulis soal dengan huruf Arab. Teks akan otomatis berubah
+                                        ke arah kanan ke kiri.
                                     </small>
                                 </div>
 
                                 <!-- Pertanyaan -->
                                 <div class="col-12 mb-3">
-                                    <label for="pertanyaan" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                                    <label for="pertanyaan" class="form-label">Pertanyaan <span
+                                            class="text-danger">*</span></label>
                                     <div id="snow-editor" style="height: 200px;">
                                         {{-- <h3>Tulis pertanyaan di sini...</h3>
                                         <p>Teks pertanyaan yang akan ditampilkan kepada peserta</p> --}}

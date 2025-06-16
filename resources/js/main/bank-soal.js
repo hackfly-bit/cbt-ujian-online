@@ -18,12 +18,12 @@ window.jQuery = $;
 let currentSoalId = null;
 let jawabanCounter = 0;
 
-// Global variable for Quill instance
+// Global variable
 let quill = null;
 let quillReady = false;
 
 // Inisialisasi Quill editor
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
     try {
         const editorElement = document.querySelector("#snow-editor");
         if (!editorElement) {
@@ -38,54 +38,62 @@ document.addEventListener('DOMContentLoaded', function() {
                     [{ font: [] }],
                     ["bold", "italic", "underline"],
                     [{ list: "ordered" }, { list: "bullet" }],
-                    [{ direction: "rtl" }],
-                    [{ align: [] }],
+                    // Hapus icon direction agar tidak membingungkan
+                    // [{ align: [] }],
                     ["clean"],
                 ],
             },
-            placeholder: "Tulis pertanyaan di sini...", // Default placeholder Latin
+            placeholder: "Tulis pertanyaan di sini...", // Default
         });
+
         quillReady = true;
     } catch (error) {
         console.error("Error initializing Quill:", error);
     }
 });
 
-// Fungsi untuk mengatur arah teks dan placeholder
+// Fungsi mengatur arah dan placeholder
 function setEditorDirection(direction) {
     const pertanyaanInput = document.getElementById("pertanyaan");
 
-    // Hapus seluruh isi editor
-    quill.setText("");
+    // Simpan isi editor
+    const currentContent = quill.getContents();
 
     // Ganti placeholder
     quill.root.dataset.placeholder =
         direction === "rtl"
-            ? "اكتب السؤال هنا..." // Placeholder Arab
-            : "Tulis pertanyaan di sini..."; // Placeholder Latin
+            ? "اكتب السؤال هنا..." // Arab
+            : "Tulis pertanyaan di sini..."; // Latin
 
-    // Terapkan arah teks
+    // Terapkan direction & align pada semua baris
     quill.formatLine(0, quill.getLength(), {
         direction: direction,
         align: direction === "rtl" ? "right" : "left",
     });
 
-    // Atur atribut HTML untuk arah secara eksplisit
+    // Set properti HTML
     quill.root.setAttribute("dir", direction);
     quill.root.style.textAlign = direction === "rtl" ? "right" : "left";
 
-    // Kosongkan input tersembunyi juga
-    pertanyaanInput.value = "";
+    // Kembalikan konten
+    quill.setContents(currentContent);
+
+    // Simpan ulang ke input hidden
+    pertanyaanInput.value = quill.root.innerHTML;
 }
 
-// Event saat dropdown berubah
+// Event listener dropdown
 document.getElementById("jenis_font").addEventListener("change", function () {
     const selectedValue = this.value;
-
     if (selectedValue === "Arab (RTL)") {
         setEditorDirection("rtl");
     } else {
         setEditorDirection("ltr");
+    }
+
+    // Fokus ke editor setelah ganti arah
+    if (quill) {
+        quill.focus();
     }
 });
 
@@ -117,7 +125,7 @@ function initSelect2() {
                 return "Mencari...";
             },
         },
-        minimumResultsForSearch: Infinity, 
+        minimumResultsForSearch: Infinity,
     };
 
     // Initialize Select2 on all select elements
