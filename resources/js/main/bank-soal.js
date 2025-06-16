@@ -47,17 +47,24 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         quillReady = true;
+
+        // Update input tersembunyi saat teks berubah
+        quill.on("text-change", function () {
+            document.getElementById("pertanyaan").value = quill.root.innerHTML;
+        });
+
+        // Default: set ke LTR saat load pertama
+        setEditorDirection("ltr");
     } catch (error) {
         console.error("Error initializing Quill:", error);
     }
 });
 
-// Fungsi mengatur arah dan placeholder
 function setEditorDirection(direction) {
     const pertanyaanInput = document.getElementById("pertanyaan");
 
-    // Simpan isi editor
-    const currentContent = quill.getContents();
+    // Simpan isi sebagai Delta
+    const currentDelta = quill.getContents();
 
     // Ganti placeholder
     quill.root.dataset.placeholder =
@@ -65,20 +72,28 @@ function setEditorDirection(direction) {
             ? "اكتب السؤال هنا..." // Arab
             : "Tulis pertanyaan di sini..."; // Latin
 
-    // Terapkan direction & align pada semua baris
+    // Set atribut HTML dasar
+    quill.root.setAttribute("dir", direction);
+    quill.root.style.textAlign = direction === "rtl" ? "right" : "left";
+
+    // Format semua baris
     quill.formatLine(0, quill.getLength(), {
         direction: direction,
         align: direction === "rtl" ? "right" : "left",
     });
 
-    // Set properti HTML
-    quill.root.setAttribute("dir", direction);
-    quill.root.style.textAlign = direction === "rtl" ? "right" : "left";
+    // Bersihkan class RTL jika ganti ke LTR
+    if (direction === "ltr") {
+        const paragraphs = quill.root.querySelectorAll("p");
+        paragraphs.forEach((p) => {
+            p.classList.remove("ql-direction-rtl", "ql-align-right");
+        });
+    }
 
-    // Kembalikan konten
-    quill.setContents(currentContent);
+    // Muat ulang isi editor (optional, untuk pastikan konsistensi)
+    quill.setContents(currentDelta);
 
-    // Simpan ulang ke input hidden
+    // Perbarui input hidden
     pertanyaanInput.value = quill.root.innerHTML;
 }
 
@@ -96,14 +111,6 @@ document.getElementById("jenis_font").addEventListener("change", function () {
         quill.focus();
     }
 });
-
-// Update input tersembunyi saat teks berubah
-quill.on("text-change", function () {
-    document.getElementById("pertanyaan").value = quill.root.innerHTML;
-});
-
-// Default: set ke LTR saat load pertama
-setEditorDirection("ltr");
 
 // Initialize Select2 for all select elements
 function initSelect2() {
@@ -154,9 +161,9 @@ function initSelect2Events() {
     console.log("Initializing Select2 events...");
 
     // Font change event
-    $("#jenis_font").on("select2:select", function (e) {
-        const fontType = e.params.data.text;
-        console.log("Font changed via Select2:", fontType);
+    $("#jenis_font").on("change", function () {
+        const fontType = $(this).val();
+        console.log("Font changed:", fontType);
         handleFontChange(fontType);
     });
 
