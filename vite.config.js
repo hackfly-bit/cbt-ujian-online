@@ -29,6 +29,7 @@ export default defineConfig({
                 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css',
                 'node_modules/select2/dist/css/select2.min.css',
                 'node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css',
+                'resources/css/ujian-themes.css',
 
 
 

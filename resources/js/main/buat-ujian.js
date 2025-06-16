@@ -685,37 +685,42 @@ import flatpickr from "flatpickr";
                     }
                 }
 
+                // Prepare form data with files
+                const tampilanData = getTampilanData();
+                
+                // Add other data to FormData
+                tampilanData.append('sections', JSON.stringify(sectionData));
+                tampilanData.append('detail', JSON.stringify({
+                    nama: $('#nama_ujian').val(),
+                    deskripsi: $('#deskripsi').val(),
+                    durasi: $('#durasi_ujian').val() || 120,
+                    jenis_ujian: $('#jenis_ujian').val(),
+                    tanggal_selesai: $('#tanggal_kedaluwarsa').val(),
+                }));
+                tampilanData.append('peserta', JSON.stringify({
+                    nama: $('#nama').is(':checked'),
+                    email: $('#email').is(':checked'),
+                    phone: $('#telp').is(':checked'),
+                    institusi: $('#sekolah').is(':checked'),
+                    nomor_induk: $('#no_induk').is(':checked'),
+                    tanggal_lahir: $('#tanggal_lahir').is(':checked'),
+                    alamat: $('#alamat').is(':checked')
+                }));
+                tampilanData.append('pengaturan', JSON.stringify({
+                    metode_penilaian: $('#metode_penilaian').val(),
+                    nilai_kelulusan: $('#nilai_kelulusan').val(),
+                    hasil_ujian: $('#hasil_ujian_tersedia').val(),
+                }));
+
                 $.ajax({
                     url: url,
                     method: method,
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        sections: sectionData,
-                        detail: {
-                            nama: $('#nama_ujian').val(),
-                            deskripsi: $('#deskripsi').val(),
-                            durasi: $('#durasi_ujian').val() || 120, // Fixed ID (was pointing to #deskripsi before)
-                            jenis_ujian: $('#jenis_ujian').val(),
-                            tanggal_selesai: $('#tanggal_kedaluwarsa').val(),
-                        },
-                        peserta: {
-                            nama: $('#nama').is(':checked'),
-                            email: $('#email').is(':checked'),
-                            telp: $('#telp').is(':checked'),
-                            sekolah: $('#sekolah').is(':checked'),
-                            no_induk: $('#no_induk').is(':checked'),
-                            tanggal_lahir: $('#tanggal_lahir').is(':checked'),
-                            alamat: $('#alamat').is(':checked')
-                        },
-                        pengaturan: {
-                            metode_penilaian: $('#metode_penilaian').val(),
-                            nilai_kelulusan: $('#nilai_kelulusan').val(),
-                            hasil_ujian: $('#hasil_ujian_tersedia').val(),
-                        }
-                    }),
+                    processData: false,
+                    contentType: false,
+                    data: tampilanData,
                     success: function (data) {
                         if (data.success) {
                             Swal.fire({
@@ -756,4 +761,225 @@ import flatpickr from "flatpickr";
         });
     };
     // Prevent form submission on Enter key in section for
+
+    // Theme and appearance functionality
+    window.initThemePreview = function() {
+        // Toggle custom colors visibility
+        $('#use_custom_color').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#custom-colors').show();
+                $('#default-colors').hide();
+            } else {
+                $('#custom-colors').hide();
+                $('#default-colors').show();
+            }
+            updatePreview();
+        });
+
+        // Theme selection
+        $('input[name="theme"]').on('change', function() {
+            updatePreview();
+        });
+
+        // Color changes
+        $('input[type="color"]').on('input', function() {
+            updatePreview();
+        });
+
+        // Text input changes
+        $('#institution_name, #welcome_message').on('input', function() {
+            updatePreview();
+        });
+
+        // File upload preview
+        $('#logo').on('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('.preview-logo .logo-placeholder').html(`<img src="${e.target.result}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">`);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Initial preview
+        updatePreview();
+        toggleCustomColors();
+    };
+
+    window.updatePreview = function() {
+        const theme = $('input[name="theme"]:checked').val();
+        const useCustomColor = $('#use_custom_color').is(':checked');
+        const institutionName = $('#institution_name').val() || 'Nama Institusi';
+        const welcomeMessage = $('#welcome_message').val() || 'Pesan sambutan akan ditampilkan di sini...';
+        
+        let colors = {};
+        
+        if (useCustomColor) {
+            colors = {
+                primary: $('#custom_color_1').val(),
+                secondary: $('#custom_color_2').val(),
+                accent: $('#custom_color_3').val()
+            };
+        } else {
+            colors = {
+                background: $('#background_color').val(),
+                header: $('#header_color').val()
+            };
+        }
+
+        applyThemeToPreview(theme, colors, institutionName, welcomeMessage, useCustomColor);
+    };
+
+    window.applyThemeToPreview = function(theme, colors, institutionName, welcomeMessage, useCustomColor) {
+        const $preview = $('#live-preview');
+        const $header = $preview.find('.preview-header');
+        const $content = $preview.find('.preview-content');
+        const $examCard = $preview.find('.exam-card');
+        
+        // Reset classes
+        $preview.removeClass('classic-preview modern-preview glow-preview minimal-preview');
+        $preview.addClass(theme + '-preview');
+        
+        // Update text content
+        $('#preview-institution-name').text(institutionName);
+        $('#preview-welcome-message').text(welcomeMessage);
+        
+        // Apply theme-specific styles
+        switch(theme) {
+            case 'classic':
+                if (useCustomColor) {
+                    $header.css({
+                        'background': `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+                        'color': '#fff'
+                    });
+                    $content.css('background', '#fff');
+                    $examCard.css({
+                        'background': colors.accent + '20',
+                        'border-color': colors.accent
+                    });
+                } else {
+                    $header.css({
+                        'background': colors.header,
+                        'color': '#333'
+                    });
+                    $content.css('background', colors.background);
+                }
+                break;
+                
+            case 'modern':
+                if (useCustomColor) {
+                    $header.css({
+                        'background': `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+                        'color': '#fff'
+                    });
+                    $content.css('background', '#f8f9fa');
+                    $examCard.css({
+                        'background': colors.accent + '20',
+                        'border-color': colors.accent
+                    });
+                } else {
+                    $header.css({
+                        'background': 'linear-gradient(135deg, #0d6efd 0%, #0056b3 100%)',
+                        'color': '#fff'
+                    });
+                    $content.css('background', colors.background);
+                }
+                break;
+                
+            case 'glow':
+                if (useCustomColor) {
+                    $header.css({
+                        'background': `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 50%, ${colors.accent} 100%)`,
+                        'color': '#fff'
+                    });
+                } else {
+                    $header.css({
+                        'background': 'linear-gradient(135deg, #6f42c1 0%, #e83e8c 50%, #fd7e14 100%)',
+                        'color': '#fff'
+                    });
+                }
+                $content.css('background', 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)');
+                break;
+                
+            case 'minimal':
+                if (useCustomColor) {
+                    $header.css({
+                        'background': colors.primary,
+                        'color': '#fff'
+                    });
+                    $content.css('background', colors.secondary + '10');
+                } else {
+                    $header.css({
+                        'background': colors.header,
+                        'color': '#fff'
+                    });
+                    $content.css('background', colors.background);
+                }
+                break;
+        }
+    };
+
+    window.toggleCustomColors = function() {
+        const useCustomColor = $('#use_custom_color').is(':checked');
+        if (useCustomColor) {
+            $('#custom-colors').show();
+            $('#default-colors').hide();
+        } else {
+            $('#custom-colors').hide();
+            $('#default-colors').show();
+        }
+    };
+
+    // Initialize on DOM ready
+    $(document).ready(function() {
+        if ($('#tampilan-form').length) {
+            initThemePreview();
+        }
+        
+        // Trigger initial state for custom colors
+        $('#use_custom_color').trigger('change');
+    });
+
+    // Function to get tampilan data
+    window.getTampilanData = function() {
+        const formData = new FormData();
+        
+        // Theme data
+        formData.append('theme', $('input[name="theme"]:checked').val() || 'classic');
+        formData.append('institution_name', $('#institution_name').val() || '');
+        formData.append('welcome_message', $('#welcome_message').val() || '');
+        formData.append('use_custom_color', $('#use_custom_color').is(':checked') ? 1 : 0);
+        
+        // Colors
+        if ($('#use_custom_color').is(':checked')) {
+            formData.append('custom_color_1', $('#custom_color_1').val() || '');
+            formData.append('custom_color_2', $('#custom_color_2').val() || '');
+            formData.append('custom_color_3', $('#custom_color_3').val() || '');
+        } else {
+            formData.append('background_color', $('#background_color').val() || '#ffffff');
+            formData.append('header_color', $('#header_color').val() || '#f8f9fa');
+        }
+        
+        // Files
+        const logoFile = $('#logo')[0].files[0];
+        if (logoFile) {
+            formData.append('logo', logoFile);
+        }
+        
+        const backgroundFile = $('#background_image')[0].files[0];
+        if (backgroundFile) {
+            formData.append('background_image', backgroundFile);
+        }
+        
+        const headerFile = $('#header_image')[0].files[0];
+        if (headerFile) {
+            formData.append('header_image', headerFile);
+        }
+        
+        return formData;
+    };
+
+    // ...existing code...
 })(window.jQuery);

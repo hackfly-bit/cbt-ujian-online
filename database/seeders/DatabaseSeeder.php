@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             BankSoalSeeder::class,
             TestUjianSeeder::class,
             HasilUjianSeeder::class,
+            UjianThemaSeeder::class,
         ]);
     }
 }

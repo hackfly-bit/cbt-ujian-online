@@ -1,7 +1,7 @@
 @extends('layouts.vertical', ['page_title' => $title ?? 'Buat Ujian', 'mode' => $mode ?? '', 'demo' => $demo ?? ''])
 
 @section('css')
-    @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css', 'node_modules/flatpickr/dist/flatpickr.min.css'])
+    @vite(['node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css', 'node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css', 'node_modules/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css', 'node_modules/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css', 'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css', 'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css', 'node_modules/flatpickr/dist/flatpickr.min.css', 'resources/css/ujian-themes.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
     <style>
         .bg-soft-info {
@@ -125,6 +125,133 @@
             font-weight: 600;
             color: #0d6efd;
         }
+
+        /* Theme Preview Styles */
+        .theme-option {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .theme-option:hover {
+            transform: translateY(-2px);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
+            position: relative;
+            transition: border-color 0.2s ease;
+        }
+
+        .theme-option input:checked + label + .theme-preview,
+        .theme-option input:checked ~ .theme-preview {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+
+        .theme-header {
+            height: 30%;
+            width: 100%;
+        }
+
+        .theme-content {
+            height: 70%;
+            width: 100%;
+        }
+
+        /* Theme Variants */
+        .classic-theme .theme-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .classic-theme .theme-content {
+            background: #ffffff;
+        }
+
+        .modern-theme .theme-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+        }
+
+        .modern-theme .theme-content {
+            background: #f8f9fa;
+        }
+
+        .glow-theme .theme-header {
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 50%, #fd7e14 100%);
+        }
+
+        .glow-theme .theme-content {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        }
+
+        .minimal-theme .theme-header {
+            background: #6c757d;
+        }
+
+        .minimal-theme .theme-content {
+            background: #f8f9fa;
+        }
+
+        /* Live Preview Styles */
+        .theme-preview-large {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            min-height: 300px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .preview-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .preview-logo .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            background: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .preview-content {
+            padding: 20px;
+        }
+
+        .preview-welcome {
+            margin-bottom: 20px;
+        }
+
+        .exam-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Color Picker Improvements */
+        .form-control-color {
+            width: 100%;
+            height: 40px;
+            border-radius: 6px;
+        }
+
+        /* File Upload Preview */
+        .img-thumbnail {
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+        }
     </style>
 @endsection
 
@@ -171,6 +298,12 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tampilan-tab" data-bs-toggle="tab" data-bs-target="#tampilan"
+                        type="button" role="tab" aria-controls="tampilan" aria-selected="false">
+                        Tampilan Ujian
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pengaturan-tab" data-bs-toggle="tab" data-bs-target="#pengaturan"
                         type="button" role="tab" aria-controls="pengaturan" aria-selected="false">
                         Pengaturan
@@ -190,6 +323,9 @@
             </div>
             <div class="tab-pane fade" id="peserta" role="tabpanel" aria-labelledby="peserta-tab">
                 @include('ujian.ujian-tabs.peserta')
+            </div>
+            <div class="tab-pane fade" id="tampilan" role="tabpanel" aria-labelledby="tampilan-tab">
+                @include('ujian.ujian-tabs.tampilan')
             </div>
             <div class="tab-pane fade" id="pengaturan" role="tabpanel" aria-labelledby="pengaturan-tab">
                 @include('ujian.ujian-tabs.pengaturan')

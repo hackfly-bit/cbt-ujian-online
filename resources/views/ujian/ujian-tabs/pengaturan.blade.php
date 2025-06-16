@@ -26,8 +26,8 @@
 
                 <!-- Tombol Navigasi -->
                 <div class="d-flex justify-content-between mt-4">
-                    <button type="button" class="btn btn-outline-secondary" onclick="goToNextTab('peserta')">
-                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Data Peserta
+                    <button type="button" class="btn btn-outline-secondary" onclick="goToNextTab('tampilan')">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Tampilan
                     </button>
                     <button type="button" class="btn btn-success" onclick="handleSaveUjian()">
                         <i class="bi bi-check-circle me-1"></i> Simpan Ujian

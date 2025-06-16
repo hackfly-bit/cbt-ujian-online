@@ -95,5 +95,13 @@ class Ujian extends Model
         return $this->hasMany('App\Models\HasilUjian', 'ujian_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function ujianThema()
+    {
+        return $this->hasOne('App\Models\UjianThema', 'ujian_id');
+    }
+
 
 }

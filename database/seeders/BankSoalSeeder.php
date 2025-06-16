@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\TingkatKesulitan;
 use App\Models\Kategori;
@@ -57,7 +56,7 @@ class BankSoalSeeder extends Seeder
         $soalData = [
             [
                 'id' => 1,
-                'jenis_font' => 'Arial',
+                'jenis_font' => 'Latin',
                 'pertanyaan' => 'What is the capital of Indonesia?',
                 'is_audio' => false,
                 'tingkat_kesulitan_id' => 1,
@@ -66,15 +65,15 @@ class BankSoalSeeder extends Seeder
                 'penjelasan_jawaban' => 'Jakarta is the capital and largest city of Indonesia.',
                 'tag' => 'geography, capital',
                 'jawaban' => [
-                    ['jenis_isian' => 'multiple_choice', 'jawaban' => 'Jakarta', 'jawaban_benar' => true],
-                    ['jenis_isian' => 'multiple_choice', 'jawaban' => 'Surabaya', 'jawaban_benar' => false],
-                    ['jenis_isian' => 'multiple_choice', 'jawaban' => 'Bandung', 'jawaban_benar' => false],
-                    ['jenis_isian' => 'multiple_choice', 'jawaban' => 'Medan', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'Jakarta', 'jawaban_benar' => true],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'Surabaya', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'Bandung', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'Medan', 'jawaban_benar' => false],
                 ]
             ],
             [
                 'id' => 2,
-                'jenis_font' => 'Times New Roman',
+                'jenis_font' => 'Arab (RTL)',
                 'pertanyaan' => 'English is the official language of Indonesia.',
                 'is_audio' => false,
                 'tingkat_kesulitan_id' => 1,
@@ -89,7 +88,7 @@ class BankSoalSeeder extends Seeder
             ],
             [
                 'id' => 3,
-                'jenis_font' => 'Calibri',
+                'jenis_font' => 'Latin',
                 'pertanyaan' => 'Explain the difference between present perfect and simple past tense in English.',
                 'is_audio' => false,
                 'tingkat_kesulitan_id' => 3,
@@ -101,6 +100,111 @@ class BankSoalSeeder extends Seeder
                     ['jenis_isian' => 'essay', 'jawaban' => '', 'jawaban_benar' => true],
                 ]
             ],
+            // arabic example
+            [
+                'id' => 4,
+                'jenis_font' => 'Arab (RTL)',
+                'pertanyaan' => 'ما هو عاصمة إندونيسيا؟',
+                'is_audio' => false,
+                'tingkat_kesulitan_id' => 1,
+                'kategori_id' => 1,
+                'sub_kategori_id' => 2,
+                'penjelasan_jawaban' => 'جاكرتا هي العاصمة وأكبر مدينة في إندونيسيا.',
+                'tag' => 'geography, capital',
+                'jawaban' => [
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'جاكرتا', 'jawaban_benar' => true],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'سورابايا', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'باندونج', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'ميدان', 'jawaban_benar' => false],
+                ]
+            ],
+            [
+                'id' => 5,
+                'jenis_font' => 'Arab (RTL)',
+                'pertanyaan' => 'اختر الإجابة الصحيحة: "الطالب ... في المدرسة"',
+                'is_audio' => false,
+                'tingkat_kesulitan_id' => 1,
+                'kategori_id' => 2,
+                'sub_kategori_id' => 3,
+                'penjelasan_jawaban' => 'الطالب يدرس في المدرسة.',
+                'tag' => 'language, grammar',
+                'jawaban' => [
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'يدرس', 'jawaban_benar' => true],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'تدرس', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'ندرس', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'يدرسون', 'jawaban_benar' => false],
+                ]
+            ],
+            [
+                'id' => 6,
+                'jenis_font' => 'Arab (RTL)',
+                'pertanyaan' => 'ما معنى كلمة "بيت" باللغة الإنجليزية؟',
+                'is_audio' => false,
+                'tingkat_kesulitan_id' => 1,
+                'kategori_id' => 3,
+                'sub_kategori_id' => 6,
+                'penjelasan_jawaban' => 'كلمة "بيت" تعني "House" باللغة الإنجليزية.',
+                'tag' => 'language, translation',
+                'jawaban' => [
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'School', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'House', 'jawaban_benar' => true],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'Book', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'Car', 'jawaban_benar' => false],
+                ]
+            ],
+            [
+                'id' => 7,
+                'jenis_font' => 'Arab (RTL)',
+                'pertanyaan' => 'أي من هذه الكلمات فعل؟',
+                'is_audio' => false,
+                'tingkat_kesulitan_id' => 1,
+                'kategori_id' => 3,
+                'sub_kategori_id' => 6,
+                'penjelasan_jawaban' => 'كلمة "كتب" هي فعل.',
+                'tag' => 'language, verbs',
+                'jawaban' => [
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'كتاب', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'طالب', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'كتب', 'jawaban_benar' => true],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'مدرسة', 'jawaban_benar' => false],
+                ]
+            ],
+            [
+                'id' => 8,
+                'jenis_font' => 'Arab (RTL)',
+                'pertanyaan' => 'اختر الضمير المناسب: "... طالب مجتهد"',
+                'is_audio' => false,
+                'tingkat_kesulitan_id' => 1,
+                'kategori_id' => 3,
+                'sub_kategori_id' => 6,
+                'penjelasan_jawaban' => '"هو" هو الضمير المناسب.',
+                'tag' => 'language, pronouns',
+                'jawaban' => [
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'هو', 'jawaban_benar' => true],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'هي', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'نحن', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'أنتم', 'jawaban_benar' => false],
+                ],
+            ],
+            // if audio is needed, add more examples with 'is_audio' set to true
+            [
+                'id' => 9,
+                'jenis_font' => 'Arab (RTL)',
+                'pertanyaan' => 'ما هو عاصمة إندونيسيا؟',
+                'is_audio' => true,
+                'audio_file' => 'audio_files/01.mp3',
+                'tingkat_kesulitan_id' => 1,
+                'kategori_id' => 1,
+                'sub_kategori_id' => 2,
+                'penjelasan_jawaban' => 'جاكرتا هي العاصمة وأكبر مدينة في إندونيسيا.',
+                'tag' => 'geography, capital',
+                'jawaban' => [
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'جاكرتا', 'jawaban_benar' => true],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'سورابايا', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'باندونج', 'jawaban_benar' => false],
+                    ['jenis_isian' => 'pilihan_ganda', 'jawaban' => 'ميدان', 'jawaban_benar' => false],
+                ]
+            ]
         ];
 
         foreach ($soalData as $index => $soal) {
