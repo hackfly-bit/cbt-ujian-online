@@ -611,29 +611,23 @@
                     </div>
                 @endif
 
-                <div class="question-text">
-                    {{ $currentQuestion->pertanyaan ?? '"اختر الجمع الصحيح لكلمة "مؤنث' }}
-                </div>
+                    @if (isset($currentQuestion))
+                        @if ($currentQuestion->is_audio && $currentQuestion->audio_file)
+                            <div class="audio-player">
+                                <audio controls preload="metadata">
+                                    <source src="{{ asset('/' . $currentQuestion->audio_file) }}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        @endif
 
+                        <div class="question-text">
+                            {{ $currentQuestion->pertanyaan ?? '"اختر الجمع الصحيح لكلمة "مؤنث' }}
+                        </div>
+                    @endif
                 <!-- Answer Options -->
                 <form id="exam-form">
                     <ul class="answer-options">
-                        @if (isset($currentQuestion) && $currentQuestion->is_audio && $currentQuestion->audio_file)
-                            <li class="answer-option">
-                                <div class="audio-player">
-                                    <audio controls preload="metadata">
-                                        <source src="{{ asset('storage/' . $currentQuestion->audio_file) }}"
-                                            type="audio/mpeg">
-                                        <source src="{{ asset('storage/' . $currentQuestion->audio_file) }}"
-                                            type="audio/wav">
-                                        <source src="{{ asset('storage/' . $currentQuestion->audio_file) }}"
-                                            type="audio/ogg">
-                                        Browser Anda tidak mendukung pemutar audio.
-                                    </audio>
-                                </div>
-                            </li>
-                        @endif
-
                         @if (isset($currentQuestion) && $currentQuestion->jenis_isian)
                             @if ($currentQuestion->jenis_isian === 'multiple_choice' || $currentQuestion->jenis_isian === 'pilihan_ganda')
                                 @if ($currentQuestion->jawabanSoals && $currentQuestion->jawabanSoals->count() > 0)
@@ -675,6 +669,7 @@
                         @endif
                     </ul>
                 </form>
+
 
                 <!-- Section Progress -->
                 <div class="section-progress">
@@ -864,6 +859,8 @@
             let isTabActive = true;
             let tabSwitchCount = 0;
             const maxTabSwitches = 3; // Maximum allowed tab switches
+            let isNavigating = false; // Flag to track legitimate navigation
+            let hasShownInitialWarning = localStorage.getItem('lockscreenInitialWarningShown') === 'true';
 
             // Prevent context menu (right click)
             document.addEventListener('contextmenu', function(e) {
@@ -909,12 +906,6 @@
                     return false;
                 }
 
-                // Prevent Ctrl+A (Select All) - optional, might be needed for text inputs
-                // if (e.ctrlKey && e.keyCode === 65) {
-                //     e.preventDefault();
-                //     return false;
-                // }
-
                 // Prevent Ctrl+C (Copy) - allow in input fields
                 if (e.ctrlKey && e.keyCode === 67 && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
                     e.preventDefault();
@@ -948,37 +939,51 @@
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden) {
                     isTabActive = false;
-                    tabSwitchCount++;
-                    console.log('Tab switched away, count:', tabSwitchCount);
 
-                    // Store tab switch in session/local storage for tracking
-                    localStorage.setItem('tabSwitchCount', tabSwitchCount);
+                    // Only count as violation if not navigating legitimately
+                    if (!isNavigating) {
+                        tabSwitchCount++;
+                        console.log('Tab switched away (violation), count:', tabSwitchCount);
 
-                    // Update indicator
-                    updateLockscreenIndicator(tabSwitchCount);
+                        // Store tab switch in session/local storage for tracking
+                        localStorage.setItem('tabSwitchCount', tabSwitchCount);
 
-                    if (tabSwitchCount >= maxTabSwitches) {
-                        // Force submit exam after maximum violations
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Ujian Berakhir!',
-                            html: `
-                                <p>Anda telah melakukan pelanggaran terlalu banyak kali.</p>
-                                <p>Ujian akan otomatis diselesaikan.</p>
-                            `,
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            showConfirmButton: false,
-                            timer: 3000
-                        }).then(() => {
-                            // Auto submit exam
-                            navigateToUrl(`{{ route('ujian.submit', $ujian->link) }}`);
-                        });
+                        // Update indicator
+                        updateLockscreenIndicator(tabSwitchCount);
+
+                        if (tabSwitchCount >= maxTabSwitches) {
+                            // Force submit exam after maximum violations
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ujian Berakhir!',
+                                html: `
+                                    <p>Anda telah melakukan pelanggaran terlalu banyak kali.</p>
+                                    <p>Ujian akan otomatis diselesaikan.</p>
+                                `,
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => {
+                                // Auto submit exam
+                                navigateToUrl(`{{ route('ujian.submit', $ujian->link) }}`);
+                            });
+                        }
+                    } else {
+                        console.log('Tab switched away (navigation) - allowed');
                     }
                 } else {
                     isTabActive = true;
-                    if (tabSwitchCount > 0 && tabSwitchCount < maxTabSwitches) {
-                        showTabSwitchWarning();
+
+                    // Reset navigation flag when returning to tab
+                    if (isNavigating) {
+                        isNavigating = false;
+                        console.log('Returned from navigation');
+                    } else if (tabSwitchCount > 0 && tabSwitchCount < maxTabSwitches) {
+                        // Only show warning if we haven't shown initial warning yet
+                        if (hasShownInitialWarning) {
+                            showTabSwitchWarning();
+                        }
                     }
                 }
             });
@@ -1041,27 +1046,34 @@
                 });
             }
 
-            // Show initial lockscreen info
-            Swal.fire({
-                icon: 'info',
-                title: 'Lockscreen Aktif',
-                html: `
-                    <p>Ujian ini menggunakan sistem lockscreen untuk menjaga integritas.</p>
-                    <p><strong>Yang tidak diperbolehkan:</strong></p>
-                    <ul style="text-align: left; margin-left: 20px;">
-                        <li>Beralih tab (maksimal ${maxTabSwitches} kali)</li>
-                        <li>Membuka context menu (klik kanan)</li>
-                        <li>Menggunakan developer tools</li>
-                        <li>Menggunakan shortcut keyboard tertentu</li>
-                        <li>Mencetak halaman</li>
-                    </ul>
-                    <p class="text-warning">Pelanggaran berulang akan mengakhiri ujian secara otomatis!</p>
-                `,
-                confirmButtonText: 'Saya Mengerti dan Siap Memulai',
-                confirmButtonColor: '#007bff',
-                allowOutsideClick: false,
-                allowEscapeKey: false
-            });
+            // Show initial lockscreen info - only once per exam session
+            if (!hasShownInitialWarning) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Lockscreen Aktif',
+                    html: `
+                        <p>Ujian ini menggunakan sistem lockscreen untuk menjaga integritas.</p>
+                        <p><strong>Yang tidak diperbolehkan:</strong></p>
+                        <ul style="text-align: left; margin-left: 20px;">
+                            <li>Beralih tab untuk browsing lain (maksimal ${maxTabSwitches} kali)</li>
+                            <li>Membuka context menu (klik kanan)</li>
+                            <li>Menggunakan developer tools</li>
+                            <li>Menggunakan shortcut keyboard tertentu</li>
+                            <li>Mencetak halaman</li>
+                        </ul>
+                        <p class="text-success">✅ Navigasi antar soal dan section diperbolehkan</p>
+                        <p class="text-warning">Pelanggaran berulang akan mengakhiri ujian secara otomatis!</p>
+                    `,
+                    confirmButtonText: 'Saya Mengerti dan Siap Memulai',
+                    confirmButtonColor: '#007bff',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    // Mark that initial warning has been shown
+                    localStorage.setItem('lockscreenInitialWarningShown', 'true');
+                    hasShownInitialWarning = true;
+                });
+            }
 
             // Load tab switch count from storage if exists
             const storedCount = localStorage.getItem('tabSwitchCount');
@@ -1071,6 +1083,20 @@
 
             // Add lockscreen class to body
             document.body.classList.add('lockscreen-active');
+
+            // Function to set navigation flag
+            window.setNavigationFlag = function() {
+                isNavigating = true;
+                console.log('Navigation flag set - tab switching allowed');
+
+                // Auto-reset flag after 3 seconds as safety measure
+                setTimeout(() => {
+                    if (isNavigating) {
+                        isNavigating = false;
+                        console.log('Navigation flag auto-reset');
+                    }
+                }, 3000);
+            };
 
             // Update lockscreen indicator
             function updateLockscreenIndicator(violations) {
@@ -1224,6 +1250,10 @@
         // Question navigation
         function goToQuestion(questionNum) {
             if (questionNum >= 1 && questionNum <= totalQuestionsInSection) {
+                // Set navigation flag before navigating
+                if (lockscreenEnabled && window.setNavigationFlag) {
+                    window.setNavigationFlag();
+                }
                 navigateToUrl(
                     `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`);
             }
@@ -1231,6 +1261,10 @@
 
         function goToSection(sectionNum) {
             if (sectionNum >= 1 && sectionNum <= totalSections) {
+                // Set navigation flag before navigating
+                if (lockscreenEnabled && window.setNavigationFlag) {
+                    window.setNavigationFlag();
+                }
                 navigateToUrl(
                     `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${sectionNum}&question=1`);
             }
@@ -1241,6 +1275,9 @@
                 goToQuestion(currentQuestion - 1);
             } else if (currentSection > 1) {
                 // Pindah ke section sebelumnya, soal terakhir
+                if (lockscreenEnabled && window.setNavigationFlag) {
+                    window.setNavigationFlag();
+                }
                 navigateToUrl(
                     `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection - 1}&question=last`);
             }
@@ -1455,12 +1492,18 @@
         function cleanupLockscreenData() {
             if (lockscreenEnabled) {
                 localStorage.removeItem('tabSwitchCount');
+                localStorage.removeItem('lockscreenInitialWarningShown'); // Clean up the warning flag too
                 document.body.classList.remove('lockscreen-active');
             }
         }
 
         // Safe navigation function that maintains lockscreen state
         function navigateToUrl(url) {
+            // Set navigation flag for legitimate navigation
+            if (lockscreenEnabled && window.setNavigationFlag) {
+                window.setNavigationFlag();
+            }
+
             // Don't cleanup on normal navigation, only on exam end
             if (url.includes('submit')) {
                 cleanupLockscreenData();
