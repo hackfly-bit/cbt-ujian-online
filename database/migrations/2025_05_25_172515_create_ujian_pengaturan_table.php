@@ -22,6 +22,12 @@ return new class extends Migration
             $table->boolean('acak_jawaban')->default(0);
             $table->boolean('lihat_hasil')->default(0);
             $table->boolean('lihat_pembahasan')->default(0);
+            $table->boolean('is_arabic')->default(0);
+            $table->string('formula_type')->nullable();
+            $table->string('operation_1')->nullable()->default('*');
+            $table->decimal('value_1', 8, 2)->nullable()->default(1);
+            $table->string('operation_2')->nullable()->default('*');
+            $table->decimal('value_2', 8, 2)->nullable()->default(1);
             $table->timestamps();
         });
     }

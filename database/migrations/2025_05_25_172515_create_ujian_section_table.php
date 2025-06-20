@@ -21,8 +21,11 @@ return new class extends Migration
             $table->integer('kategori_id')->nullable()->index('kategori_id');
             // $table->string('instruksi', 65535)->nullable();
             $table->text('instruksi')->nullable();
-            $table->string('metode_penilaian')->nullable();
-            $table->string('formula')->nullable();
+            $table->string('formula_type')->nullable();
+            $table->string('operation_1')->default('*');
+            $table->decimal('value_1', 8, 2)->default(1);
+            $table->string('operation_2')->default('*');
+            $table->decimal('value_2', 8, 2)->default(1);
             $table->timestamps();
         });
     }

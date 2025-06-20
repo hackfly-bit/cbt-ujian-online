@@ -146,6 +146,9 @@ class UjianController extends Controller
             $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
             $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian_tersedia'];
             $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
+            $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;
+            $ujianPengaturan->is_arabic = $pengaturan['is_arabic'] ?? false;
+
             $ujianPengaturan->save();
 
             // Create ujian peserta form
@@ -203,9 +206,13 @@ class UjianController extends Controller
                 $ujianSection->nama_section = $sectionData['nama_section'];
                 $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
                 $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
-                $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
-                $ujianSection->formula = $sectionData['formula'] ?? null;
                 $ujianSection->kategori_id = $sectionData['kategori_id'];
+                $ujianSection->formula_type = $sectionData['formula_type'] ?? null;
+                $ujianSection->operation_1 = $sectionData['operation_1'] ?? '*';
+                $ujianSection->value_1 = (float) ($sectionData['value_1'] ?? 1);
+                $ujianSection->operation_2 = $sectionData['operation_2'] ?? '*';
+                $ujianSection->value_2 = (float) ($sectionData['value_2'] ?? 1);
+
                 $ujianSection->save();
 
                 // Create ujian section soals
@@ -300,6 +307,8 @@ class UjianController extends Controller
             $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
             $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'];
             $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
+            $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;
+            $ujianPengaturan->is_arabic = $pengaturan['is_arabic'] ?? false;
             $ujianPengaturan->save();
 
             // Update ujian peserta form
@@ -379,9 +388,14 @@ class UjianController extends Controller
                 $ujianSection->nama_section = $sectionData['nama_section'];
                 $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
                 $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
-                $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
-                $ujianSection->formula = $sectionData['formula'] ?? null;
+                // $ujianSection->metode_penilaian = $sectionData['metode_penilaian'];
+                // $ujianSection->formula = $sectionData['formula'] ?? null;
                 $ujianSection->kategori_id = $sectionData['kategori_id'];
+                $ujianSection->formula_type = $sectionData['formula_type'] ?? null;
+                $ujianSection->operation_1 = $sectionData['operation_1'] ?? '*';
+                $ujianSection->value_1 = (float) ($sectionData['value_1'] ?? 1);
+                $ujianSection->operation_2 = $sectionData['operation_2'] ?? '*';
+                $ujianSection->value_2 = (float) ($sectionData['value_2'] ?? 1);
                 $ujianSection->save();
 
                 // Create ujian section soals

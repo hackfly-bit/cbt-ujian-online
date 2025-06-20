@@ -58,7 +58,7 @@ class TestUjianSeeder extends Seeder
             'nama_section' => 'Section 0',
             'bobot_nilai' => 100,
             'instruksi' => 'Jawablah pertanyaan berikut dengan tepat.',
-            'metode_penilaian' => 'otomatis'
+            // 'metode_penilaian' => 'otomatis'
         ]);
 
         // Create test questions
@@ -151,7 +151,7 @@ class TestUjianSeeder extends Seeder
         // Create exam settings
         \App\Models\UjianPengaturan::create([
             'ujian_id' => $ujian->id,
-            'metode_penilaian' => 'otomatis',
+            // 'metode_penilaian' => 'otomatis',
             'nilai_kelulusan' => 70,
             'hasil_ujian_tersedia' => true,
             'acak_soal' => false,

@@ -15,7 +15,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $acak_soal
  * @property boolean $acak_jawaban
  * @property boolean $lihat_hasil
- * @property boolean $lockscreen
+ * @property boolean $lihat_pembahasan
+ * @property boolean $is_arabic
+ * @property string $formula_type
+ * @property string $operation_1
+ * @property float $value_1
+ * @property string $operation_2
+ * @property float $value_2
  */
 class UjianPengaturan extends Model
 {
@@ -43,9 +49,7 @@ class UjianPengaturan extends Model
     /**
      * @var array
      */
-    // protected $fillable = ['metode_penilaian', 'nilai_kelulusan', 'hasil_ujian_tersedia', 'created_at', 'updated_at'];
-
-      protected $fillable = [
+    protected $fillable = [
         'metode_penilaian',
         'nilai_kelulusan',
         'hasil_ujian_tersedia',
@@ -53,7 +57,12 @@ class UjianPengaturan extends Model
         'acak_jawaban',
         'lihat_hasil',
         'lihat_pembahasan',
-        'lockscreen',
+        'is_arabic',
+        'formula_type',
+        'operation_1',
+        'value_1',
+        'operation_2',
+        'value_2',
         'created_at',
         'updated_at'
     ];

@@ -73,33 +73,38 @@ import flatpickr from "flatpickr";
                         </div>
                     </div>
                     <div id="${collapseId}" class="collapse section-body px-4 py-3 border-top">
-                        <p class="mb-0">Konten soal atau pengaturan lainnya.</p>
-
                         <form class="section-form">
                             <div class="mb-2">
                                 <label class="form-label">Nama Seksi</label>
                                 <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi">
                             </div>
                             <div class="mb-2">
-                                <label class="form-label">Bobot Nilai</label>
-                                <input type="text" class="form-control" name="bobot_nilai" placeholder="Bobot Nilai">
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label">Instruksi</label>
-                                <textarea class="form-control" name="instruksi" rows="2" placeholder="Instruksi"></textarea>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label">Metode Penilaian</label>
-                                <select class="form-select metode-penilaian-dropdown" name="metode_penilaian">
-                                    <option value="">Pilih Metode</option>
-                                    <option value="otomatis">Otomatis</option>
-                                    <option value="manual">Manual</option>
-                                </select>
-                            </div>
-                            <div class="mb-2 formula-input-group" style="display: none;">
-                                <label class="form-label">Masukan Rumus Custom</label>
-                                <small class="form-text text-muted">Contoh: <code>0.4 * A + 0.6 * B</code> (A = nilai soal pilihan ganda, B = nilai soal esai)</small>
-                                <input type="text" class="form-control" name="formula" placeholder="Masukkan nama formula">
+                                <label class="form-label">Formula Penilaian</label>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span>(</span>
+                                    <select class="form-select" name="answer_type" style="width: auto">
+                                        <option value="correctAnswer">Jawaban Benar</option>
+                                        <option value="incorrectAnswer">Jawaban Salah</option>
+                                    </select>
+                                    <select class="form-select" name="operation" style="width: auto">
+                                        <option value="*">×</option>
+                                        <option value="+">+</option>
+                                        <option value="-">-</option>
+                                        <option value="/">÷</option>
+                                    </select>
+                                    <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px">
+                                    <span>)</span>
+                                    <select class="form-select" name="operation2" style="width: auto">
+                                        <option value="*">×</option>
+                                        <option value="+">+</option>
+                                        <option value="-">-</option>
+                                        <option value="/">÷</option>
+                                    </select>
+                                    <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px">
+                                </div>
+                                <small class="text-muted">
+                                    Contoh: (Jawaban Benar × n) × n
+                                </small>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Kategori Soal</label>

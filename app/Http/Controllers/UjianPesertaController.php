@@ -19,7 +19,7 @@ class UjianPesertaController extends Controller
 
 
 
-        return view('ujian.ujian-peserta.ujian-login', [
+        return view('ujian.ujian-peserta-arab.ujian-login', [
             'title' => 'Login Ujian',
             'active' => 'ujian',
             'ujian' => $getUjian,

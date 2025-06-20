@@ -13,6 +13,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $instruksi
  * @property string $metode_penilaian
  * @property string $formula
+ * @property boolean $is_arabic
+ * @property string $formula_type
+ * @property string $operation_1
+ * @property float $value_1
+ * @property string $operation_2
+ * @property float $value_2
  * @property string $created_at
  * @property string $updated_at
  * @property UjianSectionSoal[] $ujianSectionSoals
@@ -31,7 +37,32 @@ class UjianSection extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ujian_id', 'kategori_id','nama_section', 'bobot_nilai', 'instruksi', 'metode_penilaian', 'formula', 'created_at', 'updated_at'];
+    protected $fillable = [
+        'ujian_id',
+        'kategori_id',
+        'nama_section',
+        'bobot_nilai',
+        'instruksi',
+        'metode_penilaian',
+        'formula',
+        'is_arabic',
+        'formula_type',
+        'operation_1',
+        'value_1',
+        'operation_2',
+        'value_2',
+        'created_at',
+        'updated_at'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $casts = [
+        'is_arabic' => 'boolean',
+        'value_1' => 'decimal:2',
+        'value_2' => 'decimal:2'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
