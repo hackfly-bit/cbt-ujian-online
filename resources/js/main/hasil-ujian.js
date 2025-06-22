@@ -2,7 +2,7 @@ import $ from "jquery";
 import DataTable from "datatables.net-bs5";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import { Canvas, Textbox, ActiveSelection, FabricImage, util } from "fabric";
-import { validateCertificateTemplate, generatePreviewData } from '../utils/certificate-template.js';
+// import { validateCertificateTemplate, generatePreviewData } from '../utils/certificate-template.js';
 
 
 window.$ = $;
@@ -299,22 +299,22 @@ window.jQuery = $;
             success: function(response) {
                 if (response.success && response.data.sertifikat) {
                     // Validate template data first
-                    const validation = validateCertificateTemplate(response.data.sertifikat);
-                    
-                    if (!validation.valid) {
-                        $('#certificate-content').html(`
-                            <div class="alert alert-danger">
-                                <i class="ri-error-warning-line me-2"></i>
-                                Template sertifikat tidak valid: ${validation.errors.join(', ')}
-                            </div>
-                        `);
-                        return;
-                    }
+                    // const validation = validateCertificateTemplate(response.data.sertifikat);
 
-                    // Show warnings if any
-                    if (validation.warnings.length > 0) {
-                        console.warn('Certificate template warnings:', validation.warnings);
-                    }
+                    // if (!validation.valid) {
+                    //     $('#certificate-content').html(`
+                    //         <div class="alert alert-danger">
+                    //             <i class="ri-error-warning-line me-2"></i>
+                    //             Template sertifikat tidak valid: ${validation.errors.join(', ')}
+                    //         </div>
+                    //     `);
+                    //     return;
+                    // }
+
+                    // // Show warnings if any
+                    // if (validation.warnings.length > 0) {
+                    //     console.warn('Certificate template warnings:', validation.warnings);
+                    // }
 
                     // Create canvas container with proper sizing
                     $('#certificate-content').html(`
@@ -420,7 +420,7 @@ window.jQuery = $;
                 return;
             }
         }
-        
+
         // Fallback to browser print
         window.print();
     }
@@ -431,7 +431,7 @@ window.jQuery = $;
             const originalZoom = canvas.getZoom();
             const originalWidth = canvas.width;
             const originalHeight = canvas.height;
-            
+
             // Temporarily increase resolution for better quality
             const scale = 2; // 2x resolution
             canvas.setZoom(originalZoom * scale);
@@ -439,31 +439,31 @@ window.jQuery = $;
                 width: originalWidth * scale,
                 height: originalHeight * scale
             });
-            
+
             // Generate image
             const dataURL = canvas.toDataURL({
                 format: 'png',
                 quality: 1.0,
                 multiplier: 1
             });
-            
+
             // Restore original dimensions
             canvas.setZoom(originalZoom);
             canvas.setDimensions({
                 width: originalWidth,
                 height: originalHeight
             });
-            
+
             // Create download link
             const link = document.createElement('a');
             link.download = `Sertifikat_${templateData.peserta_nama || 'Peserta'}_${templateData.ujian_nama || 'Ujian'}.png`;
             link.href = dataURL;
-            
+
             // Trigger download
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             showAlert('success', 'Download Berhasil', 'Sertifikat berhasil didownload');
         } catch (error) {
             console.error('Error downloading certificate:', error);
@@ -475,19 +475,19 @@ window.jQuery = $;
         try {
             // Create a new window for printing
             const printWindow = window.open('', '_blank', 'width=800,height=600');
-            
+
             if (!printWindow) {
                 showAlert('error', 'Print Gagal', 'Popup diblokir. Mohon izinkan popup untuk print');
                 return;
             }
-            
+
             // Generate high-quality image for printing
             const dataURL = canvas.toDataURL({
                 format: 'png',
                 quality: 1.0,
                 multiplier: 2
             });
-            
+
             // Create print document
             const printContent = `
                 <!DOCTYPE html>
@@ -533,10 +533,10 @@ window.jQuery = $;
                 </body>
                 </html>
             `;
-            
+
             printWindow.document.write(printContent);
             printWindow.document.close();
-            
+
         } catch (error) {
             console.error('Error printing certificate:', error);
             showAlert('error', 'Print Gagal', 'Terjadi kesalahan saat mencetak sertifikat');
@@ -571,7 +571,7 @@ window.jQuery = $;
         const containerWidth = $(container).width() - 40; // 40px for padding
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
-        
+
         if (containerWidth < canvasWidth) {
             const scale = containerWidth / canvasWidth;
             canvas.setDimensions({
@@ -580,7 +580,7 @@ window.jQuery = $;
             });
             canvas.setZoom(scale);
         }
-        
+
         canvas.renderAll();
     }
 
@@ -588,24 +588,24 @@ window.jQuery = $;
         return new Promise((resolve, reject) => {
             try {
                 const canvas = new Canvas(canvasId);
-                
+
                 canvas.loadFromJSON(jsonData, function() {
                     // Replace placeholders
                     replacePlaceholders(canvas, templateData);
-                    
+
                     // Setup canvas for viewing
                     setupViewOnlyCanvas(canvas);
-                    
+
                     // Resize to fit container
                     resizeCanvasToContainer(canvas, '#certificate-content');
-                    
+
                     resolve(canvas);
                 });
-                
+
                 canvas.on('after:render', function() {
                     // Handle any post-render logic
                 });
-                
+
             } catch (error) {
                 reject(error);
             }
@@ -623,7 +623,7 @@ window.jQuery = $;
             '{{institusi}}': templateData.institusi || 'Institusi Penyelenggara',
             '{{tanggal_terbit}}': new Date().toLocaleDateString('id-ID', {
                 year: 'numeric',
-                month: 'long', 
+                month: 'long',
                 day: 'numeric'
             }),
             '{{tahun}}': new Date().getFullYear().toString()
@@ -632,11 +632,11 @@ window.jQuery = $;
         canvas.getObjects().forEach(function(obj) {
             if (obj.type === 'text' || obj.type === 'textbox') {
                 let text = obj.text || '';
-                
+
                 Object.keys(placeholders).forEach(placeholder => {
                     text = text.replace(new RegExp(placeholder, 'g'), placeholders[placeholder]);
                 });
-                
+
                 obj.set('text', text);
             }
         });
@@ -647,7 +647,7 @@ window.jQuery = $;
         canvas.hoverCursor = 'default';
         canvas.moveCursor = 'default';
         canvas.defaultCursor = 'default';
-        
+
         canvas.getObjects().forEach(function(obj) {
             obj.selectable = false;
             obj.evented = false;
