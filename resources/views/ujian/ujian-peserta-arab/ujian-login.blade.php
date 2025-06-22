@@ -5,9 +5,65 @@
     @include('layouts.shared/title-meta', ['title' => 'تسجيل الدخول'])
     @include('layouts.shared/head-css')
     @vite(['resources/js/head.js'])
+    <style>
+        body {
+            background-color: {{ $ujian->ujianThema->background_color ?? '#f0f2f5' }};
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+        }
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
+            body.authentication-bg {
+                background-image: url('{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+        @endif
+
+        .card-header {
+            background-color: {{ $ujian->ujianThema->header_color ?? '#ffffff' }};
+        }
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->use_custom_color)
+            .btn-primary {
+                background-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
+                border-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
+                color: {{ $ujian->ujianThema->button_font_color ?? 'white' }};
+            }
+
+            .text-primary {
+                color: {{ $ujian->ujianThema->primary_color ?? '#0d6efd' }} !important;
+            }
+
+            .border-primary {
+                border-color: {{ $ujian->ujianThema->secondary_color ?? '#0d6efd' }} !important;
+            }
+        @endif
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->font_color)
+            .text-muted,
+            .text-dark,
+            h4,
+            h5,
+            label {
+                color: {{ $ujian->ujianThema->font_color }} !important;
+            }
+        @endif
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->border_color)
+            .card,
+            .form-control,
+            .input-group-text {
+                border-color: {{ $ujian->ujianThema->border_color }} !important;
+            }
+        @endif
+    </style>
 </head>
 
-<body class="authentication-bg position-relative" style="background-color: #f0f2f5;">
+<body class="authentication-bg position-relative"
+    style="{{ $ujian->ujianThema ? 'background-color: ' . $ujian->ujianThema->background_color . ';' : '' }} {{ $ujian->ujianThema && $ujian->ujianThema->background_image_path ? 'background-image: url(\'' . asset('storage/' . $ujian->ujianThema->background_image_path) . '\'); background-size: cover; background-position: center;' : '' }}">
+
     {{-- <div class="position-absolute start-0 end-0 start-0 bottom-0 w-100 h-100">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
             xmlns:svgjs="http://svgjs.com/svgjs" width="100%" height="100%" preserveAspectRatio="none"
@@ -224,7 +280,7 @@
                                 <p class="text-muted mb-4">أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى الاختبار.</p>
                             </div>
 
-                            <form action="{{ route('ujian.peserta.login.post', $ujian->id) }}" method="post">
+                            <form action="{{ route('ujian.generateSession', $ujian->link) }}" method="post">
                                 @csrf
                                 <div class="mb-3">
                                     <label for="emailaddress" class="form-label">البريد الإلكتروني</label>
@@ -264,8 +320,13 @@
             <div class="text-center my-5">
                 <!-- Logo -->
                 <div class="text-center">
-                    <a href="{{ route('any', 'index') }}ml">
-                        <span><img src="/images/logo-dark.png" alt="logo" height="40"></span>
+                    <a href="{{ route('any', 'index') }}">
+                        @if ($ujian->ujianThema && $ujian->ujianThema->logo_path)
+                            <span><img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}" alt="logo"
+                                    height="40"></span>
+                        @else
+                            <span><img src="/images/logo-dark.png" alt="logo" height="40"></span>
+                        @endif
                     </a>
                 </div>
             </div>
@@ -298,9 +359,18 @@
                 <!-- نموذج تسجيل الدخول -->
                 <div class="col-md-5">
                     <div class="card shadow-sm border-0 rounded-2">
-                        <div class="card-body p-4">
-                            <h4 class="fw-bold mb-3">تسجيل الدخول للاختبار</h4>
-                            <p class="text-muted mb-4">أدخل بياناتك للوصول إلى الاختبار</p>
+                        <div class="card-body p-4"
+                            style="{{ $ujian->ujianThema && $ujian->ujianThema->header_color ? 'background-color: ' . $ujian->ujianThema->header_color . ';' : '' }}">
+                            @if ($ujian->ujianThema && $ujian->ujianThema->institution_name)
+                                <h4 class="fw-bold mb-3">{{ $ujian->ujianThema->institution_name }}</h4>
+                            @else
+                                <h4 class="fw-bold mb-3">تسجيل الدخول للاختبار</h4>
+                            @endif
+                            @if ($ujian->ujianThema && $ujian->ujianThema->welcome_message)
+                                <p class="text-muted mb-4">{{ $ujian->ujianThema->welcome_message }}</p>
+                            @else
+                                <p class="text-muted mb-4">أدخل بياناتك للوصول إلى الاختبار</p>
+                            @endif
 
                             @if (session('error'))
                                 <div class="alert alert-danger">
@@ -308,7 +378,7 @@
                                 </div>
                             @endif
 
-                            <form action="{{ route('ujian.peserta.login.post', $ujian->id) }}" method="post">
+                            <form action="{{ route('ujian.generateSession', $ujian->link) }}" method="post">
                                 @csrf
                                 <div class="mb-3">
                                     <label for="emailaddress" class="form-label">البريد الإلكتروني</label>
@@ -328,7 +398,9 @@
                                 </div>
 
                                 <div class="d-grid mt-4">
-                                    <button class="btn btn-primary" type="submit">تسجيل الدخول</button>
+                                    <button class="btn btn-primary" type="submit"
+                                        style="{{ $ujian->ujianThema && $ujian->ujianThema->button_color ? 'background-color: ' . $ujian->ujianThema->button_color . '; border-color: ' . $ujian->ujianThema->button_color . '; color: ' . ($ujian->ujianThema->button_font_color ?? 'white') . ';' : '' }}">تسجيل
+                                        الدخول</button>
                                 </div>
                             </form>
                         </div>
@@ -351,7 +423,8 @@
                                         </div>
                                         <div>
                                             <h5 class="mt-0 mb-1">إدارة الوقت</h5>
-                                            <p class="text-muted">راقب الوقت المتبقي في الجزء العلوي من الشاشة. سيتم تقديم الاختبار تلقائيًا عند انتهاء الوقت.</p>
+                                            <p class="text-muted">راقب الوقت المتبقي في الجزء العلوي من الشاشة. سيتم
+                                                تقديم الاختبار تلقائيًا عند انتهاء الوقت.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -363,7 +436,8 @@
                                         </div>
                                         <div>
                                             <h5 class="mt-0 mb-1">الأقسام والأسئلة</h5>
-                                            <p class="text-muted">يتكون الاختبار من عدة أقسام. يجب إكمال كل قسم قبل الانتقال إلى القسم التالي.</p>
+                                            <p class="text-muted">يتكون الاختبار من عدة أقسام. يجب إكمال كل قسم قبل
+                                                الانتقال إلى القسم التالي.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -375,7 +449,8 @@
                                         </div>
                                         <div>
                                             <h5 class="mt-0 mb-1">حفظ الإجابات</h5>
-                                            <p class="text-muted">يتم حفظ إجاباتك تلقائيًا عند الانتقال إلى السؤال التالي أو القسم التالي.</p>
+                                            <p class="text-muted">يتم حفظ إجاباتك تلقائيًا عند الانتقال إلى السؤال
+                                                التالي أو القسم التالي.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -387,7 +462,8 @@
                                         </div>
                                         <div>
                                             <h5 class="mt-0 mb-1">تجنب الغش</h5>
-                                            <p class="text-muted">يحظر استخدام أدوات المطور أو تبديل علامات التبويب أثناء الاختبار. قد يؤدي ذلك إلى إنهاء الاختبار تلقائيًا.</p>
+                                            <p class="text-muted">يحظر استخدام أدوات المطور أو تبديل علامات التبويب
+                                                أثناء الاختبار. قد يؤدي ذلك إلى إنهاء الاختبار تلقائيًا.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -414,8 +490,6 @@
             </div>
         </footer>
     </div>
-
-    @include('layouts.shared/footer-scripts')
 
     <script>
         $(document).ready(function() {

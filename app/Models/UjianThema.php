@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $background_color
  * @property string $header_color
  * @property boolean $use_custom_color
- * @property string $custom_color_1
- * @property string $custom_color_2
- * @property string $custom_color_3
+ * @property string $primary_color
+ * @property string $secondary_color
+ * @property string $tertiary_color
  * @property string $created_at
  * @property string $updated_at
  */
@@ -28,19 +28,22 @@ class UjianThema extends Model
      * @var array
      */
     protected $fillable = [
-        'ujian_id', 
-        'theme', 
-        'logo_path', 
-        'background_image_path', 
-        'header_image_path', 
-        'institution_name', 
-        'welcome_message', 
-        'background_color', 
-        'header_color', 
-        'use_custom_color', 
-        'custom_color_1', 
-        'custom_color_2', 
-        'custom_color_3'
+        'ujian_id',
+        'theme',
+        'logo_path',
+        'background_image_path',
+        'header_image_path',
+        'institution_name',
+        'welcome_message',
+        'background_color',
+        'header_color',
+        'use_custom_color',
+        'primary_color',
+        'secondary_color',
+        'tertiary_color',
+        'font_color',
+        'button_color',
+        'button_font_color',
     ];
 
     /**

@@ -82,7 +82,7 @@
                         <i class="ri-file-list-3-line icon-size-28 text-blue"></i>
                     </div>
                     <div>
-                        <div class="fw-bold fs-3">3</div>
+                        <div class="fw-bold fs-3">{{ $totalUjian ?? 0 }}</div>
                         <div class="text-muted">Total Ujian</div>
                     </div>
                 </div>
@@ -93,7 +93,7 @@
                         <i class="ri-book-2-line icon-size-28 text-green"></i>
                     </div>
                     <div>
-                        <div class="fw-bold fs-3">6</div>
+                        <div class="fw-bold fs-3">{{ $totalSoal ?? 0 }}</div>
                         <div class="text-muted">Bank Soal</div>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                         <i class="ri-group-line icon-size-28 text-purple"></i>
                     </div>
                     <div>
-                        <div class="fw-bold fs-3">0</div>
+                        <div class="fw-bold fs-3">{{ $totalPeserta ?? 0 }}</div>
                         <div class="text-muted">Peserta</div>
                     </div>
                 </div>
@@ -115,7 +115,7 @@
                         <i class="ri-checkbox-circle-line icon-size-28 text-success-dark"></i>
                     </div>
                     <div>
-                        <div class="fw-bold fs-3">0</div>
+                        <div class="fw-bold fs-3">{{ $totalSelesaiUjian ?? 0 }}</div>
                         <div class="text-muted">Selesai Ujian</div>
                     </div>
                 </div>
@@ -137,30 +137,20 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($ujianTerbaru as $ujian)
                             <tr>
-                                <td class="py-3">TEST</td>
-                                <td class="py-3 text-center">22 Mei 2025</td>
-                                <td class="py-3 text-center">3</td>
+                                <td class="py-3">{{ $ujian['nama'] }}</td>
+                                <td class="py-3 text-center">{{ $ujian['tanggal'] }}</td>
+                                <td class="py-3 text-center">{{ $ujian['peserta'] }}</td>
                                 <td class="py-3 text-center">
-                                    <span class="badge text-success px-4 py-2 rounded-md bg-green-light">Aktif</span>
+                                    <span class="badge px-4 py-2 rounded-md {{ $ujian['status_class'] }}">{{ $ujian['status'] }}</span>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td class="py-3">TOAFL 11 Juni</td>
-                                <td class="py-3 text-center">22 Mei 2025</td>
-                                <td class="py-3 text-center">3</td>
-                                <td class="py-3 text-center">
-                                    <span class="badge text-success px-4 py-2 rounded-md bg-green-light">Aktif</span>
-                                </td>
+                                <td colspan="4" class="text-center py-3">Belum ada data ujian</td>
                             </tr>
-                            <tr>
-                                <td class="py-3">toafl 11 april</td>
-                                <td class="py-3 text-center">20 Mei 2025</td>
-                                <td class="py-3 text-center">2</td>
-                                <td class="py-3 text-center">
-                                    <span class="badge text-success px-4 py-2 rounded-md bg-green-light">Aktif</span>
-                                </td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -173,7 +163,7 @@
                 <h5 class="fw-bold mb-4">Aksi Cepat</h5>
                 <div class="row g-4">
                     <div class="col-md-4 col-6">
-                        <a href="#" class="text-decoration-none text-dark d-block text-center p-4 border rounded h-100 shadow-sm hover-shadow">
+                        <a href="{{ route('ujian.create') }}" class="text-decoration-none text-dark d-block text-center p-4 border rounded h-100 shadow-sm hover-shadow">
                             <div class="rounded-circle d-flex justify-content-center align-items-center mx-auto mb-3 quick-action-icon bg-blue-light">
                                 <i class="ri-edit-2-line icon-size-32 text-blue"></i>
                             </div>
@@ -181,7 +171,7 @@
                         </a>
                     </div>
                     <div class="col-md-4 col-6">
-                        <a href="#" class="text-decoration-none text-dark d-block text-center p-4 border rounded h-100 shadow-sm hover-shadow">
+                        <a href="{{ route('bank-soal.index') }}" class="text-decoration-none text-dark d-block text-center p-4 border rounded h-100 shadow-sm hover-shadow">
                             <div class="rounded-circle d-flex justify-content-center align-items-center mx-auto mb-3 quick-action-icon bg-green-light">
                                 <i class="ri-add-line icon-size-32 text-success-dark"></i>
                             </div>
@@ -189,7 +179,7 @@
                         </a>
                     </div>
                     <div class="col-md-4 col-6">
-                        <a href="#" class="text-decoration-none text-dark d-block text-center p-4 border rounded h-100 shadow-sm hover-shadow">
+                        <a href="{{ route('hasil-ujian.index') }}" class="text-decoration-none text-dark d-block text-center p-4 border rounded h-100 shadow-sm hover-shadow">
                             <div class="rounded-circle d-flex justify-content-center align-items-center mx-auto mb-3 quick-action-icon bg-yellow-light">
                                 <i class="ri-bar-chart-2-line icon-size-32 text-warning"></i>
                             </div>

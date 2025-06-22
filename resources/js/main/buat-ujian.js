@@ -79,6 +79,10 @@ import flatpickr from "flatpickr";
                                 <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi">
                             </div>
                             <div class="mb-2">
+                                <label class="form-label">Instruksi</label>
+                                <textarea class="form-control" name="instruksi" placeholder="Instruksi pengerjaan soal"></textarea>
+                            </div>
+                            <div class="mb-2">
                                 <label class="form-label">Formula Penilaian</label>
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span>(</span>
@@ -166,32 +170,42 @@ import flatpickr from "flatpickr";
                 </div>
                 <div id="${collapseId}" class="collapse section-body px-4 py-3 border-top">
                     <p class="mb-0">Konten soal atau pengaturan lainnya.</p>
-
                     <form class="section-form">
                     <div class="mb-2">
                         <label class="form-label">Nama Seksi</label>
                         <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi" value="${section.nama_section || ''}">
                     </div>
+                     <div class="mb-2">
+                                <label class="form-label">Instruksi</label>
+                                <textarea class="form-control" name="instruksi" placeholder="Instruksi pengerjaan soal">${section.instruksi || ''}</textarea>
+                            </div>
                     <div class="mb-2">
-                        <label class="form-label">Bobot Nilai</label>
-                        <input type="text" class="form-control" name="bobot_nilai" placeholder="Bobot Nilai" value="${section.bobot_nilai || ''}">
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">Instruksi</label>
-                        <textarea class="form-control" name="instruksi" rows="2" placeholder="Instruksi">${section.instruksi || ''}</textarea>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">Metode Penilaian</label>
-                        <select class="form-select metode-penilaian-dropdown" name="metode_penilaian">
-                        <option value="">Pilih Metode</option>
-                        <option value="otomatis" ${section.metode_penilaian === 'otomatis' ? 'selected' : ''}>Otomatis</option>
-                        <option value="manual" ${section.metode_penilaian === 'manual' ? 'selected' : ''}>Manual</option>
-                        </select>
-                    </div>
-                    <div class="mb-2 formula-input-group" style="display: ${section.metode_penilaian === 'manual' ? 'block' : 'none'};">
-                        <label class="form-label">Masukan Rumus Custom</label>
-                        <small class="form-text text-muted">Contoh: <code>0.4 * A + 0.6 * B</code> (A = nilai soal pilihan ganda, B = nilai soal esai)</small>
-                        <input type="text" class="form-control" name="formula" placeholder="Masukkan rumus" value="${section.formula || ''}">
+                        <label class="form-label">Formula Penilaian</label>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span>(</span>
+                            <select class="form-select" name="answer_type" style="width: auto">
+                                <option value="correctAnswer" ${section.formula_type === 'correctAnswer' ? 'selected' : ''}>Jawaban Benar</option>
+                                <option value="incorrectAnswer" ${section.formula_type === 'incorrectAnswer' ? 'selected' : ''}>Jawaban Salah</option>
+                            </select>
+                            <select class="form-select" name="operation" style="width: auto">
+                                <option value="*" ${section.operation_1 === '*' ? 'selected' : ''}>×</option>
+                                <option value="+" ${section.operation_1 === '+' ? 'selected' : ''}>+</option>
+                                <option value="-" ${section.operation_1 === '-' ? 'selected' : ''}>-</option>
+                                <option value="/" ${section.operation_1 === '/' ? 'selected' : ''}>÷</option>
+                            </select>
+                            <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px" value="${section.value_1 || ''}">
+                            <span>)</span>
+                            <select class="form-select" name="operation2" style="width: auto">
+                                <option value="*" ${section.operation_2 === '*' ? 'selected' : ''}>×</option>
+                                <option value="+" ${section.operation_2 === '+' ? 'selected' : ''}>+</option>
+                                <option value="-" ${section.operation_2 === '-' ? 'selected' : ''}>-</option>
+                                <option value="/" ${section.operation_2 === '/' ? 'selected' : ''}>÷</option>
+                            </select>
+                            <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px" value="${section.value_2 || ''}">
+                        </div>
+                        <small class="text-muted">
+                            Contoh: (Jawaban Benar × n) × n
+                        </small>
                     </div>
                     <div class="mb-2">
                         <label class="form-label">Kategori Soal</label>
@@ -577,10 +591,14 @@ import flatpickr from "flatpickr";
 
             const sectionData = {
                 nama_section: $form.find('input[name="nama_section"]').val(),
-                bobot_nilai: $form.find('input[name="bobot_nilai"]').val(),
+                // bobot_nilai: parseFloat($form.find('input[name="bobot_nilai"]').val()) || 0,
                 instruksi: $form.find('textarea[name="instruksi"]').val(),
-                metode_penilaian: $form.find('select[name="metode_penilaian"]').val(),
                 kategori_id: $form.find('select[name="kategori_id"]').val(),
+                formula_type: $form.find('select[name="answer_type"]').val(),
+                operation_1: $form.find('select[name="operation"]').val() || '*',
+                value_1: parseFloat($form.find('input[name="value"]').val()) || 1,
+                operation_2: $form.find('select[name="operation2"]').val() || '*',
+                value_2: parseFloat($form.find('input[name="value2"]').val()) || 1,
                 selected_questions: []
             };
 
@@ -665,7 +683,10 @@ import flatpickr from "flatpickr";
             const tampilanData = getTampilanData(); // Pastikan return-nya adalah FormData
 
             // append put
-            tampilanData.append('_method', 'PUT');
+
+            if (ujianId) {
+                tampilanData.append('_method', 'PUT');
+            }
 
             // Tambah data tambahan
             tampilanData.append('sections', JSON.stringify(sectionData));
@@ -686,11 +707,18 @@ import flatpickr from "flatpickr";
                 alamat: $('#alamat').is(':checked')
             }));
             tampilanData.append('pengaturan', JSON.stringify({
-                metode_penilaian: $('#metode_penilaian').val(),
                 nilai_kelulusan: $('#nilai_kelulusan').val(),
                 hasil_ujian: $('#hasil_ujian_tersedia').val(),
-                // tampilkan_nilai: $('#tampilkan_nilai').is(':checked'),
-                lockscreen: $('#lockscreen').is(':checked'),
+                acak_soal: $('#acak_soal').is(':checked'),
+                acak_jawaban: $('#acak_jawaban').is(':checked'),
+                lihat_hasil: $('#lihat_hasil').is(':checked'),
+                lihat_pembahasan: $('#lihat_pembahasan').is(':checked'),
+                is_arabic: $('#is_arabic').is(':checked'),
+                answer_type: $('#answer_type').val(),
+                operation: $('#operation').val(),
+                value: $('#value').val(),
+                operation2: $('#operation2').val(),
+                value2: $('#value2').val(),
             }));
 
             $.ajax({
@@ -791,9 +819,9 @@ import flatpickr from "flatpickr";
 
         if (useCustomColor) {
             colors = {
-                primary: $('#custom_color_1').val(),
-                secondary: $('#custom_color_2').val(),
-                accent: $('#custom_color_3').val()
+                primary: $('#primary_color').val(),
+                secondary: $('#secondary_color').val(),
+                accent: $('#tertiary_color').val()
             };
         } else {
             colors = {
@@ -924,12 +952,15 @@ import flatpickr from "flatpickr";
         formData.append('institution_name', $('#institution_name').val() || '');
         formData.append('welcome_message', $('#welcome_message').val() || '');
         formData.append('use_custom_color', $('#use_custom_color').is(':checked') ? 1 : 0);
+        formData.append('background_image_path', $('#background_image_path').val() || '');
+        formData.append('header_image_path', $('#header_image_path').val() || '');
+
 
         // Colors
         if ($('#use_custom_color').is(':checked')) {
-            formData.append('custom_color_1', $('#custom_color_1').val() || '');
-            formData.append('custom_color_2', $('#custom_color_2').val() || '');
-            formData.append('custom_color_3', $('#custom_color_3').val() || '');
+            formData.append('primary_color', $('#primary_color').val() || '');
+            formData.append('secondary_color', $('#secondary_color').val() || '');
+            formData.append('tertiary_color', $('#tertiary_color').val() || '');
         } else {
             formData.append('background_color', $('#background_color').val() || '#ffffff');
             formData.append('header_color', $('#header_color').val() || '#f8f9fa');

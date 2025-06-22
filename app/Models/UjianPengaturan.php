@@ -50,6 +50,7 @@ class UjianPengaturan extends Model
      * @var array
      */
     protected $fillable = [
+        'ujian_id',
         'metode_penilaian',
         'nilai_kelulusan',
         'hasil_ujian_tersedia',
@@ -62,9 +63,23 @@ class UjianPengaturan extends Model
         'operation_1',
         'value_1',
         'operation_2',
-        'value_2',
-        'created_at',
-        'updated_at'
+        'value_2'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'hasil_ujian_tersedia' => 'boolean',
+        'acak_soal' => 'boolean',
+        'acak_jawaban' => 'boolean',
+        'lihat_hasil' => 'boolean',
+        'lihat_pembahasan' => 'boolean',
+        'is_arabic' => 'boolean',
+        'value_1' => 'decimal:2',
+        'value_2' => 'decimal:2'
     ];
 
     /**

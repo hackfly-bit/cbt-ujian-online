@@ -18,7 +18,9 @@
                                             <div class="theme-content"></div>
                                         </div>
                                         <div class="form-check mt-2">
-                                            <input class="form-check-input" type="radio" name="theme" id="theme_classic" value="classic" {{ old('theme', $ujian->ujianThema->theme ?? 'classic') == 'classic' ? 'checked' : '' }}>
+                                            <input class="form-check-input" type="radio" name="theme"
+                                                id="theme_classic" value="classic"
+                                                {{ old('theme', $ujian->ujianThema->theme ?? 'classic') == 'classic' ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold" for="theme_classic">
                                                 Klasik
                                             </label>
@@ -33,7 +35,9 @@
                                             <div class="theme-content"></div>
                                         </div>
                                         <div class="form-check mt-2">
-                                            <input class="form-check-input" type="radio" name="theme" id="theme_modern" value="modern" {{ old('theme', $ujian->ujianThema->theme ?? '') == 'modern' ? 'checked' : '' }}>
+                                            <input class="form-check-input" type="radio" name="theme"
+                                                id="theme_modern" value="modern"
+                                                {{ old('theme', $ujian->ujianThema->theme ?? '') == 'modern' ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold" for="theme_modern">
                                                 Modern
                                             </label>
@@ -48,7 +52,9 @@
                                             <div class="theme-content"></div>
                                         </div>
                                         <div class="form-check mt-2">
-                                            <input class="form-check-input" type="radio" name="theme" id="theme_glow" value="glow" {{ old('theme', $ujian->ujianThema->theme ?? '') == 'glow' ? 'checked' : '' }}>
+                                            <input class="form-check-input" type="radio" name="theme"
+                                                id="theme_glow" value="glow"
+                                                {{ old('theme', $ujian->ujianThema->theme ?? '') == 'glow' ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold" for="theme_glow">
                                                 Glow
                                             </label>
@@ -63,7 +69,9 @@
                                             <div class="theme-content"></div>
                                         </div>
                                         <div class="form-check mt-2">
-                                            <input class="form-check-input" type="radio" name="theme" id="theme_minimal" value="minimal" {{ old('theme', $ujian->ujianThema->theme ?? '') == 'minimal' ? 'checked' : '' }}>
+                                            <input class="form-check-input" type="radio" name="theme"
+                                                id="theme_minimal" value="minimal"
+                                                {{ old('theme', $ujian->ujianThema->theme ?? '') == 'minimal' ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold" for="theme_minimal">
                                                 Minimal
                                             </label>
@@ -82,31 +90,37 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="logo" class="form-label">Logo Institusi</label>
-                            <input type="file" class="form-control" id="logo" name="logo" accept="image/png,image/jpg,image/jpeg,image/svg+xml">
+                            <input type="file" class="form-control" id="logo" name="logo"
+                                accept="image/png,image/jpg,image/jpeg,image/svg+xml">
                             <small class="text-muted">Format: PNG, JPG, SVG. Maks 200x200px</small>
-                            @if(isset($ujian->ujianThema->logo_path) && $ujian->ujianThema->logo_path)
+                            @if (isset($ujian->ujianThema->logo_path) && $ujian->ujianThema->logo_path)
                                 <div class="mt-2">
-                                    <img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}" alt="Current Logo" class="img-thumbnail" style="max-width: 100px;">
+                                    <img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}"
+                                        alt="Current Logo" class="img-thumbnail" style="max-width: 100px;">
                                 </div>
                             @endif
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="background_image" class="form-label">Gambar Latar (Opsional)</label>
-                            <input type="file" class="form-control" id="background_image" name="background_image" accept="image/*">
+                            <input type="file" class="form-control" id="background_image" name="background_image"
+                                accept="image/*">
                             <small class="text-muted">Background untuk halaman ujian</small>
-                            @if(isset($ujian->ujianThema->background_image_path) && $ujian->ujianThema->background_image_path)
+                            @if (isset($ujian->ujianThema->background_image_path) && $ujian->ujianThema->background_image_path)
                                 <div class="mt-2">
-                                    <img src="{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}" alt="Current Background" class="img-thumbnail" style="max-width: 100px;">
+                                    <img src="{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}"
+                                        alt="Current Background" class="img-thumbnail" style="max-width: 100px;">
                                 </div>
                             @endif
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="header_image" class="form-label">Gambar Header (Opsional)</label>
-                            <input type="file" class="form-control" id="header_image" name="header_image" accept="image/*">
+                            <input type="file" class="form-control" id="header_image" name="header_image"
+                                accept="image/*">
                             <small class="text-muted">Banner untuk bagian header</small>
-                            @if(isset($ujian->ujianThema->header_image_path) && $ujian->ujianThema->header_image_path)
+                            @if (isset($ujian->ujianThema->header_image_path) && $ujian->ujianThema->header_image_path)
                                 <div class="mt-2">
-                                    <img src="{{ asset('storage/' . $ujian->ujianThema->header_image_path) }}" alt="Current Header" class="img-thumbnail" style="max-width: 100px;">
+                                    <img src="{{ asset('storage/' . $ujian->ujianThema->header_image_path) }}"
+                                        alt="Current Header" class="img-thumbnail" style="max-width: 100px;">
                                 </div>
                             @endif
                         </div>
@@ -116,11 +130,14 @@
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3">
                             <label for="institution_name" class="form-label">Nama Institusi</label>
-                            <input type="text" class="form-control" id="institution_name" name="institution_name" value="{{ old('institution_name', $ujian->ujianThema->institution_name ?? '') }}" placeholder="Nama sekolah/universitas/institusi">
+                            <input type="text" class="form-control" id="institution_name" name="institution_name"
+                                value="{{ old('institution_name', $ujian->ujianThema->institution_name ?? '') }}"
+                                placeholder="Nama sekolah/universitas/institusi">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="welcome_message" class="form-label">Pesan Sambutan</label>
-                            <textarea class="form-control" id="welcome_message" name="welcome_message" rows="3" placeholder="Selamat datang di ujian online...">{{ old('welcome_message', $ujian->ujianThema->welcome_message ?? '') }}</textarea>
+                            <textarea class="form-control" id="welcome_message" name="welcome_message" rows="3"
+                                placeholder="Selamat datang di ujian online...">{{ old('welcome_message', $ujian->ujianThema->welcome_message ?? '') }}</textarea>
                         </div>
                     </div>
 
@@ -129,35 +146,106 @@
                         <div class="col-12">
                             <h5 class="mb-3">🌈 Kustomisasi Warna</h5>
                             <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="use_custom_color" name="use_custom_color" value="1" {{ old('use_custom_color', $ujian->ujianThema->use_custom_color ?? false) ? 'checked' : '' }}>
+                                <input class="form-check-input" type="checkbox" id="use_custom_color"
+                                    name="use_custom_color" value="1"
+                                    {{ old('use_custom_color', $ujian->ujianThema->use_custom_color ?? false) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="use_custom_color">
                                     Gunakan Warna Kustom
                                 </label>
                             </div>
-                            
+
                             <div id="default-colors" class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="background_color" class="form-label">Warna Latar</label>
-                                    <input type="color" class="form-control form-control-color" id="background_color" name="background_color" value="{{ old('background_color', $ujian->ujianThema->background_color ?? '#ffffff') }}">
+                                    <input type="color" class="form-control form-control-color"
+                                        id="background_color" name="background_color"
+                                        value="{{ old('background_color', $ujian->ujianThema->background_color ?? '#ffffff') }}">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="header_color" class="form-label">Warna Header</label>
-                                    <input type="color" class="form-control form-control-color" id="header_color" name="header_color" value="{{ old('header_color', $ujian->ujianThema->header_color ?? '#f8f9fa') }}">
+                                    <input type="color" class="form-control form-control-color" id="header_color"
+                                        name="header_color"
+                                        value="{{ old('header_color', $ujian->ujianThema->header_color ?? '#f8f9fa') }}">
                                 </div>
                             </div>
-                            
-                            <div id="custom-colors" class="row" style="display: none;">
-                                <div class="col-md-4">
-                                    <label for="custom_color_1" class="form-label">Warna Primer</label>
-                                    <input type="color" class="form-control form-control-color" id="custom_color_1" name="custom_color_1" value="{{ old('custom_color_1', $ujian->ujianThema->custom_color_1 ?? '#0d6efd') }}">
+
+                            <div id="custom-colors" class="row g-4" style="display: none;">
+                                <!-- Primary Colors Section -->
+                                <div class="col-12">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="color-picker-group">
+                                                <label for="primary_color" class="form-label fw-medium">
+                                                    <i class="bi bi-circle-fill text-primary me-1"></i>
+                                                    Warna Primer
+                                                </label>
+                                                <input type="color" class="form-control form-control-color w-100"
+                                                    id="primary_color" name="primary_color"
+                                                    value="{{ old('primary_color', $ujian->ujianThema->primary_color ?? '#0d6efd') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="color-picker-group">
+                                                <label for="secondary_color" class="form-label fw-medium">
+                                                    <i class="bi bi-circle-fill text-secondary me-1"></i>
+                                                    Warna Sekunder
+                                                </label>
+                                                <input type="color" class="form-control form-control-color w-100"
+                                                    id="secondary_color" name="secondary_color"
+                                                    value="{{ old('secondary_color', $ujian->ujianThema->secondary_color ?? '#6c757d') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="color-picker-group">
+                                                <label for="tertiary_color" class="form-label fw-medium">
+                                                    <i class="bi bi-circle-fill text-success me-1"></i>
+                                                    Warna Aksen
+                                                </label>
+                                                <input type="color" class="form-control form-control-color w-100"
+                                                    id="tertiary_color" name="tertiary_color"
+                                                    value="{{ old('tertiary_color', $ujian->ujianThema->tertiary_color ?? '#20c997') }}">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="custom_color_2" class="form-label">Warna Sekunder</label>
-                                    <input type="color" class="form-control form-control-color" id="custom_color_2" name="custom_color_2" value="{{ old('custom_color_2', $ujian->ujianThema->custom_color_2 ?? '#6c757d') }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="custom_color_3" class="form-label">Warna Aksen</label>
-                                    <input type="color" class="form-control form-control-color" id="custom_color_3" name="custom_color_3" value="{{ old('custom_color_3', $ujian->ujianThema->custom_color_3 ?? '#20c997') }}">
+
+                                <!-- Text & Button Colors Section -->
+                                <div class="col-12">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="color-picker-group">
+                                                <label for="font_color" class="form-label fw-medium">
+                                                    <i class="bi bi-type me-1"></i>
+                                                    Warna Font
+                                                </label>
+                                                <input type="color" class="form-control form-control-color w-100"
+                                                    id="font_color" name="font_color"
+                                                    value="{{ old('font_color', $ujian->ujianThema->font_color ?? '#212529') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="color-picker-group">
+                                                <label for="button_color" class="form-label fw-medium">
+                                                    <i class="bi bi-square-fill me-1"></i>
+                                                    Warna Tombol
+                                                </label>
+                                                <input type="color" class="form-control form-control-color w-100"
+                                                    id="button_color" name="button_color"
+                                                    value="{{ old('button_color', $ujian->ujianThema->button_color ?? '#0d6efd') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="color-picker-group">
+                                                <label for="button_font_color" class="form-label fw-medium">
+                                                    <i class="bi bi-type me-1"></i>
+                                                    Warna Font Tombol
+                                                </label>
+                                                <input type="color" class="form-control form-control-color w-100"
+                                                    id="button_font_color" name="button_font_color"
+                                                    value="{{ old('button_font_color', $ujian->ujianThema->button_font_color ?? '#ffffff') }}">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -181,7 +269,8 @@
                                         <div class="preview-content">
                                             <div class="preview-welcome">
                                                 <h5>Selamat Datang</h5>
-                                                <p id="preview-welcome-message">Pesan sambutan akan ditampilkan di sini...</p>
+                                                <p id="preview-welcome-message">Pesan sambutan akan ditampilkan di
+                                                    sini...</p>
                                             </div>
                                             <div class="preview-exam-info">
                                                 <div class="exam-card">

@@ -58,7 +58,13 @@ class TestUjianSeeder extends Seeder
             'nama_section' => 'Section 0',
             'bobot_nilai' => 100,
             'instruksi' => 'Jawablah pertanyaan berikut dengan tepat.',
-            // 'metode_penilaian' => 'otomatis'
+            'formula_type' => 'correctAnswer',
+            'operation_1' => '+',
+            'value_1' => 10,
+            'operation_2' => '*',
+            'value_2' => 5,
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
 
         // Create test questions
@@ -151,13 +157,19 @@ class TestUjianSeeder extends Seeder
         // Create exam settings
         \App\Models\UjianPengaturan::create([
             'ujian_id' => $ujian->id,
-            // 'metode_penilaian' => 'otomatis',
+            'metode_penilaian' => 'otomatis',
             'nilai_kelulusan' => 70,
             'hasil_ujian_tersedia' => true,
             'acak_soal' => false,
             'acak_jawaban' => false,
             'lihat_hasil' => true,
-            'lihat_pembahasan' => true
+            'lihat_pembahasan' => true,
+            'is_arabic' => true,
+            'formula_type' => 'correctAnswer',
+            'operation_1' => '+',
+            'value_1' => 10,
+            'operation_2' => '*',
+            'value_2' => 5
         ]);
 
         // Create participant form

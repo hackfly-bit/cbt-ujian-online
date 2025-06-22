@@ -78,8 +78,8 @@
                     <button type="button" class="btn btn-outline-secondary" onclick="goToNextTab('seksi')">
                         <i class="bi bi-arrow-left me-1"></i> Kembali ke Seksi
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="goToNextTab('pengaturan')">
-                        Lanjut ke Pengaturan <i class="bi bi-arrow-right ms-1"></i>
+                    <button type="button" class="btn btn-primary" onclick="goToNextTab('tampilan')">
+                        Lanjut ke Tampilan <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </div>
             </div>

@@ -7,8 +7,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#f8f9fa' }};
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            @if($ujian->ujianThema && $ujian->ujianThema->background_image_path)
+            background-image: url('{{ asset("storage/" . $ujian->ujianThema->background_image_path) }}');
+            background-size: cover;
+            background-position: center;
+            @endif
         }
 
         .exam-container {
@@ -18,7 +23,7 @@
         }
 
         .exam-header {
-            background: white;
+            background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color : 'white' }};
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
@@ -26,18 +31,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            @if($ujian->ujianThema && $ujian->ujianThema->header_image_path)
+            background-image: url('{{ asset("storage/" . $ujian->ujianThema->header_image_path) }}');
+            background-size: cover;
+            background-position: center;
+            @endif
         }
 
         .exam-title {
             font-size: 24px;
             font-weight: bold;
-            color: #333;
+            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#333' }};
             margin: 0;
         }
 
         .timer {
-            background: #d33;
-            color: white;
+            background: {{ $ujian->ujianThema && $ujian->ujianThema->button_color ? $ujian->ujianThema->button_color : '#d33' }};
+            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : 'white' }};
             padding: 10px 20px;
             border-radius: 25px;
             font-weight: bold;
@@ -62,12 +72,12 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border-left: 4px solid #2196f3;
+            border-left: 4px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color : '#2196f3' }};
         }
 
         .section-title {
             font-weight: bold;
-            color: #1976d2;
+            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#1976d2' }};
             margin-bottom: 5px;
         }
 

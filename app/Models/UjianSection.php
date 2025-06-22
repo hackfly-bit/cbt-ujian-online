@@ -43,8 +43,6 @@ class UjianSection extends Model
         'nama_section',
         'bobot_nilai',
         'instruksi',
-        'metode_penilaian',
-        'formula',
         'is_arabic',
         'formula_type',
         'operation_1',

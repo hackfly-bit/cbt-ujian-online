@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HasilUjianController;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\BankSoalController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FilterController;
 use App\Http\Controllers\JenisUjianController;
 use App\Http\Controllers\KategoriController;
@@ -38,13 +39,12 @@ require __DIR__ . '/auth.php';
 
 
 
-// Route::get('/', [RoutingController::class, 'index'])->name('root');
-Route::get('/', function () {
-    if (Auth::user()) {
-        return view('index');
-    }
-    return redirect()->route('login');
-})->name('home');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('home');
+    // Route::get('/', function () {
+    //     return view('index');
+    // })->name('home');
+});
 
 
 

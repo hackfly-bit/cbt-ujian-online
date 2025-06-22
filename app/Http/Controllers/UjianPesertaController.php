@@ -14,12 +14,20 @@ class UjianPesertaController extends Controller
     {
 
         // link ujian
-        $getUjian = \App\Models\Ujian::where('link', $link)->with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals', 'jenisUjian'])->first();
+        $getUjian = \App\Models\Ujian::where('link', $link)->with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals', 'ujianThema', 'jenisUjian'])->first();
         $pesertaForm = \App\Models\UjianPesertaForm::where('ujian_id', $getUjian->id)->first();
 
+        $is_arabic = $getUjian->ujianPengaturan->is_arabic ?? false;
+        if ($is_arabic) {
+            return view('ujian.ujian-peserta-arab.ujian-login', [
+                'title' => 'Login Ujian',
+                'active' => 'ujian',
+                'ujian' => $getUjian,
+                'pesertaForm' => $pesertaForm,
+            ]);
+        }
 
-
-        return view('ujian.ujian-peserta-arab.ujian-login', [
+        return view('ujian.ujian-peserta.ujian-login', [
             'title' => 'Login Ujian',
             'active' => 'ujian',
             'ujian' => $getUjian,
@@ -70,7 +78,7 @@ class UjianPesertaController extends Controller
             ]
         );
 
-        if($peserta) {
+        if ($peserta) {
             // Simpan ID peserta di session
             session(['peserta_id' => $peserta->id]);
 
@@ -283,6 +291,31 @@ class UjianPesertaController extends Controller
             }
         }
 
+        // check is_arabic
+        $isArabic = $ujian->ujianPengaturan->is_arabic ?? false;
+        if ($isArabic) {
+            return view('ujian.ujian-peserta-arab.ujian', [
+                'ujian' => $ujian,
+                'currentQuestion' => $currentQuestion,
+                'currentSection' => $currentSection,
+                'currentSectionNumber' => $currentSectionNumber,
+                'currentQuestionNumber' => $currentQuestionNumber,
+                'totalSections' => $ujian->ujianSections->count(),
+                'totalQuestions' => $totalQuestions,
+                'totalQuestionsInSection' => $totalQuestionsInSection,
+                'answeredQuestionsInSection' => $answeredQuestionsInSection,
+                'answeredCountInSection' => $answeredCountInSection,
+                'totalAnsweredQuestions' => $totalAnsweredQuestions,
+                'timeRemaining' => $timeRemaining,
+                'sectionTimeRemaining' => $sectionTimeRemaining,
+                'sectionQuestions' => $sectionQuestions,
+                'selectedAnswers' => $selectedAnswers,
+                'savedTextAnswers' => $savedTextAnswers,
+                'savedAnswers' => $savedAnswers, // Pass saved answers for section completion calculation
+                'lockscreenEnabled' => $ujian->ujianPengaturan->lockscreen ?? false
+            ]);
+        }
+
         return view('ujian.ujian-peserta.ujian', [
             'ujian' => $ujian,
             'currentQuestion' => $currentQuestion,
@@ -412,7 +445,7 @@ class UjianPesertaController extends Controller
 
         // Ambil data ujian dengan relasi
         $ujian = \App\Models\Ujian::where('link', $link)
-            ->with(['ujianSections.ujianSectionSoals.soal.jawabanSoals'])
+            ->with(['ujianSections.ujianSectionSoals.soal.jawabanSoals', 'ujianPengaturan'])
             ->first();
 
         if (!$ujian) {
@@ -482,40 +515,18 @@ class UjianPesertaController extends Controller
                 }
             }
 
-            // Calculate section score using custom formula
-            // $sectionScore = 0;
-
-            // // Get custom formula from section or ujian settings
-            // $customFormula = $section->rumus_nilai ?? $ujian->rumus_nilai ?? null;
-
-            // if ($customFormula && !empty(trim($customFormula))) {
-            //     try {
-            //         // Sanitize and evaluate the custom formula
-            //         $sectionScore = $this->evaluateCustomFormula($customFormula, $sectionCorrect);
-            //     } catch (\Exception $e) {
-            //         // If formula evaluation fails, fallback to percentage calculation
-            //         Log::warning('Custom formula evaluation failed: ' . $e->getMessage());
-            //         $sectionScore = $sectionQuestions > 0 ? ($sectionCorrect / $sectionQuestions) * 100 : 0;
-            //     }
-            // } else {
-            //     // Default percentage calculation
-            //     $sectionScore = $sectionQuestions > 0 ? ($sectionCorrect / $sectionQuestions) * 100 : 0;
-            // }
-
-            // $sectionScore = 0;
-            if ($section->metode_penilaian == 'manual') {
-                $getFormula = $section->formula ?? null;
-                if ($getFormula == null || $getFormula == '') {
-                    $countScore = ($sectionCorrect / $section->bobot_nilai) * 100;
-                    $totalScoreSections += $countScore;
-                }
-            } else {
-                $countScore = ($sectionCorrect / $section->bobot_nilai) * 100;
-                $totalScoreSections += $countScore;
-            }
-
             if ($sectionQuestions > 0) {
-                $sectionScore = ($sectionCorrect / $sectionQuestions) * 100;
+                if($section->formula_type == 'correctAnswer'){
+                    // Build formula string for correct answers
+                    $formula = "($sectionCorrect{$section->operation_1}{$section->value_1}){$section->operation_2}{$section->value_2}";
+                    // Evaluate the formula using eval() safely
+                    $sectionScore = eval("return " . $formula . ";");
+                }else{
+                    // Build formula string for incorrect answers
+                    $formula = "($sectionIncorrect{$section->operation_1}{$section->value_1}){$section->operation_2}{$section->value_2}";
+                    // Evaluate the formula using eval() safely
+                    $sectionScore = eval("return " . $formula . ";");
+                }
             }
 
             $sectionResults[] = [
@@ -526,8 +537,24 @@ class UjianPesertaController extends Controller
                 'correct_answers' => $sectionCorrect,
                 'incorrect_answers' => $sectionIncorrect,
                 'score_percentage' => round($sectionScore, 2),
+                'score' => $sectionScore,
                 'completion_percentage' => $sectionQuestions > 0 ? round(($sectionAnswered / $sectionQuestions) * 100, 2) : 0
             ];
+        }
+
+        // Custom calculate score
+        foreach ($sectionResults as $sectionResult) {
+            if ($ujian->ujianPengaturan->formula_type == 'correctAnswer') {
+                // Build formula string for correct answers
+                $formula = "({$sectionResult['score']}{$ujian->ujianPengaturan->operation_1}{$ujian->ujianPengaturan->value_1}){$ujian->ujianPengaturan->operation_2}{$ujian->ujianPengaturan->value_2}";
+                // Evaluate the formula using eval() safely
+                $totalScoreSections += eval("return " . $formula . ";");
+            } else {
+                // Build formula string for incorrect answers
+                $formula = "({$sectionResult['score']}{$ujian->ujianPengaturan->operation_1}{$ujian->ujianPengaturan->value_1}){$ujian->ujianPengaturan->operation_2}{$ujian->ujianPengaturan->value_2}";
+                // Evaluate the formula using eval() safely
+                $totalScoreSections += eval("return " . $formula . ";");
+            }
         }
 
         // Calculate total score
@@ -593,29 +620,19 @@ class UjianPesertaController extends Controller
             'lockscreen_enabled'
         ]);
 
+        // Check if is_arabic is set to true
+        $isArabic = $ujian->ujianPengaturan->is_arabic ?? false;
+
+        if ($isArabic) {
+            return view('ujian.ujian-peserta-arab.ujian-selesai', [
+                'examSummary' => $examSummary,
+                'ujian' => $ujian
+            ]);
+        }
+
         return view('ujian.ujian-peserta.ujian-selesai', [
             'examSummary' => $examSummary,
             'ujian' => $ujian
         ]);
     }
-
-    private function evaluateCustomFormula($formula, $correctAnswers)
-    {
-        // Sanitize and prepare the formula
-        $sanitizedFormula = preg_replace('/[^0-9+\-*\/().]/', '', $formula);
-        $sanitizedFormula = str_replace('x', $correctAnswers, $sanitizedFormula);
-
-        // Evaluate the formula using eval (make sure to handle potential security risks)
-        $result = eval("return $sanitizedFormula;");
-
-        if ($result === false) {
-            throw new \Exception('Invalid formula');
-        }
-
-        return $result;
-    }
-
-
-
-
 }
