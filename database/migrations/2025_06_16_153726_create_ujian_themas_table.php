@@ -22,13 +22,16 @@ return new class extends Migration
             $table->string('institution_name')->nullable();
             $table->text('welcome_message')->nullable();
             // Default theme colors
-            $table->string('background_color')->default('#ffffff');
-            $table->string('header_color')->default('#f8f9fa');
+            $table->string('background_color')->default('#ffffff')->nullable();
+            $table->string('header_color')->default('#f8f9fa')->nullable(); // Default header color
             // Custom color settings
-            $table->boolean('use_custom_color')->default(false);
+            $table->boolean('use_custom_color')->default(false)->nullable();
             $table->string('primary_color')->nullable(); // Primary color
             $table->string('secondary_color')->nullable(); // Secondary color
             $table->string('tertiary_color')->nullable(); // Accent color
+            $table->string('font_color')->default('#000000')->nullable(); // Default font color
+            $table->string('button_color')->default('#007bff')->nullable(); // Default button color
+            $table->string('button_font_color')->default('#ffffff')->nullable(); // Default button font color
             $table->timestamps();
 
             // Foreign key constraint

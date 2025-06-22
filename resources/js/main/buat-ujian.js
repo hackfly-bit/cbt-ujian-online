@@ -242,11 +242,12 @@ import flatpickr from "flatpickr";
                 // Load categories and set selected category if exists
                 self.loadCategories(self.sectionCount).then(() => {
                     if (section.kategori_id) {
+                        console.log(`Setting category ${section.kategori_id} for section ${self.sectionCount}`);
                         const $categoryDropdown = $(`.category-dropdown[data-section="${self.sectionCount}"]`);
                         $categoryDropdown.val(section.kategori_id);
 
                         // Load questions for this category
-                        self.loadQuestionsIfExist(section.kategori_id, section.id, section.ujian_section_soals);
+                        self.loadQuestionsIfExist(section.kategori_id, section.id, section.ujian_section_soals, self.sectionCount);
                     }
                 });
             });
@@ -311,6 +312,7 @@ import flatpickr from "flatpickr";
     // Load categories from API
     DragulaSections.prototype.loadCategories = function (sectionId) {
         const $dropdown = $(`.category-dropdown[data-section="${sectionId}"]`);
+        console.log(`Loading categories for section ${sectionId}`);
 
         // Show loading state
         $dropdown.html('<option value="">Loading...</option>');
@@ -337,9 +339,9 @@ import flatpickr from "flatpickr";
     };
 
     // Load questions if they exist in the section
-    DragulaSections.prototype.loadQuestionsIfExist = function (categoryId, sectionId, existingQuestions) {
-        // console.log(`Loading questions for category ${categoryId} in section ${sectionId} with existing questions:`, existingQuestions);
-        const $form = $(`.category-dropdown[data-section="${sectionId}"]`).closest('.section-form');
+    DragulaSections.prototype.loadQuestionsIfExist = function (categoryId, sectionId, existingQuestions, sectionCount) {
+        console.log(`Loading questions for category ${categoryId} in section ${sectionCount} with existing questions:`, existingQuestions);
+        const $form = $(`.category-dropdown[data-section="${sectionCount}"]`).closest('.section-form');
         const $questionContainer = $('.question-container');
         // console.log('Question container class:', $questionContainer.attr('class'));
         // console.log('Question container found:', $questionContainer.length ? 'Yes' : 'No');
@@ -589,6 +591,8 @@ import flatpickr from "flatpickr";
             const $section = $(this);
             const $form = $section.find('.section-form');
 
+            // console.log('Processing section:', $form.find('select[name="kategori_id"]').val());
+
             const sectionData = {
                 nama_section: $form.find('input[name="nama_section"]').val(),
                 // bobot_nilai: parseFloat($form.find('input[name="bobot_nilai"]').val()) || 0,
@@ -712,13 +716,14 @@ import flatpickr from "flatpickr";
                 acak_soal: $('#acak_soal').is(':checked'),
                 acak_jawaban: $('#acak_jawaban').is(':checked'),
                 lihat_hasil: $('#lihat_hasil').is(':checked'),
-                lihat_pembahasan: $('#lihat_pembahasan').is(':checked'),
+                // lihat_pembahasan: $('#lihat_pembahasan').is(':checked'),
                 is_arabic: $('#is_arabic').is(':checked'),
                 answer_type: $('#answer_type').val(),
                 operation: $('#operation').val(),
                 value: $('#value').val(),
                 operation2: $('#operation2').val(),
                 value2: $('#value2').val(),
+                lockscreen: $('#lockscreen').is(':checked'),
             }));
 
             $.ajax({
@@ -952,32 +957,37 @@ import flatpickr from "flatpickr";
         formData.append('institution_name', $('#institution_name').val() || '');
         formData.append('welcome_message', $('#welcome_message').val() || '');
         formData.append('use_custom_color', $('#use_custom_color').is(':checked') ? 1 : 0);
-        formData.append('background_image_path', $('#background_image_path').val() || '');
-        formData.append('header_image_path', $('#header_image_path').val() || '');
 
-
-        // Colors
+        // If use_custom_color is checked, send all custom color fields
         if ($('#use_custom_color').is(':checked')) {
             formData.append('primary_color', $('#primary_color').val() || '');
             formData.append('secondary_color', $('#secondary_color').val() || '');
             formData.append('tertiary_color', $('#tertiary_color').val() || '');
+            formData.append('background_color', $('#background_color').val() || '');
+            formData.append('header_color', $('#header_color').val() || '');
+            formData.append('font_color', $('#font_color').val() || '');
+            formData.append('button_color', $('#button_color').val() || '');
+            formData.append('button_font_color', $('#button_font_color').val() || '');
         } else {
-            formData.append('background_color', $('#background_color').val() || '#ffffff');
-            formData.append('header_color', $('#header_color').val() || '#f8f9fa');
+            // Only send theme name, backend will use masterColors
         }
 
+        // File paths (for existing images, if any)
+        formData.append('background_image_path', $('#background_image_path').val() || '');
+        formData.append('header_image_path', $('#header_image_path').val() || '');
+
         // Files
-        const logoFile = $('#logo')[0].files[0];
+        const logoFile = $('#logo')[0]?.files[0];
         if (logoFile) {
             formData.append('logo', logoFile);
         }
 
-        const backgroundFile = $('#background_image')[0].files[0];
+        const backgroundFile = $('#background_image')[0]?.files[0];
         if (backgroundFile) {
             formData.append('background_image', backgroundFile);
         }
 
-        const headerFile = $('#header_image')[0].files[0];
+        const headerFile = $('#header_image')[0]?.files[0];
         if (headerFile) {
             formData.append('header_image', headerFile);
         }

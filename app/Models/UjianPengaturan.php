@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $acak_jawaban
  * @property boolean $lihat_hasil
  * @property boolean $lihat_pembahasan
+ * @property boolean $lockscreen
  * @property boolean $is_arabic
  * @property string $formula_type
  * @property string $operation_1
@@ -58,6 +59,7 @@ class UjianPengaturan extends Model
         'acak_jawaban',
         'lihat_hasil',
         'lihat_pembahasan',
+        'lockscreen',
         'is_arabic',
         'formula_type',
         'operation_1',

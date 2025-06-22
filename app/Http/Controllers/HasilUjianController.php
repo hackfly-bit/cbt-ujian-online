@@ -99,8 +99,8 @@ class HasilUjianController extends Controller
                     'durasi_pengerjaan' => $hasilUjian->durasi_pengerjaan . ' menit',
                 ],
                 'waktu' => [
-                    'waktu_mulai' => $hasilUjian->waktu_mulai ? $hasilUjian->waktu_mulai->format('d-m-Y H:i:s') : '-',
-                    'waktu_selesai' => $hasilUjian->waktu_selesai ? $hasilUjian->waktu_selesai->format('d-m-Y H:i:s') : '-',
+                    'waktu_mulai' => $hasilUjian->waktu_mulai ? \Carbon\Carbon::parse($hasilUjian->waktu_mulai)->format('d-m-Y H:i:s') : '-',
+                    'waktu_selesai' => $hasilUjian->waktu_selesai ? \Carbon\Carbon::parse($hasilUjian->waktu_selesai)->format('d-m-Y H:i:s') : '-',
                 ],
                 'detail_section' => $detailSection,
                 'status' => $hasilUjian->status,

@@ -66,12 +66,14 @@ window.jQuery = $;
                         const skor = parseFloat(data);
                         let badgeClass = 'bg-secondary';
 
-                        if (skor >= 80) {
-                            badgeClass = 'bg-success';
-                        } else if (skor >= 60) {
-                            badgeClass = 'bg-warning';
-                        } else if (skor > 0) {
-                            badgeClass = 'bg-danger';
+                        if (skor >= 600) {
+                            badgeClass = 'bg-primary'; // tingkat lanjutan/akademik
+                        } else if (skor >= 500) {
+                            badgeClass = 'bg-success'; // mahir
+                        } else if (skor >= 400) {
+                            badgeClass = 'bg-warning'; // menengah
+                        } else if (skor >= 310) {
+                            badgeClass = 'bg-danger'; // dasar
                         }
 
                         return `<span class="badge ${badgeClass} badge-status">${data}</span>`;

@@ -130,14 +130,13 @@
 
                     <div class="col-md-6 mb-3">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="lihat_pembahasan"
-                                name="lihat_pembahasan" value="1"
-                                {{ old('lihat_pembahasan', $ujian->ujianPengaturan->lihat_pembahasan ?? false) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="lihat_pembahasan">
-                                <strong>Lihat Pembahasan</strong>
+                            <input class="form-check-input" type="checkbox" id="lockscreen"
+                                name="lockscreen" value="1"
+                                {{ old('lockscreen', $ujian->ujianPengaturan->lockscreen ?? false) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="lockscreen">
+                                <strong>Aktifkan Lockscreen</strong>
                                 <br>
-                                <small class="text-muted">Mengizinkan peserta melihat pembahasan soal setelah
-                                    ujian</small>
+                                <small class="text-muted">Mencegah peserta keluar dari halaman ujian selama ujian berlangsung</small>
                             </label>
                         </div>
                     </div>

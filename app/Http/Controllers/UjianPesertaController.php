@@ -609,16 +609,16 @@ class UjianPesertaController extends Controller
         }
 
         // Clear session
-        session()->forget([
-            'ujian_id',
-            'ujian_link',
-            'name',
-            'email',
-            'answered_questions',
-            'exam_start_time',
-            'section_start_times',
-            'lockscreen_enabled'
-        ]);
+        // session()->forget([
+        //     'ujian_id',
+        //     'ujian_link',
+        //     'name',
+        //     'email',
+        //     'answered_questions',
+        //     'exam_start_time',
+        //     'section_start_times',
+        //     'lockscreen_enabled'
+        // ]);
 
         // Check if is_arabic is set to true
         $isArabic = $ujian->ujianPengaturan->is_arabic ?? false;

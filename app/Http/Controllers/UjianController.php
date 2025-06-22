@@ -95,6 +95,7 @@ class UjianController extends Controller
                 'secondary_color' => '#f8f9fa',
                 'tertiary_color' => '#000000',
                 'background' => '#f8f9fa',
+                'header' => '#f8f9fa',
                 'font' => '#000000',
                 'button' => '#ced4da',
                 'button_font' => '#000000',
@@ -104,6 +105,7 @@ class UjianController extends Controller
                 'secondary_color' => '#ffffff',
                 'tertiary_color' => '#000000',
                 'background' => '#ffffff',
+                'header' => '#f8f9fa',
                 'font' => '#000000',
                 'button' => '#0d6efd',
                 'button_font' => '#ffffff',
@@ -113,6 +115,7 @@ class UjianController extends Controller
                 'secondary_color' => 'linear-gradient(to bottom, #ffe7a8, #fbb9b7)',
                 'tertiary_color' => '#000000',
                 'background' => '#fff3cd', // fallback background glow
+                'header' => '#f8f9fa',
                 'font' => '#000000',
                 'button' => '#f27121',
                 'button_font' => '#ffffff',
@@ -122,6 +125,7 @@ class UjianController extends Controller
                 'secondary_color' => '#f8f9fa',
                 'tertiary_color' => '#000000',
                 'background' => '#f8f9fa',
+                'header' => '#f8f9fa',
                 'font' => '#000000',
                 'button' => '#6c757d',
                 'button_font' => '#ffffff',
@@ -162,6 +166,7 @@ class UjianController extends Controller
             $ujianPengaturan->acak_jawaban = $pengaturan['acak_jawaban'] ?? false;
             $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;
             $ujianPengaturan->lihat_pembahasan = $pengaturan['lihat_pembahasan'] ?? false;
+            $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
             $ujianPengaturan->is_arabic = $pengaturan['is_arabic'] ?? false;
             $ujianPengaturan->formula_type = $pengaturan['answer_type'];
             $ujianPengaturan->operation_1 = $pengaturan['operation'];
@@ -202,7 +207,6 @@ class UjianController extends Controller
                 $ujianThema->font_color = $request->input('font_color');
                 $ujianThema->button_color = $request->input('button_color');
                 $ujianThema->button_font_color = $request->input('button_font_color');
-
             } else {
                 $ujianThema->use_custom_color = false;
                 $selectedTheme = $request->input('theme', 'klasik');
@@ -218,7 +222,6 @@ class UjianController extends Controller
                     $ujianThema->font_color = $themeColors['font'];
                     $ujianThema->button_color = $themeColors['button'];
                     $ujianThema->button_font_color = $themeColors['button_font'];
-
                 } else {
                     // Fallback to klasik theme if selected theme not found
                     $ujianThema->primary_color = $masterColors['klasik']['primary_color'];
@@ -321,6 +324,49 @@ class UjianController extends Controller
      */
     public function update(Request $request, string $id)
     {
+
+        $masterColors = [
+            'klasik' => [
+                'primary_color' => '#ced4da',
+                'secondary_color' => '#f8f9fa',
+                'tertiary_color' => '#000000',
+                'background' => '#f8f9fa',
+                'header' => '#f8f9fa',
+                'font' => '#000000',
+                'button' => '#ced4da',
+                'button_font' => '#000000',
+            ],
+            'modern' => [
+                'primary_color' => '#0d6efd',
+                'secondary_color' => '#ffffff',
+                'tertiary_color' => '#000000',
+                'background' => '#ffffff',
+                'header' => '#f8f9fa',
+                'font' => '#000000',
+                'button' => '#0d6efd',
+                'button_font' => '#ffffff',
+            ],
+            'glow' => [
+                'primary_color' => 'linear-gradient(to right, #8e2de2, #f27121)',
+                'secondary_color' => 'linear-gradient(to bottom, #ffe7a8, #fbb9b7)',
+                'tertiary_color' => '#000000',
+                'background' => '#fff3cd', // fallback background glow
+                'header' => '#f8f9fa',
+                'font' => '#000000',
+                'button' => '#f27121',
+                'button_font' => '#ffffff',
+            ],
+            'minimal' => [
+                'primary_color' => '#6c757d',
+                'secondary_color' => '#f8f9fa',
+                'tertiary_color' => '#000000',
+                'background' => '#f8f9fa',
+                'header' => '#f8f9fa',
+                'font' => '#000000',
+                'button' => '#6c757d',
+                'button_font' => '#ffffff',
+            ],
+        ];
         // dd($request);
         Log::info("message update", [
             'request' => $request->all(),
@@ -361,6 +407,7 @@ class UjianController extends Controller
             $ujianPengaturan->acak_jawaban = $pengaturan['acak_jawaban'] ?? false;
             $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;
             $ujianPengaturan->lihat_pembahasan = $pengaturan['lihat_pembahasan'] ?? false;
+            $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
             $ujianPengaturan->is_arabic = $pengaturan['is_arabic'] ?? false;
             $ujianPengaturan->formula_type = $pengaturan['answer_type'];
             $ujianPengaturan->operation_1 = $pengaturan['operation'];
@@ -394,12 +441,40 @@ class UjianController extends Controller
             $ujianThema->use_custom_color = $request->input('use_custom_color', false);
 
             if ($request->input('use_custom_color')) {
+                $ujianThema->use_custom_color = true;
                 $ujianThema->primary_color = $request->input('primary_color');
                 $ujianThema->secondary_color = $request->input('secondary_color');
                 $ujianThema->tertiary_color = $request->input('tertiary_color');
+                $ujianThema->background_color = $request->input('background_color');
+                $ujianThema->header_color = $request->input('header_color');
+                $ujianThema->font_color = $request->input('font_color');
+                $ujianThema->button_color = $request->input('button_color');
+                $ujianThema->button_font_color = $request->input('button_font_color');
             } else {
-                $ujianThema->background_color = $request->input('background_color', '#ffffff');
-                $ujianThema->header_color = $request->input('header_color', '#f8f9fa');
+                $ujianThema->use_custom_color = false;
+                $selectedTheme = $request->input('theme', 'klasik');
+
+                if (isset($masterColors[$selectedTheme])) {
+                    $themeColors = $masterColors[$selectedTheme];
+                    $ujianThema->primary_color = $themeColors['primary_color'];
+                    $ujianThema->secondary_color = $themeColors['secondary_color'];
+                    $ujianThema->tertiary_color = $themeColors['tertiary_color'];
+                    $ujianThema->background_color = $themeColors['background'];
+                    $ujianThema->header_color = $themeColors['header'];
+                    $ujianThema->font_color = $themeColors['font'];
+                    $ujianThema->button_color = $themeColors['button'];
+                    $ujianThema->button_font_color = $themeColors['button_font'];
+                } else {
+                    // Fallback to klasik theme if selected theme not found
+                    $ujianThema->primary_color = $masterColors['klasik']['primary_color'];
+                    $ujianThema->secondary_color = $masterColors['klasik']['secondary_color'];
+                    $ujianThema->tertiary_color = $masterColors['klasik']['tertiary_color'];
+                    $ujianThema->background_color = $masterColors['klasik']['background'];
+                    $ujianThema->header_color = $masterColors['klasik']['header'];
+                    $ujianThema->font_color = $masterColors['klasik']['font'];
+                    $ujianThema->button_color = $masterColors['klasik']['button'];
+                    $ujianThema->button_font_color = $masterColors['klasik']['button_font'];
+                }
             }
 
             // Handle file uploads
