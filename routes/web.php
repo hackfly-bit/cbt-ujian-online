@@ -105,7 +105,9 @@ Route::group(['prefix' => 'subkategori', 'as' => 'subkategori.', 'middleware' =>
 Route::middleware(['auth'])->prefix('sertifikat')->as('sertifikat.')->group(function () {
     Route::get('/', [SertifikatController::class, 'index'])->name('index');
     Route::get('/create', [SertifikatController::class, 'create'])->name('create');
+    Route::get('/template', [SertifikatController::class, 'template'])->name('template');
     Route::post('/', [SertifikatController::class, 'store'])->name('store');
+    Route::get('/{id}/preview', [SertifikatController::class, 'preview'])->name('preview');
     Route::get('/{id}/edit', [SertifikatController::class, 'edit'])->name('edit');
     Route::put('/{id}/template', [SertifikatController::class, 'updateTemplate'])->name('updateTemplate');
     Route::delete('/{id}', [SertifikatController::class, 'destroy'])->name('destroy');

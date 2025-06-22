@@ -1,6 +1,9 @@
 import $ from "jquery";
 import DataTable from "datatables.net-bs5";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
+import { Canvas, Textbox, ActiveSelection, FabricImage, util } from "fabric";
+import { validateCertificateTemplate, generatePreviewData } from '../utils/certificate-template.js';
+
 
 window.$ = $;
 window.jQuery = $;
@@ -294,22 +297,69 @@ window.jQuery = $;
                 $('#modal-certificate').modal('show');
             },
             success: function(response) {
-                if (response.success) {
-                    const data = response.data.template_data;
-                    const certificateHtml = `
-                        <div class="certificate-title">Sertifikat</div>
-                        <div class="certificate-subtitle">Diberikan kepada</div>
-                        <div class="certificate-name">${data.peserta_nama}</div>
-                        <div class="certificate-subtitle">Telah berhasil menyelesaikan ujian</div>
-                        <div class="certificate-course">${data.ujian_nama}</div>
-                        <div class="certificate-score">Dengan nilai: ${data.nilai}</div>
-                        <div class="certificate-date">Tanggal: ${data.tanggal_selesai}</div>
-                        <div class="certificate-seal">
-                            <i class="ri-award-line"></i>
-                        </div>
-                    `;
+                if (response.success && response.data.sertifikat) {
+                    // Validate template data first
+                    const validation = validateCertificateTemplate(response.data.sertifikat);
+                    
+                    if (!validation.valid) {
+                        $('#certificate-content').html(`
+                            <div class="alert alert-danger">
+                                <i class="ri-error-warning-line me-2"></i>
+                                Template sertifikat tidak valid: ${validation.errors.join(', ')}
+                            </div>
+                        `);
+                        return;
+                    }
 
-                    $('#certificate-content').html(certificateHtml);
+                    // Show warnings if any
+                    if (validation.warnings.length > 0) {
+                        console.warn('Certificate template warnings:', validation.warnings);
+                    }
+
+                    // Create canvas container with proper sizing
+                    $('#certificate-content').html(`
+                        <div class="certificate-container" style="text-align: center;">
+                            <div class="certificate-wrapper" style="display: inline-block; position: relative; max-width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <canvas id="certificate-canvas" style="max-width: 100%; height: auto; border: 1px solid #ddd;"></canvas>
+                            </div>
+                            <div class="certificate-actions mt-3">
+                                <button type="button" class="btn btn-primary me-2" id="download-certificate-btn">
+                                    <i class="ri-download-line me-1"></i>Download Sertifikat
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="print-certificate-btn">
+                                    <i class="ri-printer-line me-1"></i>Print Sertifikat
+                                </button>
+                            </div>
+                        </div>
+                    `);
+
+                    // Initialize canvas using utility function
+                    initializeFabricCanvas('certificate-canvas', response.data.sertifikat, response.data.template_data)
+                        .then(canvas => {
+                            // Store canvas globally
+                            window.certificateCanvas = canvas;
+                            window.certificateTemplateData = response.data.template_data;
+
+                            // Add download functionality
+                            $('#download-certificate-btn').on('click', function() {
+                                downloadCertificateImage(canvas, response.data.template_data);
+                            });
+
+                            // Add print functionality
+                            $('#print-certificate-btn').on('click', function() {
+                                printCertificate(canvas);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error initializing certificate canvas:', error);
+                            $('#certificate-content').html(`
+                                <div class="alert alert-danger">
+                                    <i class="ri-error-warning-line me-2"></i>
+                                    Gagal memuat template sertifikat: ${error.message}
+                                </div>
+                            `);
+                        });
+
                 } else {
                     $('#certificate-content').html(`
                         <div class="alert alert-warning text-dark">
@@ -361,9 +411,136 @@ window.jQuery = $;
     }
 
     function downloadCertificate() {
-        // Implementation for certificate download
-        // For now, we'll use browser's print functionality
+        // Check if there's an active certificate canvas
+        const modal = $('#modal-certificate');
+        if (modal.hasClass('show')) {
+            const canvas = window.certificateCanvas; // We'll store this globally
+            if (canvas) {
+                downloadCertificateImage(canvas, window.certificateTemplateData);
+                return;
+            }
+        }
+        
+        // Fallback to browser print
         window.print();
+    }
+
+    function downloadCertificateImage(canvas, templateData) {
+        try {
+            // Create high-quality image
+            const originalZoom = canvas.getZoom();
+            const originalWidth = canvas.width;
+            const originalHeight = canvas.height;
+            
+            // Temporarily increase resolution for better quality
+            const scale = 2; // 2x resolution
+            canvas.setZoom(originalZoom * scale);
+            canvas.setDimensions({
+                width: originalWidth * scale,
+                height: originalHeight * scale
+            });
+            
+            // Generate image
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                multiplier: 1
+            });
+            
+            // Restore original dimensions
+            canvas.setZoom(originalZoom);
+            canvas.setDimensions({
+                width: originalWidth,
+                height: originalHeight
+            });
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.download = `Sertifikat_${templateData.peserta_nama || 'Peserta'}_${templateData.ujian_nama || 'Ujian'}.png`;
+            link.href = dataURL;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showAlert('success', 'Download Berhasil', 'Sertifikat berhasil didownload');
+        } catch (error) {
+            console.error('Error downloading certificate:', error);
+            showAlert('error', 'Download Gagal', 'Terjadi kesalahan saat mendownload sertifikat');
+        }
+    }
+
+    function printCertificate(canvas) {
+        try {
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            
+            if (!printWindow) {
+                showAlert('error', 'Print Gagal', 'Popup diblokir. Mohon izinkan popup untuk print');
+                return;
+            }
+            
+            // Generate high-quality image for printing
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                multiplier: 2
+            });
+            
+            // Create print document
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Sertifikat</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 20px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            background: white;
+                        }
+                        .certificate-print {
+                            max-width: 100%;
+                            max-height: 100%;
+                            box-shadow: none;
+                        }
+                        @media print {
+                            body {
+                                padding: 0;
+                            }
+                            .certificate-print {
+                                width: 100%;
+                                height: auto;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <img src="${dataURL}" class="certificate-print" alt="Sertifikat" />
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() {
+                                window.close();
+                            }, 100);
+                        };
+                    </script>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            
+        } catch (error) {
+            console.error('Error printing certificate:', error);
+            showAlert('error', 'Print Gagal', 'Terjadi kesalahan saat mencetak sertifikat');
+        }
     }
 
     function showAlert(type, title, message) {
@@ -388,5 +565,104 @@ window.jQuery = $;
             });
         }, 5000);
     }
+
+    // Utility functions for Fabric.js
+    function resizeCanvasToContainer(canvas, container) {
+        const containerWidth = $(container).width() - 40; // 40px for padding
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        
+        if (containerWidth < canvasWidth) {
+            const scale = containerWidth / canvasWidth;
+            canvas.setDimensions({
+                width: containerWidth,
+                height: canvasHeight * scale
+            });
+            canvas.setZoom(scale);
+        }
+        
+        canvas.renderAll();
+    }
+
+    function initializeFabricCanvas(canvasId, jsonData, templateData) {
+        return new Promise((resolve, reject) => {
+            try {
+                const canvas = new Canvas(canvasId);
+                
+                canvas.loadFromJSON(jsonData, function() {
+                    // Replace placeholders
+                    replacePlaceholders(canvas, templateData);
+                    
+                    // Setup canvas for viewing
+                    setupViewOnlyCanvas(canvas);
+                    
+                    // Resize to fit container
+                    resizeCanvasToContainer(canvas, '#certificate-content');
+                    
+                    resolve(canvas);
+                });
+                
+                canvas.on('after:render', function() {
+                    // Handle any post-render logic
+                });
+                
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function replacePlaceholders(canvas, templateData) {
+        const placeholders = {
+            '{{peserta_nama}}': templateData.peserta_nama || '',
+            '{{ujian_nama}}': templateData.ujian_nama || '',
+            '{{nilai}}': templateData.nilai || '',
+            '{{tanggal_selesai}}': templateData.tanggal_selesai || '',
+            '{{nomor_sertifikat}}': templateData.nomor_sertifikat || '',
+            '{{level}}': templateData.level || '',
+            '{{institusi}}': templateData.institusi || 'Institusi Penyelenggara',
+            '{{tanggal_terbit}}': new Date().toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long', 
+                day: 'numeric'
+            }),
+            '{{tahun}}': new Date().getFullYear().toString()
+        };
+
+        canvas.getObjects().forEach(function(obj) {
+            if (obj.type === 'text' || obj.type === 'textbox') {
+                let text = obj.text || '';
+                
+                Object.keys(placeholders).forEach(placeholder => {
+                    text = text.replace(new RegExp(placeholder, 'g'), placeholders[placeholder]);
+                });
+                
+                obj.set('text', text);
+            }
+        });
+    }
+
+    function setupViewOnlyCanvas(canvas) {
+        canvas.selection = false;
+        canvas.hoverCursor = 'default';
+        canvas.moveCursor = 'default';
+        canvas.defaultCursor = 'default';
+        
+        canvas.getObjects().forEach(function(obj) {
+            obj.selectable = false;
+            obj.evented = false;
+            obj.hoverCursor = 'default';
+            obj.moveCursor = 'default';
+        });
+    }
+
+    // Window resize handler for responsive canvas
+    $(window).on('resize', function() {
+        if (window.certificateCanvas) {
+            setTimeout(() => {
+                resizeCanvasToContainer(window.certificateCanvas, '#certificate-content');
+            }, 100);
+        }
+    });
 
 })();

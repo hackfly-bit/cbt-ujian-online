@@ -5,13 +5,38 @@ namespace App\Http\Controllers;
 use App\Models\Sertifikat;
 use App\Models\Ujian;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class SertifikatController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sertifikats = Sertifikat::with('ujian')->latest()->get();
-        return view('sertifikat.index', compact('sertifikats'));
+        if ($request->ajax()) {
+            $sertifikats = Sertifikat::with('ujian')->select(['id', 'judul', 'ujian_id', 'created_at']);
+
+            return DataTables::of($sertifikats)
+                ->addIndexColumn()
+                ->addColumn('ujian_nama', function ($row) {
+                    return $row->ujian ? $row->ujian->nama_ujian : 'Tanpa Ujian';
+                })
+                ->addColumn('action', function ($row) {
+                    return '<div class="action-icons d-flex gap-2 justify-content-center">
+                        <a href="javascript:void(0)" class="text-info btn-preview" data-id="' . $row->id . '" title="Preview">
+                            <i class="ri-eye-line"></i>
+                        </a>
+                        <a href="' . route('sertifikat.edit', $row->id) . '" class="text-primary" title="Edit">
+                            <i class="ri-edit-2-line"></i>
+                        </a>
+                        <a href="javascript:void(0)" class="text-danger btn-delete" data-id="' . $row->id . '" title="Hapus">
+                            <i class="ri-delete-bin-line"></i>
+                        </a>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('sertifikat.index');
     }
 
     public function create()
@@ -109,5 +134,38 @@ class SertifikatController extends Controller
     {
         Sertifikat::findOrFail($id)->delete();
         return redirect()->route('sertifikat.index')->with('success', 'Sertifikat berhasil dihapus.');
+    }
+
+    public function preview($id)
+    {
+        $sertifikat = Sertifikat::with('ujian')->findOrFail($id);
+
+        $templateData = null;
+        $templateImage = null;
+
+        if ($sertifikat->template) {
+            $template = json_decode($sertifikat->template, true);
+            $templateData = $template;
+
+            // Check if template has image or HTML content
+            if (isset($template['image'])) {
+                $templateImage = $template['image'];
+            } elseif (isset($template['html'])) {
+                // For HTML content, we can create a preview
+                $templateImage = 'data:text/html;base64,' . base64_encode($template['html']);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $sertifikat->id,
+                'judul' => $sertifikat->judul,
+                'ujian_nama' => $sertifikat->ujian ? $sertifikat->ujian->nama_ujian : 'Tanpa Ujian',
+                'template' => $templateData,
+                'template_image' => $templateImage,
+                'created_at' => $sertifikat->created_at->format('d F Y')
+            ]
+        ]);
     }
 }

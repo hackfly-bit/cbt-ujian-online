@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\HasilUjian;
 use App\Models\Sertifikat;
+use App\Models\Ujian;
 use Yajra\DataTables\Facades\DataTables;
 
 class HasilUjianController extends Controller
@@ -114,13 +115,15 @@ class HasilUjianController extends Controller
      */
     public function showCertificate(string $id)
     {
-        $hasilUjian = HasilUjian::with(['peserta', 'ujian', 'sertifikat'])
-            ->findOrFail($id);
+        $hasilUjian = HasilUjian::with(['peserta', 'ujian', 'sertifikat'])->findOrFail($id);
+        $sertifikat = Sertifikat::where('ujian_id', $hasilUjian->ujian_id)->first();
 
-        if (!$hasilUjian->sertifikat_id || !$hasilUjian->sertifikat) {
+        $template = $sertifikat->template ?? null;
+
+        if (!$template) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sertifikat tidak tersedia untuk hasil ujian ini.'
+                'message' => 'Template sertifikat tidak ditemukan.'
             ], 404);
         }
 
@@ -135,7 +138,7 @@ class HasilUjianController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'sertifikat' => $hasilUjian->sertifikat,
+                'sertifikat' => json_decode($sertifikat->template, true) ?: [],
                 'template_data' => $templateData
             ]
         ]);
@@ -155,45 +158,5 @@ class HasilUjianController extends Controller
             'message' => 'Download akan segera dimulai',
             'data' => $hasilUjians->count() . ' hasil ujian ditemukan'
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

@@ -1,0 +1,238 @@
+/* Certificate Modal Styling */
+.certificate-container {
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 8px;
+    margin: -15px;
+}
+
+.certificate-wrapper {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.certificate-wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2) !important;
+}
+
+#certificate-canvas {
+    border: 2px solid #e9ecef !important;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+.certificate-actions {
+    padding: 15px 0;
+}
+
+.certificate-actions .btn {
+    margin: 5px;
+    border-radius: 25px;
+    padding: 8px 20px;
+    font-weight: 500;
+    text-transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.certificate-actions .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.certificate-actions .btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+}
+
+.certificate-actions .btn-primary:hover {
+    background: linear-gradient(45deg, #0056b3, #004085);
+}
+
+.certificate-actions .btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+}
+
+.certificate-actions .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+/* Loading states */
+.certificate-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: #6c757d;
+}
+
+.certificate-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.25em;
+}
+
+/* Error states */
+.certificate-error {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.certificate-error .alert {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .certificate-container {
+        padding: 10px;
+        margin: -10px;
+    }
+    
+    .certificate-wrapper {
+        padding: 10px;
+    }
+    
+    .certificate-actions .btn {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .certificate-actions .btn + .btn {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .certificate-actions {
+        padding: 10px 0;
+    }
+    
+    .certificate-actions .btn {
+        font-size: 14px;
+        padding: 6px 16px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .certificate-container {
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .certificate-wrapper {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .certificate-actions {
+        display: none !important;
+    }
+    
+    #certificate-canvas {
+        border: none !important;
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}
+
+/* Animation for canvas loading */
+@keyframes fadeInCanvas {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.certificate-wrapper canvas {
+    animation: fadeInCanvas 0.5s ease-out;
+}
+
+/* Button loading state */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error alerts for certificate actions */
+.certificate-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 500px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Modal customization for certificate */
+.modal-certificate .modal-dialog {
+    max-width: 90vw;
+}
+
+.modal-certificate .modal-body {
+    padding: 0;
+}
+
+.modal-certificate .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-certificate .modal-header .btn-close {
+    filter: invert(1);
+}
+
+.modal-certificate .modal-title {
+    font-weight: 600;
+}
