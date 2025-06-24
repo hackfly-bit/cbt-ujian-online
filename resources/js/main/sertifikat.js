@@ -17,7 +17,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const canvas = new Canvas(canvasElement, { backgroundColor: "#fff" });
     if (data.template) {
-
         const templateData = JSON.parse(data.template);
         console.log("Template data loaded:", templateData);
 
@@ -30,28 +29,29 @@ window.addEventListener("DOMContentLoaded", () => {
             // Update canvas instance size
             canvas.setDimensions({
                 width: templateData.canvasWidth,
-                height: templateData.canvasHeight
+                height: templateData.canvasHeight,
             });
 
             // Store size key for reference
             canvas.sizeKey = templateData.sizeKey || defaultSizeKey;
         }
         // Load template using Promise syntax
-        canvas.loadFromJSON(data.template)
+        canvas
+            .loadFromJSON(data.template)
             .then(() => {
                 canvas.getObjects().forEach((obj) => obj.setCoords());
                 canvas.renderAll();
                 console.log("Template loaded from JSON.");
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Error loading template:", error);
                 // Fallback to white background
-                canvas.set('backgroundColor', '#fff');
+                canvas.set("backgroundColor", "#fff");
                 canvas.renderAll();
             });
     } else {
         // Set white background if no template
-        canvas.set('backgroundColor', '#fff');
+        canvas.set("backgroundColor", "#fff");
         canvas.renderAll();
     }
     window.certificateCanvas = canvas;
@@ -229,7 +229,10 @@ window.addEventListener("DOMContentLoaded", () => {
     // Tombol Tambah Gambar
     if (bgAddImageBtn) {
         bgAddImageBtn.addEventListener("click", () => {
-            console.log("Canvas JSON:", JSON.stringify(canvas.toSVG(), null, 2));
+            console.log(
+                "Canvas JSON:",
+                JSON.stringify(canvas.toSVG(), null, 2)
+            );
             const input = document.createElement("input");
             input.type = "file";
             input.accept = "image/*";
@@ -620,16 +623,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
     canvas.on("selection:cleared", hideTextProperties);
 
-    // Simulasi data dari backend
-    const dataFromDb = {
-        namaLengkap: "Ahmad Surya",
-        ujian: "Matematika",
-        tanggalUjian: "4 Juni 2025",
-        nilaiUjian: "95",
-    };
-
     // Placeholder Generator
     const addPlaceholder = (text) => {
+        if (!canvas) return;
         const placeholder = new Textbox(text, {
             left: 100,
             top: 100,
@@ -652,70 +648,133 @@ window.addEventListener("DOMContentLoaded", () => {
         showTextProperties();
     };
 
-    // Event listeners
-    document.getElementById("nama-peserta").addEventListener("click", () => {
-        addPlaceholder("[Nama Lengkap]");
-    });
-    document.getElementById("ujian").addEventListener("click", () => {
-        addPlaceholder("[Ujian]");
-    });
-    document.getElementById("tanggal-ujian").addEventListener("click", () => {
-        addPlaceholder("[Tanggal Ujian]");
-    });
-    document.getElementById("nilai-ujian").addEventListener("click", () => {
-        addPlaceholder("[Nilai Ujian]");
+    // Tombol placeholder (default buttons)
+    const placeholderButtons = [
+        { id: "nama-peserta", text: "[Nama Lengkap]" },
+        { id: "no-telp", text: "[No. Telp]" },
+        { id: "alamat-peserta", text: "[Alamat]" },
+        { id: "institusi-peserta", text: "[Institusi]" },
+        { id: "tanggal-lahir", text: "[Tanggal Lahir]" },
+        { id: "ujian", text: "[Nama Ujian]" },
+        { id: "tanggal-ujian", text: "[Tanggal Ujian]" },
+        { id: "nilai-ujian", text: "[Nilai Ujian]" },
+    ];
+
+    // Loop default placeholder
+    placeholderButtons.forEach((btn) => {
+        const el = document.getElementById(btn.id);
+        if (el) {
+            el.addEventListener("click", () => addPlaceholder(btn.text));
+        }
     });
 
-    // Render Placeholder dari Data
-    const renderPlaceholdersFromData = () => {
-        canvas.getObjects().forEach((obj) => {
-            if (
-                (obj.type === "textbox" || obj.type === "text") &&
-                obj.text.startsWith("[")
-            ) {
-                switch (obj.text) {
-                    case "[Nama Lengkap]":
-                        obj.text = dataFromDb.namaLengkap;
-                        break;
-                    case "[Ujian]":
-                        obj.text = dataFromDb.ujian;
-                        break;
-                    case "[Tanggal Ujian]":
-                        obj.text = dataFromDb.tanggalUjian;
-                        break;
-                    case "[Nilai Ujian]":
-                        obj.text = dataFromDb.nilaiUjian;
-                        break;
-                    case "[QR Code]":
-                        // Buat QR code di sini kalau perlu
-                        break;
-                }
-            }
+    // Tombol section ujian (otomatis dari DB)
+    const sectionLinks = document.querySelectorAll("#submenu-section-ujian a");
+
+    sectionLinks.forEach((link) => {
+        const text = link.innerText.trim(); // contoh: [Section 1]
+        link.addEventListener("click", () => addPlaceholder(text));
+    });
+
+    // Tombol nilai ujian (otomatis dari DB)
+    const nilaiLinks = document.querySelectorAll("#submenu-nilai-ujian a");
+
+    nilaiLinks.forEach((link) => {
+        const text = link.innerText.trim(); // contoh: [Nilai Section 1]
+        link.addEventListener("click", () => addPlaceholder(text));
+    });
+
+    // Tambahkan gambar peserta default
+    const fotoPesertaBtn = document.getElementById("foto-peserta");
+
+    if (fotoPesertaBtn) {
+        fotoPesertaBtn.addEventListener("click", () => {
+            const imgElement = new Image();
+            imgElement.src = "/images/placeholder.jpeg"; // path ke gambar default kamu
+
+            imgElement.onload = () => {
+                const fabricImage = new FabricImage(imgElement);
+
+                const scale = Math.min(
+                    300 / imgElement.width,
+                    300 / imgElement.height
+                );
+                fabricImage.scale(scale);
+
+                fabricImage.set({
+                    left: 100,
+                    top: 100,
+                });
+
+                canvas.add(fabricImage);
+                canvas.setActiveObject(fabricImage);
+                canvas.requestRenderAll();
+                saveState();
+
+                console.log("Placeholder image added to canvas");
+            };
+
+            imgElement.onerror = (err) => {
+                console.error("Failed to load image:", err);
+            };
         });
-        canvas.requestRenderAll();
-    };
-
-    // Misalnya kamu panggil ini saat klik "Generate Sertifikat"
-    const generateBtn = document.getElementById("generate");
-    if (generateBtn) {
-        generateBtn.addEventListener("click", renderPlaceholdersFromData);
     }
 
-    // Resize canvas
-    if (sizeSelector) {
-        sizeSelector.value = defaultSizeKey;
-        sizeSelector.addEventListener("change", (e) => {
-            const selectedSize = canvasSizes[e.target.value];
-            if (selectedSize) {
-                canvasElement.width = selectedSize.width;
-                canvasElement.height = selectedSize.height;
-                canvas.setDimensions(selectedSize);
-                canvas.setBackgroundColor(
-                    "#fff",
-                    canvas.renderAll.bind(canvas)
+    const qrCodeBtn = document.getElementById("qr-code");
+
+    if (qrCodeBtn) {
+        qrCodeBtn.addEventListener("click", () => {
+            const imgElement = new Image();
+            imgElement.src = "/images/qrcode.jpg"; // path ke QR Code placeholder kamu
+
+            imgElement.onload = () => {
+                const fabricImage = new FabricImage(imgElement);
+
+                const scale = Math.min(
+                    200 / imgElement.width,
+                    200 / imgElement.height
                 );
-                saveState(true);
-            }
+                fabricImage.scale(scale);
+
+                fabricImage.set({
+                    left: 100,
+                    top: 100,
+                    hasControls: true,
+                    lockRotation: true,
+                    selectable: true,
+                    hoverCursor: "move",
+                    scaleLockRatio: 1, // tetap kotak
+                    lockScalingFlip: true, // biar nggak bisa diputar terbalik
+                    cornerStyle: "circle",
+                    cornerColor: "#00AAFF",
+                    borderColor: "#00AAFF",
+                    cornerSize: 10,
+                    transparentCorners: false,
+                });
+
+                // Hanya aktifkan corner controls (pojok), sisi tidak aktif
+                fabricImage.setControlsVisibility({
+                    mt: false, // middle top
+                    mb: false, // middle bottom
+                    ml: false, // middle left
+                    mr: false, // middle right
+                    tl: true, // top left
+                    tr: true, // top right
+                    bl: true, // bottom left
+                    br: true, // bottom right
+                });
+
+                canvas.add(fabricImage);
+                canvas.setActiveObject(fabricImage);
+                canvas.requestRenderAll();
+                saveState();
+
+                console.log("QR Code placeholder added to canvas");
+            };
+
+            imgElement.onerror = (err) => {
+                console.error("Failed to load QR Code image:", err);
+            };
         });
     }
 
@@ -834,7 +893,6 @@ window.addEventListener("DOMContentLoaded", () => {
     makeDraggable("#drag-handle", "#text-properties");
     makeDraggable("#bg-drag-handle", "#bg-properties");
 
-
     // Update Sertifikat Button
     if (btnUpdateSertifikat) {
         btnUpdateSertifikat.addEventListener("click", () => {
@@ -847,8 +905,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     function saveTemplateToDatabase(template) {
-
-        const pathParts = window.location.pathname.split('/');
+        const pathParts = window.location.pathname.split("/");
         const id = pathParts[2]; // ['sertifikat', '1', 'edit'] -> index 2
         console.log(id); // Output: "1"
 
@@ -860,30 +917,32 @@ window.addEventListener("DOMContentLoaded", () => {
         canvasData.sizeKey = canvas.sizeKey || defaultSizeKey;
 
         fetch(`/sertifikat/${id}/template`, {
-            method: 'PUT',
+            method: "PUT",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // if using Laravel/similar
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"), // if using Laravel/similar
             },
             body: JSON.stringify({
                 template: JSON.stringify(canvasData),
-                name: 'Certificate Template',
+                name: "Certificate Template",
                 // Add other metadata as needed
-            })
+            }),
         })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
                 if (data.success) {
-                    console.log('Template saved successfully:', data);
-                    alert('Template berhasil disimpan!');
+                    console.log("Template saved successfully:", data);
+                    alert("Template berhasil disimpan!");
                 } else {
-                    console.error('Error saving template:', data.error);
-                    alert('Gagal menyimpan template');
+                    console.error("Error saving template:", data.error);
+                    alert("Gagal menyimpan template");
                 }
             })
-            .catch(error => {
-                console.error('Network error:', error);
-                alert('Terjadi kesalahan jaringan');
+            .catch((error) => {
+                console.error("Network error:", error);
+                alert("Terjadi kesalahan jaringan");
             });
     }
 
@@ -896,7 +955,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function showPreview() {
         // Create preview modal/window
-        const previewModal = document.createElement('div');
+        const previewModal = document.createElement("div");
         previewModal.style.cssText = `
         position: fixed;
         top: 0;
@@ -911,7 +970,7 @@ window.addEventListener("DOMContentLoaded", () => {
     `;
 
         // Create preview content
-        const previewContent = document.createElement('div');
+        const previewContent = document.createElement("div");
         previewContent.style.cssText = `
         background: white;
         padding: 20px;
@@ -923,9 +982,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
         // Export canvas as image for preview
         const dataURL = canvas.toDataURL({
-            format: 'png',
+            format: "png",
             quality: 1,
-            multiplier: 2 // Higher resolution for preview
+            multiplier: 2, // Higher resolution for preview
         });
 
         previewContent.innerHTML = `
@@ -936,22 +995,15 @@ window.addEventListener("DOMContentLoaded", () => {
         </div>
     `;
 
-        previewModal.className = 'preview-modal';
+        previewModal.className = "preview-modal";
         previewModal.appendChild(previewContent);
         document.body.appendChild(previewModal);
 
         // Close on background click
-        previewModal.addEventListener('click', (e) => {
+        previewModal.addEventListener("click", (e) => {
             if (e.target === previewModal) {
                 previewModal.remove();
             }
         });
     }
-
-
-
-
-
-
-
 });

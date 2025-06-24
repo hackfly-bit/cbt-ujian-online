@@ -107,9 +107,15 @@ class SertifikatController extends Controller
 
     public function edit($id)
     {
-        $sertifikat = Sertifikat::findOrFail($id);
-        return view('sertifikat.template', compact('sertifikat'));
+        $sertifikat = Sertifikat::with('ujian')->findOrFail($id);
+
+        // Ambil section dari tabel ujian_section
+        $sections = \App\Models\UjianSection::where('ujian_id', $sertifikat->ujian_id)
+            ->get();
+
+        return view('sertifikat.template', compact('sertifikat', 'sections'));
     }
+
 
     public function template()
     {

@@ -116,33 +116,43 @@ class HasilUjianController extends Controller
     public function showCertificate(string $id)
     {
         $hasilUjian = HasilUjian::with(['peserta', 'ujian', 'sertifikat'])->findOrFail($id);
+
+        // Cari template sertifikat berdasarkan ujian_id
         $sertifikat = Sertifikat::where('ujian_id', $hasilUjian->ujian_id)->first();
 
-        $template = $sertifikat->template ?? null;
-
-        if (!$template) {
+        if (!$sertifikat || !$sertifikat->template) {
             return response()->json([
                 'success' => false,
                 'message' => 'Template sertifikat tidak ditemukan.'
             ], 404);
         }
 
-        // Template sertifikat
+        // Template JSON (Fabric.js)
+        $templateJson = $sertifikat->template;
+
+        // Data pengganti template
         $templateData = [
-            'peserta_nama' => $hasilUjian->peserta->nama ?? 'Tidak Diketahui',
-            'ujian_nama' => $hasilUjian->ujian->nama_ujian ?? 'Tidak Diketahui',
-            'nilai' => number_format($hasilUjian->hasil_nilai, 2),
-            'tanggal_selesai' => $hasilUjian->waktu_selesai ? $hasilUjian->waktu_selesai->format('d F Y') : date('d F Y'),
+            'peserta_nama'    => $hasilUjian->peserta->nama ?? 'Tidak Diketahui',
+            'ujian_nama'      => $hasilUjian->ujian->nama_ujian ?? 'Tidak Diketahui',
+            'nilai'           => number_format($hasilUjian->hasil_nilai, 2),
+            'tanggal_selesai' => $hasilUjian->waktu_selesai
+                ? \Carbon\Carbon::parse($hasilUjian->waktu_selesai)->translatedFormat('d F Y')
+                : now()->translatedFormat('d F Y'),
         ];
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'sertifikat' => json_decode($sertifikat->template, true) ?: [],
-                'template_data' => $templateData
+            'data'    => [
+                'sertifikat'     => json_decode($templateJson) ?: (object)[],
+                'template_data'  => $templateData,
+                'judul'          => $sertifikat->judul ?? 'Sertifikat',
+                'ujian_nama'     => $hasilUjian->ujian->nama_ujian ?? '-',
+                'template'       => $sertifikat->template ? true : false,
             ]
         ]);
     }
+
+
 
     /**
      * Download hasil ujian dalam format Excel/CSV

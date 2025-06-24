@@ -27,7 +27,7 @@
             background: white;
             border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -137,7 +137,8 @@
                             <div>
                                 <h4 class="header-title">Daftar Hasil Ujian</h4>
                                 <p class="text-muted fs-14 mb-0">
-                                    Berikut ini adalah daftar hasil ujian semua peserta, lengkap dengan skor, waktu penyelesaian, dan sertifikat.
+                                    Berikut ini adalah daftar hasil ujian semua peserta, lengkap dengan skor, waktu
+                                    penyelesaian, dan sertifikat.
                                 </p>
                             </div>
                             <div>
@@ -186,28 +187,59 @@
             </div>
         </div>
 
-        {{-- Modal Sertifikat --}}
+        <!-- Modal Sertifikat -->
         <div class="modal fade" id="modal-certificate" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content modal-certificate">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title text-white">Sertifikat Ujian</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-dialog modal-fullscreen" style="padding: 30px;">
+                <div class="modal-content shadow-lg rounded-4">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Preview Sertifikat</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                        <div id="certificate-content" class="certificate-container">
-                            <!-- Certificate content will be loaded here -->
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
-                        <button type="button" class="btn btn-success" id="btn-download-certificate">
-                            <i class="ri-download-line me-1"></i> Download Sertifikat
-                        </button>
-                    </div>
+                        <div class="row g-4">
+                            <!-- LEFT PANEL -->
+                            <div class="col-md-2">
+                                <div class="mb-3">
+                                    <strong>Nama Sertifikat:</strong><br>
+                                    <span class="text-muted" id="certificate-title">-</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Untuk Ujian:</strong><br>
+                                    <span class="text-muted" id="certificate-ujian">-</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Status Template:</strong><br>
+                                    <span class="badge" id="certificate-status">-</span>
+                                </div>
+                                <div class="mt-4 d-grid gap-2">
+                                    <a href="#" id="certificate-edit-link" class="btn btn-primary">
+                                        <i class="ri-edit-line me-1"></i> Edit Template
+                                    </a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT PANEL -->
+                            <div class="col-md-10">
+                                <div class="border rounded bg-white p-4 d-flex flex-column align-items-center justify-content-center"
+                                    style="min-height: 600px; overflow: auto;">
+                                    <div id="certificate-content"
+                                        class="w-100 d-flex justify-content-center align-items-center"
+                                        style="min-height: 500px;">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- /row -->
+                    </div> <!-- /modal-body -->
                 </div>
             </div>
         </div>
+
+
 
     </div>
     <!-- container -->
