@@ -506,40 +506,30 @@ window.jQuery = $;
         }
     }
 
-    function downloadCertificateAsPDF(imageDataURL, templateVars, canvas) {
+    function downloadCertificateAsPDF(imageDataURL, templateVars) {
         const { jsPDF } = window.jspdf;
-
-        // Ambil ukuran canvas (dalam px)
-        const canvasWidth = canvas.getWidth();
-        const canvasHeight = canvas.getHeight();
-
-        // Konversi ke mm (1 px ≈ 0.264583 mm)
-        const pxToMm = 0.264583;
-        const pdfWidth = canvasWidth * pxToMm;
-        const pdfHeight = canvasHeight * pxToMm;
-
-        const pdf = new jsPDF({
-            orientation: pdfWidth > pdfHeight ? "landscape" : "portrait",
-            unit: "mm",
-            format: [pdfWidth, pdfHeight],
-        });
 
         const img = new Image();
         img.src = imageDataURL;
 
         img.onload = () => {
+            // Konversi dimensi gambar ke mm (1 px ≈ 0.264583 mm)
+            const pxToMm = 0.264583;
+            const pdfWidth = img.width * pxToMm;
+            const pdfHeight = img.height * pxToMm;
+
+            const pdf = new jsPDF({
+                orientation: pdfWidth > pdfHeight ? "landscape" : "portrait",
+                unit: "mm",
+                format: [pdfWidth, pdfHeight],
+            });
+
             pdf.addImage(imageDataURL, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-            const peserta = (templateVars.peserta_nama || "Peserta")
-                .replace(/[^\w\s]/gi, "")
-                .replace(/\s+/g, " ")
-                .trim();
-            const ujian = (templateVars.ujian_nama || "Ujian")
-                .replace(/[^\w\s]/gi, "")
-                .replace(/\s+/g, " ")
-                .trim();
-            const filename = `${peserta} - ${ujian}.pdf`;
+            const peserta = (templateVars.peserta_nama || "Peserta").trim();
+            const ujian = (templateVars.ujian_nama || "Ujian").trim();
 
+            const filename = `${peserta} - ${ujian}.pdf`;
             pdf.save(filename);
         };
 
