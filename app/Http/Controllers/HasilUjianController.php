@@ -117,7 +117,7 @@ class HasilUjianController extends Controller
     {
         $hasilUjian = HasilUjian::with(['peserta', 'ujian', 'sertifikat'])->findOrFail($id);
 
-        // Cari template sertifikat berdasarkan ujian_id
+        // Ambil sertifikat berdasarkan ujian_id
         $sertifikat = Sertifikat::where('ujian_id', $hasilUjian->ujian_id)->first();
 
         if (!$sertifikat || !$sertifikat->template) {
@@ -127,31 +127,99 @@ class HasilUjianController extends Controller
             ], 404);
         }
 
-        // Template JSON (Fabric.js)
-        $templateJson = $sertifikat->template;
+        // Parse template JSON (Fabric.js)
+        $templateJson = json_decode($sertifikat->template, true);
 
-        // Data pengganti template
-        $templateData = [
-            'peserta_nama'    => $hasilUjian->peserta->nama ?? 'Tidak Diketahui',
-            'ujian_nama'      => $hasilUjian->ujian->nama_ujian ?? 'Tidak Diketahui',
-            'nilai'           => number_format($hasilUjian->hasil_nilai, 2),
-            'tanggal_selesai' => $hasilUjian->waktu_selesai
+        if (!$templateJson || !is_array($templateJson)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Template JSON tidak valid.'
+            ], 500);
+        }
+
+        // === Data pengganti untuk placeholder ===
+        $templateVars = [
+            'peserta_nama'   => $hasilUjian->peserta->nama ?? '-',
+            'phone'          => $hasilUjian->peserta->phone ?? '-',
+            'alamat'         => $hasilUjian->peserta->alamat ?? '-',
+            'institusi'      => $hasilUjian->peserta->institusi ?? '-',
+            'tanggal_lahir'  => $hasilUjian->peserta->tanggal_lahir
+                ? \Carbon\Carbon::parse($hasilUjian->peserta->tanggal_lahir)->translatedFormat('d F Y')
+                : '-',
+            'ujian_nama'     => $hasilUjian->ujian->nama_ujian ?? '-',
+            'nilai'          => number_format($hasilUjian->hasil_nilai, 2),
+            'tanggal_ujian'  => $hasilUjian->waktu_selesai
                 ? \Carbon\Carbon::parse($hasilUjian->waktu_selesai)->translatedFormat('d F Y')
                 : now()->translatedFormat('d F Y'),
         ];
 
+        // === Ambil nilai per section ===
+        $nilaiSection = [];
+        $totalNilai = 0;
+        $detail = json_decode($hasilUjian->detail_section, true);
+
+        if (is_array($detail)) {
+            foreach ($detail as $section) {
+                $label = 'Nilai ' . $section['section_name']; // Contoh: "Nilai Reading"
+                $nilaiSection[$label] = number_format($section['score'], 2);
+                $totalNilai += $section['score'];
+            }
+        }
+
+        $templateVars['nilai_section'] = $nilaiSection;
+        $templateVars['total_nilai'] = number_format($totalNilai, 2);
+
+        // === Replace placeholder di objek Fabric.js ===
+        if (isset($templateJson['objects']) && is_array($templateJson['objects'])) {
+            $templateJson['objects'] = array_map(function ($obj) use ($templateVars) {
+                if (
+                    isset($obj['type'], $obj['text']) &&
+                    strtolower($obj['type']) === 'textbox' &&
+                    is_string($obj['text'])
+                ) {
+                    $obj['text'] = preg_replace_callback('/\[(.*?)\]/', function ($matches) use ($templateVars) {
+                        $key = trim($matches[1]);
+
+                        // Cek nilai section
+                        if (isset($templateVars['nilai_section'][$key])) {
+                            return $templateVars['nilai_section'][$key];
+                        }
+
+                        // Cek placeholder statis
+                        $static = [
+                            'Nama Lengkap'   => $templateVars['peserta_nama'],
+                            'No. Telp'       => $templateVars['phone'],
+                            'Alamat'         => $templateVars['alamat'],
+                            'Institusi'      => $templateVars['institusi'],
+                            'Tanggal Lahir'  => $templateVars['tanggal_lahir'],
+                            'Nama Ujian'     => $templateVars['ujian_nama'],
+                            'Tanggal Ujian'  => $templateVars['tanggal_ujian'],
+                            'Nilai Ujian'    => $templateVars['nilai'],
+                            'Total Nilai'    => $templateVars['total_nilai'],
+                        ];
+
+                        return $static[$key] ?? $matches[0]; // Biarkan tetap kalau tidak ditemukan
+                    }, $obj['text']);
+                }
+                return $obj;
+            }, $templateJson['objects']);
+        }
+
         return response()->json([
             'success' => true,
-            'data'    => [
-                'sertifikat'     => json_decode($templateJson) ?: (object)[],
-                'template_data'  => $templateData,
-                'judul'          => $sertifikat->judul ?? 'Sertifikat',
-                'ujian_nama'     => $hasilUjian->ujian->nama_ujian ?? '-',
-                'template'       => $sertifikat->template ? true : false,
+            'data' => [
+                'sertifikat'    => $templateJson,
+                'judul'         => $sertifikat->judul ?? 'Sertifikat',
+                'peserta_nama'   => $hasilUjian->peserta->nama ?? '-',
+                'tanggal_ujian'  => $hasilUjian->waktu_selesai
+                    ? \Carbon\Carbon::parse($hasilUjian->waktu_selesai)->translatedFormat('d F Y')
+                    : now()->translatedFormat('d F Y'),
+                'ujian_nama'    => $templateVars['ujian_nama'],
+                'template_data' => $templateVars,
+                'template'      => true,
             ]
         ]);
     }
-
 
 
     /**

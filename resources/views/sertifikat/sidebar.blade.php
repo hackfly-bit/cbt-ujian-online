@@ -140,7 +140,7 @@
                             @endphp
                             <li>
                                 <a href="javascript:void(0)" id="{{ $id }}">
-                                    [{{ $section->nama_section }}]
+                                    {{ $section->nama_section }}
                                 </a>
                             </li>
                         @endforeach

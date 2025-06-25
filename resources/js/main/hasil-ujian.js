@@ -314,11 +314,15 @@ window.jQuery = $;
                     const templateData = response.data.sertifikat;
                     const templateVars = response.data.template_data;
 
-                    // Update Left Panel
-                    $("#certificate-title").text(response.data.judul || "-");
+                    window.certificateTemplateData = templateVars;
+
+                    // Update Panel Kiri
                     $("#certificate-ujian").text(
                         response.data.ujian_nama || "-"
                     );
+                    $("#peserta-name").text(templateVars.peserta_nama || "-");
+                    $("#tanggal-ujian").text(templateVars.tanggal_ujian || "-");
+
                     $("#certificate-status")
                         .removeClass("bg-success bg-warning")
                         .addClass(
@@ -330,40 +334,47 @@ window.jQuery = $;
                                 : "Belum Dikonfigurasi"
                         );
 
-                    // Replace placeholders in template
-                    templateData.objects = templateData.objects.map((obj) => {
-                        if (obj.type === "Textbox" && obj.text) {
-                            obj.text = obj.text
-                                .replace(
-                                    "[Nama Lengkap]",
-                                    templateVars.peserta_nama
-                                )
-                                .replace("[Nilai]", templateVars.nilai)
-                                .replace(
-                                    "[Tanggal Ujian]",
-                                    templateVars.tanggal_selesai
-                                );
-                        }
-                        return obj;
-                    });
+                    // Set Link Edit Template
+                    $("#certificate-edit-link").attr(
+                        "href",
+                        `/sertifikat/${response.data.template_data.ujian_id}/edit`
+                    );
 
-                    // Render
+                    // Render Sertifikat ke <canvas> / <img>
                     renderFabricTemplateAsImage(
                         "#certificate-content",
                         templateData
                     )
                         .then((dataURL) => {
-                            // Download button
+                            // Tombol Download
                             $("#btn-download-certificate")
                                 .off("click")
                                 .on("click", function () {
+                                    const peserta = (
+                                        templateVars.peserta_nama || "Peserta"
+                                    ).trim();
+                                    const ujian = (
+                                        templateVars.ujian_nama || "Ujian"
+                                    ).trim();
+                                    const filename = `${peserta} - ${ujian}.png`;
+
                                     const link = document.createElement("a");
                                     link.href = dataURL;
-                                    link.download = "sertifikat.png";
+                                    link.download = filename;
                                     link.click();
                                 });
 
-                            // Print button
+                            // Download PDF
+                            $("#btn-download-pdf")
+                                .off("click")
+                                .on("click", function () {
+                                    downloadCertificateAsPDF(
+                                        dataURL,
+                                        templateVars
+                                    );
+                                });
+
+                            // Tombol Print
                             $("#btn-print-certificate")
                                 .off("click")
                                 .on("click", function () {
@@ -372,18 +383,21 @@ window.jQuery = $;
                                         "_blank"
                                     );
                                     printWindow.document.write(`
-                                <html>
-                                    <head>
-                                        <title>Print Sertifikat</title>
-                                    </head>
-                                    <body style="text-align: center; padding: 30px;">
-                                        <img src="${dataURL}" style="max-width: 100%; height: auto; border: 1px solid #ddd;">
-                                        <script>
-                                            window.onload = function() { window.print(); window.onafterprint = window.close; };
-                                        </script>
-                                    </body>
-                                </html>
-                            `);
+                                    <html>
+                                        <head>
+                                            <title>Print Sertifikat</title>
+                                        </head>
+                                        <body style="text-align: center; padding: 30px;">
+                                            <img src="${dataURL}" style="max-width: 100%; height: auto; border: 1px solid #ddd;">
+                                            <script>
+                                                window.onload = function() {
+                                                    window.print();
+                                                    window.onafterprint = window.close;
+                                                };
+                                            </script>
+                                        </body>
+                                    </html>
+                                `);
                                     printWindow.document.close();
                                 });
                         })
@@ -492,6 +506,49 @@ window.jQuery = $;
         }
     }
 
+    function downloadCertificateAsPDF(imageDataURL, templateVars, canvas) {
+        const { jsPDF } = window.jspdf;
+
+        // Ambil ukuran canvas (dalam px)
+        const canvasWidth = canvas.getWidth();
+        const canvasHeight = canvas.getHeight();
+
+        // Konversi ke mm (1 px ≈ 0.264583 mm)
+        const pxToMm = 0.264583;
+        const pdfWidth = canvasWidth * pxToMm;
+        const pdfHeight = canvasHeight * pxToMm;
+
+        const pdf = new jsPDF({
+            orientation: pdfWidth > pdfHeight ? "landscape" : "portrait",
+            unit: "mm",
+            format: [pdfWidth, pdfHeight],
+        });
+
+        const img = new Image();
+        img.src = imageDataURL;
+
+        img.onload = () => {
+            pdf.addImage(imageDataURL, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+            const peserta = (templateVars.peserta_nama || "Peserta")
+                .replace(/[^\w\s]/gi, "")
+                .replace(/\s+/g, " ")
+                .trim();
+            const ujian = (templateVars.ujian_nama || "Ujian")
+                .replace(/[^\w\s]/gi, "")
+                .replace(/\s+/g, " ")
+                .trim();
+            const filename = `${peserta} - ${ujian}.pdf`;
+
+            pdf.save(filename);
+        };
+
+        img.onerror = (err) => {
+            console.error("Gagal load image untuk PDF:", err);
+            showAlert("error", "Download Gagal", "Tidak bisa membuat PDF.");
+        };
+    }
+
     function downloadResults() {
         $.ajax({
             url: "/hasil-ujian/download/results",
@@ -534,80 +591,6 @@ window.jQuery = $;
                     );
             },
         });
-    }
-
-    function downloadCertificate() {
-        // Check if there's an active certificate canvas
-        const modal = $("#modal-certificate");
-        if (modal.hasClass("show")) {
-            const canvas = window.certificateCanvas; // We'll store this globally
-            if (canvas) {
-                downloadCertificateImage(
-                    canvas,
-                    window.certificateTemplateData
-                );
-                return;
-            }
-        }
-
-        // Fallback to browser print
-        window.print();
-    }
-
-    function downloadCertificateImage(canvas, templateData) {
-        try {
-            // Create high-quality image
-            const originalZoom = canvas.getZoom();
-            const originalWidth = canvas.width;
-            const originalHeight = canvas.height;
-
-            // Temporarily increase resolution for better quality
-            const scale = 2; // 2x resolution
-            canvas.setZoom(originalZoom * scale);
-            canvas.setDimensions({
-                width: originalWidth * scale,
-                height: originalHeight * scale,
-            });
-
-            // Generate image
-            const dataURL = canvas.toDataURL({
-                format: "png",
-                quality: 1.0,
-                multiplier: 1,
-            });
-
-            // Restore original dimensions
-            canvas.setZoom(originalZoom);
-            canvas.setDimensions({
-                width: originalWidth,
-                height: originalHeight,
-            });
-
-            // Create download link
-            const link = document.createElement("a");
-            link.download = `Sertifikat_${
-                templateData.peserta_nama || "Peserta"
-            }_${templateData.ujian_nama || "Ujian"}.png`;
-            link.href = dataURL;
-
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showAlert(
-                "success",
-                "Download Berhasil",
-                "Sertifikat berhasil didownload"
-            );
-        } catch (error) {
-            console.error("Error downloading certificate:", error);
-            showAlert(
-                "error",
-                "Download Gagal",
-                "Terjadi kesalahan saat mendownload sertifikat"
-            );
-        }
     }
 
     function printCertificate(canvas) {

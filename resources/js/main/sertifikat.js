@@ -56,10 +56,34 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     window.certificateCanvas = canvas;
 
+    const sizeSelector = document.getElementById("canvas-size-selector");
+
+    if (sizeSelector) {
+        sizeSelector.addEventListener("change", (e) => {
+            const selectedSizeKey = e.target.value;
+            const selectedSize = canvasSizes[selectedSizeKey] || defaultSize;
+
+            // Update canvas DOM size
+            canvasElement.width = selectedSize.width;
+            canvasElement.height = selectedSize.height;
+
+            // Update Fabric.js canvas size
+            canvas.setDimensions({
+                width: selectedSize.width,
+                height: selectedSize.height,
+            });
+
+            // Simpan size key di instance
+            canvas.sizeKey = selectedSizeKey;
+
+            // Render ulang
+            canvas.renderAll();
+        });
+    }
+
     // Elements
     const addTextBtn = document.getElementById("btn-add-text");
     const addImageBtn = document.getElementById("btn-add-image");
-    const sizeSelector = document.getElementById("canvas-size-selector");
     const textPropertiesCard = document.getElementById("text-properties");
     const editBackgroundBtn = document.getElementById("edit-background");
     const bgPropertiesPanel = document.getElementById("bg-properties");

@@ -201,22 +201,33 @@
                             <!-- LEFT PANEL -->
                             <div class="col-md-2">
                                 <div class="mb-3">
-                                    <strong>Nama Sertifikat:</strong><br>
-                                    <span class="text-muted" id="certificate-title">-</span>
+                                    <strong>Ujian:</strong><br>
+                                    <span class="text-muted" id="certificate-ujian">-</span>
                                 </div>
                                 <div class="mb-3">
-                                    <strong>Untuk Ujian:</strong><br>
-                                    <span class="text-muted" id="certificate-ujian">-</span>
+                                    <strong>Nama Peserta:</strong><br>
+                                    <span class="text-muted" id="peserta-name">-</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Tanggal Ujian:</strong><br>
+                                    <span class="text-muted" id="tanggal-ujian">-</span>
                                 </div>
                                 <div class="mb-3">
                                     <strong>Status Template:</strong><br>
                                     <span class="badge" id="certificate-status">-</span>
                                 </div>
                                 <div class="mt-4 d-grid gap-2">
-                                    <a href="#" id="certificate-edit-link" class="btn btn-primary">
-                                        <i class="ri-edit-line me-1"></i> Edit Template
+                                    <a href="javascript:void(0)" id="btn-download-certificate" class="btn btn-primary">
+                                        <i class="ri-download-2-line me-1"></i> Download PNG
                                     </a>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+
+                                    <a href="javascript:void(0)" id="btn-download-pdf" class="btn btn-danger">
+                                        <i class="ri-file-pdf-line me-1"></i> Download PDF
+                                    </a>
+
+
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Tutup</button>
                                 </div>
                             </div>
 
@@ -247,4 +258,6 @@
 
 @section('script')
     @vite(['resources/js/main/hasil-ujian.js'])
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 @endsection

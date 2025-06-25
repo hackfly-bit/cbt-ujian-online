@@ -10,52 +10,52 @@
             background-color: {{ $ujian->ujianThema->background_color ?? '#f0f2f5' }};
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        @if($ujian->ujianThema && $ujian->ujianThema->background_image_path)
-        body.authentication-bg {
-            background-image: url('{{ asset("storage/" . $ujian->ujianThema->background_image_path) }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
+            body.authentication-bg {
+                background-image: url('{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
         @endif
-        
-        @if($ujian->ujianThema && $ujian->ujianThema->font_color)
-        .text-muted,
-        .text-dark,
-        h4,
-        h5,
-        label {
-            color: {{ $ujian->ujianThema->font_color }} !important;
-        }
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->font_color)
+            .text-muted,
+            .text-dark,
+            h4,
+            h5,
+            label {
+                color: {{ $ujian->ujianThema->font_color }} !important;
+            }
         @endif
-        
-        @if($ujian->ujianThema && $ujian->ujianThema->border_color)
-        .card,
-        .form-control,
-        .input-group-text {
-            border-color: {{ $ujian->ujianThema->border_color }} !important;
-        }
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->border_color)
+            .card,
+            .form-control,
+            .input-group-text {
+                border-color: {{ $ujian->ujianThema->border_color }} !important;
+            }
         @endif
-        
+
         .card-header {
             background-color: {{ $ujian->ujianThema->header_color ?? '#ffffff' }};
         }
-        
-        @if($ujian->ujianThema && $ujian->ujianThema->use_custom_color)
-        .btn-primary {
-            background-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-            border-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-            color: {{ $ujian->ujianThema->button_font_color ?? 'white' }};
-        }
-        
-        .text-primary {
-            color: {{ $ujian->ujianThema->primary_color ?? '#0d6efd' }} !important;
-        }
-        
-        .border-primary {
-            border-color: {{ $ujian->ujianThema->secondary_color ?? '#0d6efd' }} !important;
-        }
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->use_custom_color)
+            .btn-primary {
+                background-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
+                border-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
+                color: {{ $ujian->ujianThema->button_font_color ?? 'white' }};
+            }
+
+            .text-primary {
+                color: {{ $ujian->ujianThema->primary_color ?? '#0d6efd' }} !important;
+            }
+
+            .border-primary {
+                border-color: {{ $ujian->ujianThema->secondary_color ?? '#0d6efd' }} !important;
+            }
         @endif
     </style>
 </head>
@@ -68,14 +68,15 @@
             <div class="text-center my-5">
                 <!-- Logo -->
                 <div class="text-center">
-                    @if($ujian->ujianThema && $ujian->ujianThema->logo_path)
-                    <a href="{{ route('any', 'index') }}">
-                        <span><img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}" alt="logo" height="60"></span>
-                    </a>
+                    @if ($ujian->ujianThema && $ujian->ujianThema->logo_path)
+                        <a href="{{ route('any', 'index') }}">
+                            <span><img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}" alt="logo"
+                                    height="60"></span>
+                        </a>
                     @else
-                    <a href="{{ route('any', 'index') }}">
-                        <span><img src="/images/logo-dark.png" alt="logo" height="40"></span>
-                    </a>
+                        <a href="{{ route('any', 'index') }}">
+                            <span><img src="/images/logo-dark.png" alt="logo" height="40"></span>
+                        </a>
                     @endif
                 </div>
             </div>
@@ -86,8 +87,8 @@
                 <div class="col-md-4 mb-3">
                     <div class="card shadow-sm border-0 rounded-2">
                         <div class="card-header">
-                            @if($ujian->ujianThema && $ujian->ujianThema->institution_name)
-                            <h5 class="text-center mb-0">{{ $ujian->ujianThema->institution_name }}</h5>
+                            @if ($ujian->ujianThema && $ujian->ujianThema->institution_name)
+                                <h5 class="text-center mb-0">{{ $ujian->ujianThema->institution_name }}</h5>
                             @endif
                         </div>
                         <div class="card-body">
@@ -116,11 +117,11 @@
                 <div class="col-md-6">
                     <div class="card shadow-sm border-0 rounded-2">
                         <div class="card-body">
-                            @if($ujian->ujianThema && $ujian->ujianThema->welcome_message)
-                            <h4 class="fw-bold mb-2">{{ $ujian->ujianThema->welcome_message }}</h4>
+                            @if ($ujian->ujianThema && $ujian->ujianThema->welcome_message)
+                                <h4 class="fw-bold mb-2">{{ $ujian->ujianThema->welcome_message }}</h4>
                             @else
-                            <h4 class="fw-bold mb-2">Pendaftaran Peserta</h4>
-                            <p class="text-base mb-4">Lengkapi data diri Anda untuk mulai mengikuti ujian</p>
+                                <h4 class="fw-bold mb-2">Pendaftaran Peserta</h4>
+                                <p class="text-base mb-4">Lengkapi data diri Anda untuk mulai mengikuti ujian</p>
                             @endif
                             <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}">
                                 @if (sizeof($errors) > 0)
