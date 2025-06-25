@@ -658,8 +658,8 @@
                         <h4>Durasi Pengerjaan</h4>
                         <p>{{ $examSummary['exam_duration_minutes'] }} menit</p>
                         <p style="margin-top: 8px; font-size: 12px;">
-                            Mulai: {{ $examSummary['exam_start_time']->format('d/m/Y H:i') }}<br>
-                            Selesai: {{ $examSummary['exam_end_time']->format('d/m/Y H:i') }}
+                            Mulai: {{ $examSummary['exam_start_time'] }}<br>
+                            Selesai: {{ $examSummary['exam_end_time'] }}
                         </p>
                     </div>
                 </div>
