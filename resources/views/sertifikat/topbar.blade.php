@@ -99,8 +99,11 @@
                 <a class="nav-link dropdown-toggle arrow-none nav-user px-2" data-bs-toggle="dropdown" href="#"
                     role="button" aria-haspopup="false" aria-expanded="false">
                     <span class="account-user-avatar">
-                        <img src="/images/users/avatar-1.jpg" alt="user-image" width="32"
-                            class="rounded-circle">
+                        @if(auth()->user()->foto)
+                            <img src="{{ asset('/' . auth()->user()->foto) }}" alt="user-image" width="32" class="rounded-circle">
+                        @else
+                            <img src="/images/users/avatar-1.jpg" alt="user-image" width="32" class="rounded-circle">
+                        @endif
                     </span>
                     <span class="d-lg-flex flex-column gap-1 d-none">
                         <h5 class="my-0">

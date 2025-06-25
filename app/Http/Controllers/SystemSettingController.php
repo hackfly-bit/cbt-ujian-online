@@ -13,9 +13,9 @@ class SystemSettingController extends Controller
     {
         // Ambil data profil
         $profil = [
-            'nama' => SystemSetting::where('group', 'profil')->where('key', 'nama')->value('value') ?? '',
-            'email' => SystemSetting::where('group', 'profil')->where('key', 'email')->value('value') ?? '',
-            'image' => SystemSetting::where('group', 'profil')->where('key', 'image')->value('value') ?? '',
+            'nama' => Auth::user()->name ?? '',
+            'email' => Auth::user()->email ?? '',
+            'image' => Auth::user()->foto ?? '',
         ];
         // Ambil data logo
         $branding = [
@@ -35,27 +35,25 @@ class SystemSettingController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Simpan nama
-        SystemSetting::updateOrCreate(
-            ['group' => 'profil', 'key' => 'nama'],
-            ['value' => $request->nama, 'type' => 'string']
-        );
-        // Simpan email
-        SystemSetting::updateOrCreate(
-            ['group' => 'profil', 'key' => 'email'],
-            ['value' => $request->email, 'type' => 'string']
-        );
-        // Simpan image jika ada
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('pengaturan.index')->with('error', 'User tidak ditemukan.');
+        }
+
+        if ($request->filled('nama')) {
+            $user->name = $request->nama;
+        }
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = 'profil_' . time() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('image'), $filename);
-            $url = 'image/' . $filename;
-            SystemSetting::updateOrCreate(
-                ['group' => 'profil', 'key' => 'image'],
-                ['value' => $url, 'type' => 'string']
-            );
+            $user->foto = 'image/' . $filename;
         }
+        $user->save();
+
         return redirect()->route('pengaturan.index')->with('success', 'Profil berhasil diperbarui');
     }
 
@@ -71,14 +69,14 @@ class SystemSettingController extends Controller
         // dd($request->all());
 
         $logoTypes = ['logoPutih', 'logoHitam', 'favLogoPutih', 'favLogoHitam'];
-        
+
         foreach ($logoTypes as $type) {
             if ($request->hasFile($type)) {
                 $file = $request->file($type);
                 $filename = strtolower($type) . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('image'), $filename);
                 $url = 'image/' . $filename;
-                
+
                 SystemSetting::updateOrCreate(
                     ['group' => 'branding', 'key' => $type],
                     ['value' => $url, 'type' => 'string']

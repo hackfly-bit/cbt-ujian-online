@@ -107,18 +107,21 @@
 
         <ul class="topbar-menu d-flex align-items-center gap-3">
             <li class="dropdown d-lg-none">
-                <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
+                    aria-haspopup="false" aria-expanded="false">
                     <i class="ri-search-line fs-22"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-animated dropdown-lg p-0">
                     <form class="p-3">
-                        <input type="search" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
+                        <input type="search" class="form-control" placeholder="Search ..."
+                            aria-label="Recipient's username">
                     </form>
                 </div>
             </li>
 
             <li class="dropdown notification-list">
-                <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
+                    aria-haspopup="false" aria-expanded="false">
                     <i class="ri-notification-3-line fs-22"></i>
                     <span class="noti-icon-badge"></span>
                 </a>
@@ -141,7 +144,8 @@
                         <h5 class="text-muted fs-12 fw-bold p-2 text-uppercase mb-0">Today</h5>
                         <!-- item-->
 
-                        <a href="javascript:void(0);" class="dropdown-item p-0 notify-item unread-noti card m-0 shadow-none">
+                        <a href="javascript:void(0);"
+                            class="dropdown-item p-0 notify-item unread-noti card m-0 shadow-none">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
@@ -150,15 +154,18 @@
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 text-truncate ms-2">
-                                        <h5 class="noti-item-title fw-semibold fs-14">Datacorp <small class="fw-normal text-muted float-end ms-1">1 min ago</small></h5>
-                                        <small class="noti-item-subtitle text-muted">Caleb Flakelar commented on Admin</small>
+                                        <h5 class="noti-item-title fw-semibold fs-14">Datacorp <small
+                                                class="fw-normal text-muted float-end ms-1">1 min ago</small></h5>
+                                        <small class="noti-item-subtitle text-muted">Caleb Flakelar commented on
+                                            Admin</small>
                                     </div>
                                 </div>
                             </div>
                         </a>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
+                        <a href="javascript:void(0);"
+                            class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
@@ -167,7 +174,8 @@
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 text-truncate ms-2">
-                                        <h5 class="noti-item-title fw-semibold fs-14">Admin <small class="fw-normal text-muted float-end ms-1">1 hr ago</small></h5>
+                                        <h5 class="noti-item-title fw-semibold fs-14">Admin <small
+                                                class="fw-normal text-muted float-end ms-1">1 hr ago</small></h5>
                                         <small class="noti-item-subtitle text-muted">New user registered</small>
                                     </div>
                                 </div>
@@ -177,17 +185,21 @@
                         <h5 class="text-muted fs-12 fw-bold p-2 mb-0 text-uppercase">Yesterday</h5>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
+                        <a href="javascript:void(0);"
+                            class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
                                         <div class="notify-icon">
-                                            <img src="/images/users/avatar-2.jpg" class="img-fluid rounded-circle" alt="" />
+                                            <img src="/images/users/avatar-2.jpg" class="img-fluid rounded-circle"
+                                                alt="" />
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 text-truncate ms-2">
-                                        <h5 class="noti-item-title fw-semibold fs-14">Cristina Pride <small class="fw-normal text-muted float-end ms-1">1 day ago</small></h5>
-                                        <small class="noti-item-subtitle text-muted">Hi, How are you? What about our next meeting</small>
+                                        <h5 class="noti-item-title fw-semibold fs-14">Cristina Pride <small
+                                                class="fw-normal text-muted float-end ms-1">1 day ago</small></h5>
+                                        <small class="noti-item-subtitle text-muted">Hi, How are you? What about our
+                                            next meeting</small>
                                     </div>
                                 </div>
                             </div>
@@ -196,7 +208,8 @@
                         <h5 class="text-muted fs-12 fw-bold p-2 mb-0 text-uppercase">31 Jan 2023</h5>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
+                        <a href="javascript:void(0);"
+                            class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
@@ -206,24 +219,28 @@
                                     </div>
                                     <div class="flex-grow-1 text-truncate ms-2">
                                         <h5 class="noti-item-title fw-semibold fs-14">Datacorp</h5>
-                                        <small class="noti-item-subtitle text-muted">Caleb Flakelar commented on Admin</small>
+                                        <small class="noti-item-subtitle text-muted">Caleb Flakelar commented on
+                                            Admin</small>
                                     </div>
                                 </div>
                             </div>
                         </a>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
+                        <a href="javascript:void(0);"
+                            class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
                                         <div class="notify-icon">
-                                            <img src="/images/users/avatar-4.jpg" class="img-fluid rounded-circle" alt="" />
+                                            <img src="/images/users/avatar-4.jpg" class="img-fluid rounded-circle"
+                                                alt="" />
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 text-truncate ms-2">
                                         <h5 class="noti-item-title fw-semibold fs-14">Karen Robinson</h5>
-                                        <small class="noti-item-subtitle text-muted">Wow ! this admin looks good and awesome design</small>
+                                        <small class="noti-item-subtitle text-muted">Wow ! this admin looks good and
+                                            awesome design</small>
                                     </div>
                                 </div>
                             </div>
@@ -231,7 +248,8 @@
                     </div>
 
                     <!-- All-->
-                    <a href="javascript:void(0);" class="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2">
+                    <a href="javascript:void(0);"
+                        class="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2">
                         View All
                     </a>
 
@@ -245,7 +263,8 @@
             </li>
 
             <li class="d-none d-sm-inline-block">
-                <div class="nav-link" id="light-dark-mode" data-bs-toggle="tooltip" data-bs-placement="left" title="Theme Mode">
+                <div class="nav-link" id="light-dark-mode" data-bs-toggle="tooltip" data-bs-placement="left"
+                    title="Theme Mode">
                     <i class="ri-moon-line fs-22"></i>
                 </div>
             </li>
@@ -258,9 +277,11 @@
             </li>
 
             <li class="dropdown">
-                <a class="nav-link dropdown-toggle arrow-none nav-user px-2" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                <a class="nav-link dropdown-toggle arrow-none nav-user px-2" data-bs-toggle="dropdown" href="#"
+                    role="button" aria-haspopup="false" aria-expanded="false">
                     <span class="account-user-avatar">
-                        <img src="/images/users/avatar-1.jpg" alt="user-image" width="32" class="rounded-circle">
+                        <img src="{{ Auth::user()->foto ? asset(Auth::user()->foto) : asset('images/users/avatar-1.jpg') }}"
+                            alt="user-image" height="42" class="rounded-circle shadow-sm">
                     </span>
                     <span class="d-lg-flex flex-column gap-1 d-none">
                         <h5 class="my-0">
@@ -270,7 +291,7 @@
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
-                
+
 
                     <!-- item-->
                     <a href="" class="dropdown-item">
