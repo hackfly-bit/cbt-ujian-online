@@ -614,8 +614,8 @@
                         <h4>مدة الإنجاز</h4>
                         <p>{{ $examSummary['exam_duration_minutes'] }} دقيقة</p>
                         <p style="margin-top: 8px; font-size: 12px;">
-                            البداية: {{ $examSummary['exam_start_time']->format('d/m/Y H:i') }}<br>
-                            النهاية: {{ $examSummary['exam_end_time']->format('d/m/Y H:i') }}
+                            البداية: {{ $examSummary['exam_start_time'] ? $examSummary['exam_start_time']->format('d/m/Y H:i') : '-' }}<br>
+                            النهاية: {{ $examSummary['exam_end_time'] ? $examSummary['exam_end_time']->format('d/m/Y H:i') : '-' }}
                         </p>
                     </div>
                 </div>

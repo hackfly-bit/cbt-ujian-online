@@ -82,6 +82,42 @@ class UjianPesertaController extends Controller
             // Simpan ID peserta di session
             session(['peserta_id' => $peserta->id]);
 
+            // if exist return tu ujian selesai
+            $existingHasilUjian = \App\Models\HasilUjian::where('ujian_id', $ujian->id)
+                ->where('peserta_id', $peserta->id)
+                ->first();
+            if ($existingHasilUjian) {
+                // Ambil data dari $existingHasilUjian
+                $examSummary = [
+                    'ujian_name' => $ujian->nama_ujian,
+                    'peserta_name' => $peserta->nama,
+                    'peserta_email' => $peserta->email,
+                    'total_sections' => $existingHasilUjian->detail_section ? count(json_decode($existingHasilUjian->detail_section, true)) : 0,
+                    'total_questions' => $existingHasilUjian->total_soal,
+                    'total_answered' => $existingHasilUjian->soal_dijawab,
+                    'total_correct' => $existingHasilUjian->jawaban_benar,
+                    'total_incorrect' => $existingHasilUjian->total_soal - $existingHasilUjian->jawaban_benar,
+                    'total_score' => round($existingHasilUjian->hasil_nilai, 2),
+                    'completion_percentage' => $existingHasilUjian->total_soal > 0 ? round(($existingHasilUjian->soal_dijawab / max($existingHasilUjian->total_soal, 1)) * 100, 2) : 0,
+                    'exam_duration_minutes' => $existingHasilUjian->durasi_pengerjaan,
+                    'exam_start_time' => $existingHasilUjian->waktu_mulai,
+                    'exam_end_time' => $existingHasilUjian->waktu_selesai,
+                    'section_results' => $existingHasilUjian->detail_section ? json_decode($existingHasilUjian->detail_section, true) : []
+                ];
+                // Tampilkan halaman selesai
+                $isArabic = $ujian->ujianPengaturan->is_arabic ?? false;
+                if ($isArabic) {
+                    return view('ujian.ujian-peserta-arab.ujian-selesai', [
+                        'examSummary' => $examSummary,
+                        'ujian' => $ujian
+                    ]);
+                }
+                return view('ujian.ujian-peserta.ujian-selesai', [
+                    'examSummary' => $examSummary,
+                    'ujian' => $ujian
+                ]);
+            }
+
             $hasilUjian = \App\Models\HasilUjian::updateOrCreate(
                 ['ujian_id' => $ujian->id, 'peserta_id' => $peserta->id],
                 [
@@ -516,12 +552,12 @@ class UjianPesertaController extends Controller
             }
 
             if ($sectionQuestions > 0) {
-                if($section->formula_type == 'correctAnswer'){
+                if ($section->formula_type == 'correctAnswer') {
                     // Build formula string for correct answers
                     $formula = "($sectionCorrect{$section->operation_1}{$section->value_1}){$section->operation_2}{$section->value_2}";
                     // Evaluate the formula using eval() safely
                     $sectionScore = eval("return " . $formula . ";");
-                }else{
+                } else {
                     // Build formula string for incorrect answers
                     $formula = "($sectionIncorrect{$section->operation_1}{$section->value_1}){$section->operation_2}{$section->value_2}";
                     // Evaluate the formula using eval() safely
@@ -589,20 +625,24 @@ class UjianPesertaController extends Controller
 
         // Save exam result to database (if HasilUjian model exists)
         try {
-            \App\Models\HasilUjian::create([
-                'ujian_id' => $ujianId,
-                'total_soal' => $totalQuestions,
-                'soal_dijawab' => $totalAnswered,
-                'jawaban_benar' => $totalCorrect,
-                'hasil_nilai' => $totalScore,
-                'durasi_pengerjaan' => $examDuration,
-                'waktu_mulai' => $examStartTime,
-                'waktu_selesai' => $examEndTime,
-                'detail_section' => json_encode($sectionResults),
-                'status' => 'completed',
-                'peserta_id' => $pesertaId,
-                'sertifikat_id' => $getSertifikat ? $getSertifikat->id : null
-            ]);
+            \App\Models\HasilUjian::updateOrCreate(
+                [
+                    'ujian_id' => $ujianId,
+                    'peserta_id' => $pesertaId
+                ],
+                [
+                    'total_soal' => $totalQuestions,
+                    'soal_dijawab' => $totalAnswered,
+                    'jawaban_benar' => $totalCorrect,
+                    'hasil_nilai' => $totalScore,
+                    'durasi_pengerjaan' => $examDuration,
+                    'waktu_mulai' => $examStartTime,
+                    'waktu_selesai' => $examEndTime,
+                    'detail_section' => json_encode($sectionResults),
+                    'status' => 'completed',
+                    'sertifikat_id' => $getSertifikat ? $getSertifikat->id : null
+                ]
+            );
         } catch (\Exception $e) {
             // If HasilUjian table doesn't exist or has different structure, continue without saving
             Log::warning('Could not save exam result: ' . $e->getMessage());
