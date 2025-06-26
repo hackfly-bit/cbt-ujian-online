@@ -13,6 +13,7 @@
                         <tr>
                             <th class="text-center">No</th>
                             <th>Nama Ujian</th>
+                            <th class="text-center">Deskripsi</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Soal</th>
                             <th class="text-center">Durasi</th>

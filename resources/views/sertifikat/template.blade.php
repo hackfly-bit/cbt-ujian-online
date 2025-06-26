@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    @include('layouts.shared/title-meta', ['title' => 'Preloader'])
+    @include('layouts.shared/title-meta', ['title' => 'Canvas Sertifikat'])
     @yield('css')
     @include('layouts.shared/head-css', ['mode' => $mode ?? '', 'demo' => $demo ?? ''])
     @vite(['node_modules/daterangepicker/daterangepicker.css', 'node_modules/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css', 'resources/js/head.js'])

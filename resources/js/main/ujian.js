@@ -46,6 +46,11 @@ function initDataTables() {
                     name: "nama_ujian",
                 },
                 {
+                    data: "deskripsi",
+                    name: "deskripsi",
+                    className: "text-center",
+                },
+                {
                     data: "status",
                     name: "status",
                     className: "text-center",

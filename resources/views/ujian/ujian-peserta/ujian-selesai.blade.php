@@ -33,7 +33,7 @@
 
         .bento-card {
             background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color : 'rgba(255, 255, 255, 0.95)' }};
-            border-radius: 24px;
+            border-radius: 16px;
             padding: 32px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
@@ -200,7 +200,7 @@
 
         .bento-time {
             grid-column: span 6;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->tertiary_color ? $ujian->ujianThema->tertiary_color . '15' : '#f59e0b15' }};
+            
         }
 
         .time-content {
@@ -354,7 +354,7 @@
         .bento-actions {
             grid-column: 1 / -1;
             text-align: center;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#f9fafb' }};
+            
         }
 
         .action-buttons {

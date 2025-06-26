@@ -23,8 +23,11 @@ class UjianController extends Controller
                 ->addColumn('nama_ujian', function ($row) {
                     return $row->nama_ujian;
                 })
-                ->addColumn('status', function ($row) {
+                ->addColumn('deskripsi', function ($row) {
                     return $row->deskripsi;
+                })
+                ->addColumn('status', function ($row) {
+                    return $row->status;
                 })
                 ->addColumn('soal', function ($row) {
                     return $row->ujianSections->sum(function ($section) {

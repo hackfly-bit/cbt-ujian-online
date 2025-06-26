@@ -183,7 +183,7 @@
 
                         <!-- Logo -->
                         <div class="card-header py-4 text-center bg-primary">
-                            <a href="{{ route('any', 'index') }}">
+                            <a href="{{ route('home') }}">
                                 @php
                                     $branding = [
                                         'logoPutih' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoPutih')->value('value') ?? '',
@@ -263,7 +263,8 @@
         <span class="bg-body">
             <script>
                 document.write(new Date().getFullYear())
-            </script> © Attex - Coderthemes.com
+            </script> © markazarabiyah.com - Supported by
+            <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
         </span>
     </footer>
     @vite(['resources/js/app.js'])

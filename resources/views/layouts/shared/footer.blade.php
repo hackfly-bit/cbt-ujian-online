@@ -5,7 +5,8 @@
             <div class="col-md-12 text-center text-md-end">
                 <script>
                     document.write(new Date().getFullYear())
-                </script> © markazarabic.com
+                </script> © markazarabiyah.com - Supported by
+            <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
             </div>
             {{-- <div class="col-md-6">
                 <div class="text-md-end footer-links d-none d-md-block">

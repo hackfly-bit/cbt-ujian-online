@@ -21,7 +21,7 @@
             text-align: right;
             font-family: 'Arial', 'Times New Roman', 'Amiri', 'Scheherazade New', sans-serif;
             /* font-size: 16px;
-            line-height: 1.6; */
+                        line-height: 1.6; */
         }
 
         /* Smooth transition for font changes */
@@ -123,7 +123,6 @@
                 <div class="page-title-box">
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Attex</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
                             <li class="breadcrumb-item active">Bank Soal</li>
                         </ol>
@@ -134,50 +133,67 @@
         </div>
         <!-- end page title -->
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Tabs -->
-            <ul class="nav nav-tabs" id="tabKategori" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="semua-tab" data-bs-toggle="tab" data-bs-target="#semua"
-                        type="button" role="tab">Semua Soal</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="reading-tab" data-bs-toggle="tab" data-bs-target="#reading" type="button"
-                        role="tab">Reading</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="listening-tab" data-bs-toggle="tab" data-bs-target="#listening"
-                        type="button" role="tab">Listening</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="grammar-tab" data-bs-toggle="tab" data-bs-target="#grammar" type="button"
-                        role="tab">Grammar</button>
-                </li>
-            </ul>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
 
-            <!-- Tambah Soal Button -->
-            <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah-bank-soal">
-                <i class="ri-add-line me-1"></i> Buat Ujian Baru
-            </a>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+                            <div>
+                                <h4 class="header-title">Daftar Semua Soal</h4>
+                                <p class="text-muted fs-14">
+                                    Berikut ini adalah daftar semua soal ujian, lengkap dengan kategori, tingkat
+                                    kesulitan, jenis soal, dan aksi yang dapat dilakukan.
+                                </p>
+                            </div>
+                            <!-- Tambah Soal Button -->
+                            <a href="#" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#tambah-bank-soal">
+                                <i class="ri-add-line me-1"></i> Buat Ujian Baru
+                            </a>
+                        </div>
+
+                        <!-- FILTERS -->
+                        <div id="custom-filters-semua" class="mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <select id="filter-category-semua" class="form-select form-select-sm"
+                                    style="min-width: 200px;" title="Filter by category">
+                                    <option value="">All</option>
+                                    <option value="Reading">Reading</option>
+                                    <option value="Listening">Listening</option>
+                                    <option value="Grammar">Grammar</option>
+                                </select>
+                                <select id="filter-difficulty-semua" class="form-select form-select-sm"
+                                    style="min-width: 200px;" title="Filter by difficulty">
+                                    <option value="">All</option>
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <table id="selection-datatable-semua" class="table table-striped dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th>Soal</th>
+                                    <th class="text-center">Kategori</th>
+                                    <th class="text-center">Tingkat</th>
+                                    <th class="text-center">Jenis</th>
+                                    <th class="text-center">Media</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div> <!-- end card body-->
+                </div> <!-- end card -->
+            </div><!-- end col-->
         </div>
-
-        <div class="tab-content" id="tabKategoriContent">
-            <div class="tab-pane fade show active" id="semua" role="tabpanel">
-                @include('bank-soal.tabs.semua')
-            </div>
-            <div class="tab-pane fade" id="reading" role="tabpanel">
-                @include('bank-soal.tabs.reading')
-            </div>
-            <div class="tab-pane fade" id="listening" role="tabpanel">
-                @include('bank-soal.tabs.listening')
-            </div>
-            <div class="tab-pane fade" id="grammar" role="tabpanel">
-                @include('bank-soal.tabs.grammar')
-            </div>
-        </div>
-
         <!-- end row-->
-
 
         {{-- modal Create And Update --}}
         <div class="modal fade" id="tambah-bank-soal" tabindex="-1" role="dialog" aria-labelledby="scrollableModalTitle"
