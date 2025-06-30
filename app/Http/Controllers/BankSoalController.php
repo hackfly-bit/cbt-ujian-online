@@ -348,7 +348,9 @@ class BankSoalController extends Controller
                 Storage::disk('public')->delete($soal->audio_file);
             }
             // Hapus semua jawaban terkait
-            \App\Models\JawabanSoal::where('soal_id', $soal->id)->delete();
+            $soal->jawabanSoals()->delete();
+            // Hapus semua ujian section soal terkait
+            $soal->ujianSectionSoals()->delete();
             // Hapus soal
             $soal->delete();
             DB::commit();

@@ -6,57 +6,68 @@
     @include('layouts.shared/head-css')
     @vite(['resources/js/head.js'])
     <style>
-        body {
-            background-color: {{ $ujian->ujianThema->background_color ?? '#f0f2f5' }};
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            direction: rtl;
-        }
+        @font-face {
+             font-family: "Lotus Linotype Bold";
+             src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot");
+             src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot?#iefix")format("embedded-opentype"),
+                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff2")format("woff2"),
+                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff")format("woff"),
+                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.ttf")format("truetype"),
+                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.svg#Lotus Linotype Bold")format("svg");
+         }
 
-        @if($ujian->ujianThema && $ujian->ujianThema->background_image_path)
-        body.authentication-bg {
-            background-image: url('{{ asset("storage/" . $ujian->ujianThema->background_image_path) }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
+         body {
+             background-color: {{ $ujian->ujianThema->background_color ?? '#f0f2f5' }};
+             font-family: 'Lotus Linotype Bold', 'Noto Kufi Arabic', 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif';
+             font-size: 16px;
+             direction: rtl;
+         }
+
+        @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
+            body.authentication-bg {
+                background-image: url('{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
         @endif
 
-        @if($ujian->ujianThema && $ujian->ujianThema->font_color)
-        .text-muted,
-        .text-dark,
-        h4,
-        h5,
-        label {
-            color: {{ $ujian->ujianThema->font_color }} !important;
-        }
+        @if ($ujian->ujianThema && $ujian->ujianThema->font_color)
+            .text-muted,
+            .text-dark,
+            h4,
+            h5,
+            label {
+                color: {{ $ujian->ujianThema->font_color }} !important;
+            }
         @endif
 
-        @if($ujian->ujianThema && $ujian->ujianThema->border_color)
-        .card,
-        .form-control,
-        .input-group-text {
-            border-color: {{ $ujian->ujianThema->border_color }} !important;
-        }
+        @if ($ujian->ujianThema && $ujian->ujianThema->border_color)
+            .card,
+            .form-control,
+            .input-group-text {
+                border-color: {{ $ujian->ujianThema->border_color }} !important;
+            }
         @endif
 
         .card-header {
             background-color: {{ $ujian->ujianThema->header_color ?? '#ffffff' }};
         }
 
-        @if($ujian->ujianThema && $ujian->ujianThema->use_custom_color)
-        .btn-primary {
-            background-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-            border-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-            color: {{ $ujian->ujianThema->button_font_color ?? 'white' }};
-        }
+        @if ($ujian->ujianThema && $ujian->ujianThema->use_custom_color)
+            .btn-primary {
+                background-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
+                border-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
+                color: {{ $ujian->ujianThema->button_font_color ?? 'white' }};
+            }
 
-        .text-primary {
-            color: {{ $ujian->ujianThema->primary_color ?? '#0d6efd' }} !important;
-        }
+            .text-primary {
+                color: {{ $ujian->ujianThema->primary_color ?? '#0d6efd' }} !important;
+            }
 
-        .border-primary {
-            border-color: {{ $ujian->ujianThema->secondary_color ?? '#0d6efd' }} !important;
-        }
+            .border-primary {
+                border-color: {{ $ujian->ujianThema->secondary_color ?? '#0d6efd' }} !important;
+            }
         @endif
     </style>
 </head>
@@ -72,7 +83,10 @@
                     <a href="{{ route('home') }}">
                         @php
                             $branding = [
-                                'logoHitam' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '',
+                                'logoHitam' =>
+                                    \App\Models\SystemSetting::where('group', 'branding')
+                                        ->where('key', 'logoHitam')
+                                        ->value('value') ?? '',
                             ];
                         @endphp
                         <span>
@@ -100,8 +114,8 @@
                 <div class="col-md-4 mb-3">
                     <div class="card shadow-sm border-0 rounded-2">
                         <div class="card-header">
-                            @if($ujian->ujianThema && $ujian->ujianThema->institution_name)
-                            <h5 class="text-center mb-0">{{ $ujian->ujianThema->institution_name }}</h5>
+                            @if ($ujian->ujianThema && $ujian->ujianThema->institution_name)
+                                <h5 class="text-center mb-0">{{ $ujian->ujianThema->institution_name }}</h5>
                             @endif
                         </div>
                         <div class="card-body">
@@ -196,7 +210,8 @@
                                     @if (isset($pesertaForm['alamat']) && $pesertaForm['alamat'])
                                         <div class="mb-3">
                                             <label for="alamat" class="form-label">العنوان</label>
-                                            <input class="form-control" type="text" id="alamat" name="alamat" placeholder="أدخل العنوان" required>
+                                            <input class="form-control" type="text" id="alamat" name="alamat"
+                                                placeholder="أدخل العنوان" required>
                                         </div>
                                     @endif
 

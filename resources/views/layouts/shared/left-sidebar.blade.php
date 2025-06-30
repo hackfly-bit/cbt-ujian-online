@@ -110,7 +110,7 @@
                 </a>
             </li>
             {{-- END MENU UJIAN ONLINE --}}
-
+{{--
             <li>
                 <a data-bs-toggle="collapse" href="#sidebarComponents" aria-expanded="false"
                     aria-controls="sidebarComponents" class="side-nav-link">
@@ -742,7 +742,7 @@
 
 
                     </ul>
-            </li>
+            </li> --}}
 
         </ul>
         <!--- End Sidemenu -->
