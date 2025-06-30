@@ -12,6 +12,16 @@ File: Main Css File
 
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
+
+// Custom Arabic Font - Alfont Lotus
+// @font-face {
+//     font-family: 'Alfont Lotus';
+//     src: url('/fonts/alfont-lotus.ttf') format('truetype');
+//     font-weight: normal;
+//     font-style: normal;
+//     font-display: swap;
+//     unicode-range: U+0600-U+06FF, U+0750-U+077F, U+08A0-U+08FF, U+FB50-U+FDFF, U+FE70-U+FEFF;
+// }
 //Core files
 
 @import "/node_modules/bootstrap/scss/functions";
@@ -98,3 +108,35 @@ File: Main Css File
 @import "custom/plugins/timepicker";
 @import "custom/plugins/rateit";
 @import "custom/plugins/ion-rangeslider";
+
+// // Arabic Font Implementation
+// // Automatically apply Alfont Lotus font for Arabic text
+// body, .arabic-text, [lang="ar"], [dir="rtl"] {
+//     font-family: 'Alfont Lotus', 'Amiri', 'Scheherazade New', Arial, sans-serif;
+// }
+
+// // Global Arabic text styling
+// .arabic-font {
+//     font-family: 'Alfont Lotus', 'Amiri', 'Scheherazade New', Arial, sans-serif !important;
+//     direction: rtl;
+//     text-align: right;
+//     line-height: 1.8;
+// }
+
+// // Auto-detect Arabic characters and apply font
+// *:lang(ar) {
+//     font-family: 'Alfont Lotus', 'Amiri', 'Scheherazade New', Arial, sans-serif;
+//     direction: rtl;
+//     text-align: right;
+// }
+
+// // Utility classes for Arabic content
+// .rtl {
+//     direction: rtl;
+//     text-align: right;
+// }
+
+// .ltr {
+//     direction: ltr;
+//     text-align: left;
+// }

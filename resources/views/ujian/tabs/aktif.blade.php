@@ -8,11 +8,13 @@
                     Berikut ini adalah daftar ujian yang aktif, lengkap dengan status, soal, durasi, peserta dan aksi yang dapat dilakukan.
                 </p>
 
-                <table id="selection-datatable-ujian-aktif" class="table table-striped dt-responsive nowrap w-100">
+                <div class="table-responsive">
+                    <table id="selection-datatable-ujian-aktif" class="table table-striped dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th class="text-center">No</th>
                             <th>Nama Ujian</th>
+                            <th class="text-center">Deskripsi</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Soal</th>
                             <th class="text-center">Durasi</th>
@@ -22,6 +24,7 @@
                         </tr>
                     </thead>
                 </table>
+                </div> <!-- end table-responsive -->
 
 
             </div> <!-- end card body-->

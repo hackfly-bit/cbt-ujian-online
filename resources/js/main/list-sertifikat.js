@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
         order: [[1, "asc"]],
         pageLength: 10,
         responsive: true,
+        scrollX: true,
         language: {
             processing: "Memuat...",
             search: "Cari:",

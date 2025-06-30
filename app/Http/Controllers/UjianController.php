@@ -17,7 +17,13 @@ class UjianController extends Controller
 
         if ($request->ajax()) {
 
-            $ujian = Ujian::with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals.soal']);
+            $ujian = Ujian::with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals.soal'])
+                ->orderBy('created_at', 'desc');
+            
+            // Filter berdasarkan status jika ada parameter status
+            if ($request->has('status') && $request->status !== null) {
+                $ujian->where('status', $request->status);
+            }
             return datatables()->of($ujian->get())
                 ->addIndexColumn()
                 ->addColumn('nama_ujian', function ($row) {

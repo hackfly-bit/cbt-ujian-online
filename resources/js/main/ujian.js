@@ -84,6 +84,7 @@ function initDataTables() {
                 },
             ],
             responsive: true,
+            scrollX: true,
             language: {
                 paginate: {
                     previous: "<i class='ri-arrow-left-s-line'></i>",

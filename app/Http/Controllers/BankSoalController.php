@@ -79,7 +79,8 @@ class BankSoalController extends Controller
     {
         if ($request->ajax()) {
             $soals = \App\Models\Soal::with(['kategori', 'tingkatKesulitan', 'subKategori'])
-                ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at', 'jenis_isian']);
+                ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at', 'jenis_isian'])
+                ->orderBy('created_at', 'desc');
 
             // Jika 'filter_kategori' tidak ada atau kosong, dan 'kategori' bukan 'all', filter pakai kategori_id
             if (

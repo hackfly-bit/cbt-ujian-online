@@ -85,7 +85,8 @@
                             </div>
                         </div>
 
-                        <table id="sertifikat-datatable" class="table table-striped dt-responsive nowrap w-100">
+                        <div class="table-responsive">
+                            <table id="sertifikat-datatable" class="table table-striped dt-responsive nowrap w-100">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -94,7 +95,8 @@
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
-                        </table>
+                            </table>
+                        </div>
 
 
                     </div> <!-- end card body-->

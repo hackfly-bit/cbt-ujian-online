@@ -19,8 +19,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="email" name="email"
-                                {{ isset($ujian->ujianPesertaForm->email) && $ujian->ujianPesertaForm->email ? 'checked' : '' }}>
+                            <input class="form-check-input" type="checkbox" id="email" name="email" checked disabled>
                             <label class="form-check-label mb-1" for="email">
                                 Email
                             </label>
@@ -68,6 +67,15 @@
                                 {{ isset($ujian->ujianPesertaForm->alamat) && $ujian->ujianPesertaForm->alamat ? 'checked' : '' }}>
                             <label class="form-check-label mb-1" for="alamat">
                                 Alamat
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="foto" name="foto"
+                                {{ isset($ujian->ujianPesertaForm->foto) && $ujian->ujianPesertaForm->foto ? 'checked' : '' }}>
+                            <label class="form-check-label mb-1" for="foto">
+                                Upload Foto
                             </label>
                         </div>
                     </div>

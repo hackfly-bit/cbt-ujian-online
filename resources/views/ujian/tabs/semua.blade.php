@@ -8,7 +8,8 @@
                     Berikut ini adalah daftar semua ujian, lengkap dengan status, soal, durasi, peserta dan aksi yang dapat dilakukan.
                 </p>
 
-                <table id="selection-datatable-ujian-semua" class="table table-striped dt-responsive nowrap w-100">
+                <div class="table-responsive">
+                    <table id="selection-datatable-ujian-semua" class="table table-striped dt-responsive nowrap w-100">
                     <thead>
                         <tr>
                             <th class="text-center">No</th>
@@ -23,6 +24,7 @@
                         </tr>
                     </thead>
                 </table>
+                </div> <!-- end table-responsive -->
 
 
             </div> <!-- end card body-->

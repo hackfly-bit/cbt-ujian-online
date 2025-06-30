@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('tanggal_lahir')->nullable();
             $table->boolean('alamat')->nullable();
             $table->boolean('foto')->nullable();
-                  $table->timestamps();
+            $table->timestamps();
         });
     }
 

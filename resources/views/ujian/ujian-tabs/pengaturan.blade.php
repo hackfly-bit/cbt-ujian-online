@@ -33,9 +33,9 @@
                                         {{ old('operation', $ujian->ujianPengaturan->operation_1 ?? '') == '/' ? 'selected' : '' }}>
                                         ÷</option>
                                 </select>
-                                <input type="number" class="form-control" id="value" name="value" placeholder="n"
+                                <input type="number" class="form-control" id="value" name="value" placeholder="1"
                                     style="width: 80px"
-                                    value="{{ old('value', $ujian->ujianPengaturan->value_1 ?? '') }}">
+                                    value="{{ old('value', $ujian->ujianPengaturan->value_1 ?? '') }}" required>
                                 <span>)</span>
                                 <select class="form-select" id="operation2" name="operation2" style="width: auto">
                                     <option value="*"
@@ -51,12 +51,12 @@
                                         {{ old('operation2', $ujian->ujianPengaturan->operation_2 ?? '') == '/' ? 'selected' : '' }}>
                                         ÷</option>
                                 </select>
-                                <input type="number" class="form-control" id="value2" name="value2" placeholder="n"
+                                <input type="number" class="form-control" id="value2" name="value2" placeholder="0"
                                     style="width: 80px"
-                                    value="{{ old('value2', $ujian->ujianPengaturan->value_2 ?? '') }}">
+                                    value="{{ old('value2', $ujian->ujianPengaturan->value_2 ?? '') }}" required>
                             </div>
                             <small class="text-muted">
-                                Contoh: (Jawaban Benar × n) × n
+                                Formula penilaian standar: (Jumlah Jawaban Benar × 1) + 0
                             </small>
                         </div>
                         <div class="col-md-4">
@@ -64,7 +64,7 @@
                             <div class="input-group" style="max-width: 600px;">
                                 <input type="number" class="form-control" id="nilai_kelulusan" name="nilai_kelulusan"
                                     min="0" max="100" step="0.01" placeholder="Contoh: 75"
-                                    value="{{ old('nilai_kelulusan', $ujian->ujianPengaturan->nilai_kelulusan ?? '') }}">
+                                    value="{{ old('nilai_kelulusan', $ujian->ujianPengaturan->nilai_kelulusan ?? '') }}" required>
                                 <span class="input-group-text">%</span>
                             </div>
                             <small class="text-muted">

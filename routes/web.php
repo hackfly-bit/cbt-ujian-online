@@ -37,10 +37,11 @@ use Illuminate\Support\Facades\Auth;
 
 require __DIR__ . '/auth.php';
 
-
+//   Route::get('/test123', [DashboardController::class, 'test']);
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('home');
+
     // Route::get('/', function () {
     //     return view('index');
     // })->name('home');

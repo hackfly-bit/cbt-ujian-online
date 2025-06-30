@@ -783,7 +783,8 @@ import flatpickr from "flatpickr";
                 institusi: $('#sekolah').is(':checked'),
                 nomor_induk: $('#no_induk').is(':checked'),
                 tanggal_lahir: $('#tanggal_lahir').is(':checked'),
-                alamat: $('#alamat').is(':checked')
+                alamat: $('#alamat').is(':checked'),
+                foto: $('#foto').is(':checked')
             }));
             tampilanData.append('pengaturan', JSON.stringify({
                 nilai_kelulusan: $('#nilai_kelulusan').val(),
@@ -799,7 +800,15 @@ import flatpickr from "flatpickr";
                 operation2: $('#operation2').val(),
                 value2: $('#value2').val(),
                 lockscreen: $('#lockscreen').is(':checked'),
+                foto: $('#foto').is(':checked')
             }));
+
+            // Handle file uploads
+            if (tampilanData.has('logo')) {
+                const logoFile = tampilanData.get('logo');
+                tampilanData.delete('logo');
+                tampilanData.append('logo', logoFile);
+            }
 
             $.ajax({
                 url: url,

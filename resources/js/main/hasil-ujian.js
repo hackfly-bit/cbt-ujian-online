@@ -23,6 +23,7 @@ window.jQuery = $;
             processing: true,
             serverSide: true,
             responsive: true,
+        scrollX: true,
             ajax: {
                 url: "/hasil-ujian",
                 type: "GET",

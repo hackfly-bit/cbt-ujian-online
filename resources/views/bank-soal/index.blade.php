@@ -174,7 +174,8 @@
                             </div>
                         </div>
 
-                        <table id="selection-datatable-semua" class="table table-striped dt-responsive nowrap w-100">
+                        <div class="table-responsive">
+                            <table id="selection-datatable-semua" class="table table-striped dt-responsive nowrap w-100">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -187,6 +188,7 @@
                                 </tr>
                             </thead>
                         </table>
+                        </div> <!-- end table-responsive -->
 
 
                     </div> <!-- end card body-->

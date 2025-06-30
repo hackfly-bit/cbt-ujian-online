@@ -852,6 +852,26 @@
 
         console.log(@json(Session::all()));
 
+        // Auto fullscreen when user has filled exam data
+        function enableFullscreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
+        }
+
+        // Check if user has exam session and auto enable fullscreen
+        @if(session('ujian_id') && session('email'))
+            // User has filled exam data, enable fullscreen
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    enableFullscreen();
+                }, 1000); // Delay 1 second to ensure page is fully loaded
+            });
+        @endif
 
         let currentQuestion = {{ $currentQuestionNumber ?? 1 }};
         let currentSection = {{ $currentSectionNumber ?? 1 }};
