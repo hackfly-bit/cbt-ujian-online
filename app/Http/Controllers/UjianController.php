@@ -19,7 +19,7 @@ class UjianController extends Controller
 
             $ujian = Ujian::with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals.soal'])
                 ->orderBy('created_at', 'desc');
-            
+
             // Filter berdasarkan status jika ada parameter status
             if ($request->has('status') && $request->status !== null) {
                 $ujian->where('status', $request->status);
@@ -581,6 +581,14 @@ class UjianController extends Controller
             foreach ($ujian->ujianSections as $section) {
                 $section->ujianSectionSoals()->delete();
             }
+
+            $ujian->ujianThema()->delete();
+
+            // Delete related hasil ujian
+            $ujian->hasilUjian()->delete();
+
+            // Delete related sertifikat
+            $ujian->sertifikats()->delete();
 
             // Delete ujian sections
             $ujian->ujianSections()->delete();

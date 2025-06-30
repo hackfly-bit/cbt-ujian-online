@@ -34,7 +34,7 @@
 
         .bento-card {
             background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color : 'rgba(255, 255, 255, 0.95)' }};
-            border-radius: 24px;
+            border-radius: 16px;
             padding: 32px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);

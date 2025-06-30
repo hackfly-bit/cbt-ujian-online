@@ -66,18 +66,31 @@
     <div class="account-pages pt-5 pb-4 d-flex flex-column min-vh-100">
         <div class="container flex-grow-1">
 
-            <div class="text-center my-5">
+            <div class="text-center mb-5">
                 <!-- Logo -->
                 <div class="text-center">
-                    @if($ujian->ujianThema && $ujian->ujianThema->logo_path)
-                    <a href="{{ route('any', 'index') }}">
-                        <span><img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}" alt="logo" height="60"></span>
+                    <a href="{{ route('home') }}">
+                        @php
+                            $branding = [
+                                'logoHitam' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '',
+                            ];
+                        @endphp
+                        <span>
+                            <img src="{{ $branding['logoHitam'] ? asset($branding['logoHitam']) : asset('images/placeholder.jpeg') }}"
+                                alt="logo" height="60">
+                        </span>
                     </a>
-                    @else
-                    <a href="{{ route('any', 'index') }}">
-                        <span><img src="/images/logo-dark.png" alt="logo" height="40"></span>
-                    </a>
-                    @endif
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+
+                <div class="col-md-10">
+                    <div class="card card-header-form shadow-sm border-0 rounded-2 py-5 px-4">
+                        @if ($ujian->ujianThema && $ujian->ujianThema->welcome_message)
+                            <h4 class="fw-bold text-center">{{ $ujian->ujianThema->welcome_message }}</h4>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -117,12 +130,8 @@
                 <div class="col-md-6">
                     <div class="card shadow-sm border-0 rounded-2">
                         <div class="card-body">
-                            @if($ujian->ujianThema && $ujian->ujianThema->welcome_message)
-                            <h4 class="fw-bold mb-2">{{ $ujian->ujianThema->welcome_message }}</h4>
-                            @else
                             <h4 class="fw-bold mb-2">تسجيل المشارك</h4>
                             <p class="text-base mb-4">املأ بياناتك الشخصية لبدء الاختبار</p>
-                            @endif
                             <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}">
                                 @if (sizeof($errors) > 0)
                                     <ul>
@@ -187,7 +196,7 @@
                                     @if (isset($pesertaForm['alamat']) && $pesertaForm['alamat'])
                                         <div class="mb-3">
                                             <label for="alamat" class="form-label">العنوان</label>
-                                            <textarea class="form-control" id="alamat" name="alamat" placeholder="أدخل العنوان" required></textarea>
+                                            <input class="form-control" type="text" id="alamat" name="alamat" placeholder="أدخل العنوان" required>
                                         </div>
                                     @endif
 

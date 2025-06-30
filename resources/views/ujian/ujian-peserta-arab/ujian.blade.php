@@ -851,6 +851,24 @@
 
         console.log(@json(Session::all()));
 
+        // وظيفة تمكين وضع ملء الشاشة
+        function enableFullscreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                // enableFullscreen(); // تم تعطيل وضع ملء الشاشة مؤقتاً
+            }, 1000);
+        });
 
         let currentQuestion = {{ $currentQuestionNumber ?? 1 }};
         let currentSection = {{ $currentSectionNumber ?? 1 }};
@@ -1418,6 +1436,22 @@
             });
         }
 
+        // تحديث حالة السؤال في واجهة المستخدم
+        function updateQuestionStatus(questionNum, status) {
+            const navBtn = document.querySelector(`[onclick="goToQuestion(${questionNum})"]`);
+            if (navBtn) {
+                navBtn.classList.remove('answered', 'current');
+                if (status === 'answered') {
+                    navBtn.classList.add('answered');
+                    if (!answeredQuestionsInSection.includes(questionNum)) {
+                        answeredQuestionsInSection.push(questionNum);
+                    }
+                } else if (status === 'current') {
+                    navBtn.classList.add('current');
+                }
+            }
+        }
+
         // تقديم الاختبار
         function submitExam() {
             Swal.fire({
@@ -1466,6 +1500,21 @@
                 localStorage.removeItem('lockscreenInitialWarningShown');
             }
         });
+
+        // تنظيف بيانات قفل الشاشة
+        function cleanupLockscreenData() {
+            // إزالة بيانات قفل الشاشة من localStorage
+            localStorage.removeItem('lockscreen_violations');
+            localStorage.removeItem('lockscreen_warnings');
+            localStorage.removeItem('tab_switch_count');
+            localStorage.removeItem('exam_start_time');
+            
+            // إعادة تعيين المتغيرات
+            tabSwitchCount = 0;
+            isTabActive = true;
+            
+            console.log('تم تنظيف بيانات قفل الشاشة');
+        }
 
         // منع الغش (تم تعطيله لصالح نهج قفل الشاشة الأكثر تقدمًا أعلاه)
         /*
