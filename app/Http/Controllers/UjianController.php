@@ -100,44 +100,34 @@ class UjianController extends Controller
 
         $masterColors = [
             'klasik' => [
-                'primary_color' => '#ced4da',
-                'secondary_color' => '#f8f9fa',
-                'tertiary_color' => '#000000',
-                'background' => '#f8f9fa',
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#ced4da',
-                'button_font' => '#000000',
+                'primary_color'   => '#2c2c2c',                                 // Nama instansi & footer
+                'secondary_color' => '#6c757d',                                 // Teks sambutan
+                'tertiary_color'  => '#f5f5f5',                                 // Card
+                'background'      => '#ffffff',                                 // Latar belakang utama
+                'header'          => '#f0f0f0',                                 // Header sambutan
+                'font'            => '#212529',                                 // Font isi card
+                'button'          => '#0080ff',                                 // Tombol
+                'button_font'     => '#ffffff',                                 // Warna teks tombol
             ],
             'modern' => [
-                'primary_color' => '#0d6efd',
-                'secondary_color' => '#ffffff',
-                'tertiary_color' => '#000000',
-                'background' => '#ffffff',
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#0d6efd',
-                'button_font' => '#ffffff',
+                'primary_color'   => '#2e2e2e',                                 // Nama instansi & footer
+                'secondary_color' => '#f8f9fa',                                 // Teks sambutan
+                'tertiary_color'  => '#ffffff',                                 // Card
+                'background'      => '#eff5ff',                                 // Latar belakang utama
+                'header'          => '#0d6efd',                                 // Header sambutan
+                'font'            => '#212529',                                 // Font isi card
+                'button'          => '#0d6efd',                                 // Tombol
+                'button_font'     => '#ffffff',                                 // Warna teks tombol
             ],
             'glow' => [
-                'primary_color' => 'linear-gradient(to right, #8e2de2, #f27121)',
-                'secondary_color' => 'linear-gradient(to bottom, #ffe7a8, #fbb9b7)',
-                'tertiary_color' => '#000000',
-                'background' => '#fff3cd', // fallback background glow
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#f27121',
-                'button_font' => '#ffffff',
-            ],
-            'minimal' => [
-                'primary_color' => '#6c757d',
-                'secondary_color' => '#f8f9fa',
-                'tertiary_color' => '#000000',
-                'background' => '#f8f9fa',
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#6c757d',
-                'button_font' => '#ffffff',
+                'primary_color'   => '#252525',                                 // Nama instansi & footer
+                'secondary_color' => '#ffffff',                                 // Teks sambutan
+                'tertiary_color'  => '#ffffff',                                 // Card
+                'background'      => 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)', // Latar belakang
+                'header'          => 'linear-gradient(135deg, #6f42c1 0%, #e83e8c 50%, #fd7e14 100%)', // Header sambutan
+                'font'            => '#252525',                                 // Font isi card
+                'button'          => '#6f42c1',                                 // Tombol
+                'button_font'     => '#ffffff',                                 // Warna teks tombol
             ],
         ];
 
@@ -336,44 +326,34 @@ class UjianController extends Controller
 
         $masterColors = [
             'klasik' => [
-                'primary_color' => '#ced4da',
-                'secondary_color' => '#f8f9fa',
-                'tertiary_color' => '#000000',
-                'background' => '#f8f9fa',
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#ced4da',
-                'button_font' => '#000000',
+                'primary_color'   => '#2c2c2c',                                 // Nama instansi & footer
+                'secondary_color' => '#6c757d',                                 // Teks sambutan
+                'tertiary_color'  => '#f5f5f5',                                 // Card
+                'background'      => '#ffffff',                                 // Latar belakang utama
+                'header'          => '#f0f0f0',                                 // Header sambutan
+                'font'            => '#212529',                                 // Font isi card
+                'button'          => '#0080ff',                                 // Tombol
+                'button_font'     => '#ffffff',                                 // Warna teks tombol
             ],
             'modern' => [
-                'primary_color' => '#0d6efd',
-                'secondary_color' => '#ffffff',
-                'tertiary_color' => '#000000',
-                'background' => '#ffffff',
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#0d6efd',
-                'button_font' => '#ffffff',
+                'primary_color'   => '#2e2e2e',                                 // Nama instansi & footer
+                'secondary_color' => '#f8f9fa',                                 // Teks sambutan
+                'tertiary_color'  => '#ffffff',                                 // Card
+                'background'      => '#eff5ff',                                 // Latar belakang utama
+                'header'          => '#0d6efd',                                 // Header sambutan
+                'font'            => '#212529',                                 // Font isi card
+                'button'          => '#0d6efd',                                 // Tombol
+                'button_font'     => '#ffffff',                                 // Warna teks tombol
             ],
             'glow' => [
-                'primary_color' => 'linear-gradient(to right, #8e2de2, #f27121)',
-                'secondary_color' => 'linear-gradient(to bottom, #ffe7a8, #fbb9b7)',
-                'tertiary_color' => '#000000',
-                'background' => '#fff3cd', // fallback background glow
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#f27121',
-                'button_font' => '#ffffff',
-            ],
-            'minimal' => [
-                'primary_color' => '#6c757d',
-                'secondary_color' => '#f8f9fa',
-                'tertiary_color' => '#000000',
-                'background' => '#f8f9fa',
-                'header' => '#f8f9fa',
-                'font' => '#000000',
-                'button' => '#6c757d',
-                'button_font' => '#ffffff',
+                'primary_color'   => '#252525',                                 // Nama instansi & footer
+                'secondary_color' => '#ffffff',                                 // Teks sambutan
+                'tertiary_color'  => '#ffffff',                                 // Card
+                'background'      => 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)', // Latar belakang
+                'header'          => 'linear-gradient(135deg, #6f42c1 0%, #e83e8c 50%, #fd7e14 100%)', // Header sambutan
+                'font'            => '#252525',                                 // Font isi card
+                'button'          => '#6f42c1',                                 // Tombol
+                'button_font'     => '#ffffff',                                 // Warna teks tombol
             ],
         ];
         // dd($request);

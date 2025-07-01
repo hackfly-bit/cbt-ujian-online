@@ -33,11 +33,6 @@
                                             'desc' => 'Warna gradien dan efek cahaya',
                                         ],
                                         [
-                                            'value' => 'minimal',
-                                            'label' => 'Minimal',
-                                            'desc' => 'Desain minimalis dan tenang',
-                                        ],
-                                        [
                                             'value' => 'custom',
                                             'label' => 'Kustom',
                                             'desc' => 'Sesuaikan warna tema secara manual',
@@ -47,9 +42,10 @@
                                 @endphp
 
                                 @foreach ($themes as $theme)
-                                    <div class="col-md-2 mb-3">
-                                        <div class="theme-option" data-theme="{{ $theme['value'] }}">
-                                            <div class="theme-preview {{ $theme['value'] }}-theme">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="theme-option {{ $theme['value'] }}-preview {{ $theme['value'] }}-theme"
+                                            data-theme="{{ $theme['value'] }}">
+                                            <div class="theme-preview">
                                                 <div
                                                     class="theme-header {{ $theme['value'] === 'custom' ? 'bg-gradient' : '' }}">
                                                 </div>
@@ -69,6 +65,7 @@
                                     </div>
                                 @endforeach
                             </div>
+
                             <!-- Custom Colors -->
                             <div id="custom-colors" class="row g-3" style="display: none;">
                                 <!-- Warna Primer, Sekunder, Aksen -->
@@ -77,10 +74,11 @@
                                         <div class="col-3">
                                             <label for="primary_color" class="form-label fw-medium">
                                                 <i class="ri-circle-fill text-primary me-1"></i> Warna Primer
+
                                             </label>
                                             <input type="color" class="form-control form-control-color w-100"
                                                 id="primary_color" name="primary_color"
-                                                value="{{ old('primary_color', $ujian->ujianThema->primary_color ?? '#4e73df') }}">
+                                                value="{{ old('primary_color', $ujian->ujianThema->primary_color ?? '#2c2c2c') }}">
                                         </div>
                                         <div class="col-3">
                                             <label for="secondary_color" class="form-label fw-medium">
@@ -88,15 +86,15 @@
                                             </label>
                                             <input type="color" class="form-control form-control-color w-100"
                                                 id="secondary_color" name="secondary_color"
-                                                value="{{ old('secondary_color', $ujian->ujianThema->secondary_color ?? '#1cc88a') }}">
+                                                value="{{ old('secondary_color', $ujian->ujianThema->secondary_color ?? '#6c757d') }}">
                                         </div>
                                         <div class="col-3">
                                             <label for="tertiary_color" class="form-label fw-medium">
-                                                <i class="ri-circle-fill text-success me-1"></i> Warna Aksen
+                                                <i class="ri-circle-fill text-success me-1"></i> Warna Card
                                             </label>
                                             <input type="color" class="form-control form-control-color w-100"
                                                 id="tertiary_color" name="tertiary_color"
-                                                value="{{ old('tertiary_color', $ujian->ujianThema->tertiary_color ?? '#f6c23e') }}">
+                                                value="{{ old('tertiary_color', $ujian->ujianThema->tertiary_color ?? '#f5f5f5') }}">
                                         </div>
                                         <div class="col-3">
                                             <label for="background_color" class="form-label fw-medium">
@@ -104,7 +102,7 @@
                                             </label>
                                             <input type="color" class="form-control form-control-color w-100"
                                                 id="background_color" name="background_color"
-                                                value="{{ old('background_color', $ujian->ujianThema->background_color ?? '#f8f9fc') }}">
+                                                value="{{ old('background_color', $ujian->ujianThema->background_color ?? '#ffffff') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -118,7 +116,7 @@
                                             </label>
                                             <input type="color" class="form-control form-control-color w-100"
                                                 id="header_color" name="header_color"
-                                                value="{{ old('header_color', $ujian->ujianThema->header_color ?? '#343a40') }}">
+                                                value="{{ old('header_color', $ujian->ujianThema->header_color ?? '#f0f0f0') }}">
                                         </div>
                                         <div class="col-3">
                                             <label for="font_color" class="form-label fw-medium">
@@ -126,7 +124,7 @@
                                             </label>
                                             <input type="color" class="form-control form-control-color w-100"
                                                 id="font_color" name="font_color"
-                                                value="{{ old('font_color', $ujian->ujianThema->font_color ?? '#343a40') }}">
+                                                value="{{ old('font_color', $ujian->ujianThema->font_color ?? '#212529') }}">
                                         </div>
                                         <div class="col-3">
                                             <label for="button_color" class="form-label fw-medium">
@@ -134,7 +132,7 @@
                                             </label>
                                             <input type="color" class="form-control form-control-color w-100"
                                                 id="button_color" name="button_color"
-                                                value="{{ old('button_color', $ujian->ujianThema->button_color ?? '#1d3557') }}">
+                                                value="{{ old('button_color', $ujian->ujianThema->button_color ?? '#0080ff') }}">
                                         </div>
                                         <div class="col-3">
                                             <label for="button_font_color" class="form-label fw-medium">
@@ -160,20 +158,57 @@
                             <div class="card" id="theme-preview-container">
                                 <div class="card-body">
                                     <div id="live-preview" class="theme-preview-large">
-                                        <div class="preview-content">
-                                            <div
-                                                class="d-flex align-items-center justify-content-center text-center flex-wrap gap-3 mb-3 mt-2">
-                                                <div class="preview-logo">
-                                                    <div class="logo-placeholder">LOGO</div>
+                                        <div class="preview-content" id="live-preview-content">
+                                            @php
+                                                $branding = [
+                                                    'logoHitam' =>
+                                                        \App\Models\SystemSetting::where('group', 'branding')
+                                                            ->where('key', 'logoHitam')
+                                                            ->value('value') ?? '',
+                                                ];
+                                            @endphp
+
+                                            <div id="preview-logo-container" class="text-center mb-3 mt-2">
+                                                {{-- Default: Logo dari branding --}}
+                                                <div id="default-logo-preview"
+                                                    style="{{ old('use_custom_color', $ujian->ujianThema->use_custom_color ?? false) ? 'display:none;' : '' }}">
+                                                    <img src="{{ $branding['logoHitam'] ? asset($branding['logoHitam']) : asset('images/placeholder.jpeg') }}"
+                                                        alt="logo" height="60">
                                                 </div>
-                                                <div class="preview-institution">
-                                                    <h4 id="preview-institution-name" class="mb-0">Nama Institusi
-                                                    </h4>
+
+                                                {{-- Custom Logo Only --}}
+                                                <div id="preview-logo-only"
+                                                    style="{{ old('use_custom_color', $ujian->ujianThema->use_custom_color ?? false) && !old('show_institution_name', $ujian->ujianThema->institution_name) ? '' : 'display:none;' }}">
+                                                    <div class="preview-logo">
+                                                        <img src="{{ asset($ujian->ujianThema->logo_path ?? 'images/placeholder.jpeg') }}"
+                                                            data-placeholder="{{ asset('images/placeholder.jpeg') }}"
+                                                            id="live-logo-preview-only" alt="logo"
+                                                            height="60">
+                                                    </div>
+                                                </div>
+
+                                                {{-- Custom Logo + Nama Institusi --}}
+                                                <div id="preview-logo-with-institution"
+                                                    style="{{ old('use_custom_color', $ujian->ujianThema->use_custom_color ?? false) && old('show_institution_name', $ujian->ujianThema->show_institution_name) ? '' : 'display:none;' }}">
+                                                    <div
+                                                        class="d-flex align-items-center justify-content-center text-center flex-wrap gap-3">
+                                                        <div class="preview-logo">
+                                                            <img src="{{ asset($ujian->ujianThema->logo_path ?? 'images/placeholder.jpeg') }}"
+                                                                data-placeholder="{{ asset('images/placeholder.jpeg') }}"
+                                                                id="live-logo-preview-with-text" alt="logo"
+                                                                height="60">
+                                                        </div>
+                                                        <div class="preview-institution">
+                                                            <h4 id="preview-institution-name" class="mb-0">
+                                                                {{ old('institution_name', $ujian->ujianThema->institution_name ?? 'Nama Institusi') }}
+                                                            </h4>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- isi pratinjau tetap -->
-                                            <div class="preview-header rounded mb-2">
+                                            <div class="preview-header rounded mb-2" id="live-preview-header">
                                                 <div class="preview-welcome">
                                                     <p id="preview-welcome-message">Pesan sambutan akan ditampilkan di
                                                         sini...
@@ -194,19 +229,18 @@
                                                     <div class="exam-card">
                                                         <div>
                                                             <h6>Form Peserta</h6>
-                                                            <button class="btn btn-primary mt-2">Mulai Ujian</button>
+                                                            <div class="btn btn-primary mt-2">Mulai Ujian</div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <footer>
+                                            <footer class="footer-preview">
                                                 <div class="text-center mt-4">
                                                     <script>
                                                         document.write(new Date().getFullYear())
-                                                    </script> © markazarabiyah.com - Supported by
-                                                    <a href="https://aneramedia.com/" class="text-reset link-danger"
-                                                        target="_blank">Anera Media</a>
+                                                    </script> © markazarabiyah.com - Supported by Anera
+                                                    Media
                                                 </div>
                                             </footer>
 
@@ -225,33 +259,30 @@
                                 </h4>
 
                                 <!-- Background -->
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="background_image" class="form-label">Gambar Latar (Opsional)</label>
                                     <input type="file" class="form-control" id="background_image"
                                         name="background_image" accept="image/*">
                                     <small class="text-muted">Background untuk halaman ujian</small>
-                                    @if (!empty($ujian->ujianThema->background_image_path))
-                                        <div class="mt-2">
-                                            <img src="{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}"
-                                                alt="Current Background" class="img-thumbnail"
-                                                style="max-width: 100px;">
-                                        </div>
-                                    @endif
                                 </div>
 
+                                <button type="button" id="remove_background_image"
+                                    class="btn btn-sm btn-outline-danger mb-3 d-none">
+                                    Hapus Gambar Latar
+                                </button>
+
                                 <!-- Header -->
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="header_image" class="form-label">Gambar Header (Opsional)</label>
                                     <input type="file" class="form-control" id="header_image" name="header_image"
                                         accept="image/*">
                                     <small class="text-muted">Banner untuk bagian header</small>
-                                    @if (!empty($ujian->ujianThema->header_image_path))
-                                        <div class="mt-2">
-                                            <img src="{{ asset('storage/' . $ujian->ujianThema->header_image_path) }}"
-                                                alt="Current Header" class="img-thumbnail" style="max-width: 100px;">
-                                        </div>
-                                    @endif
                                 </div>
+
+                                <button type="button" id="remove_header_image"
+                                    class="btn btn-sm btn-outline-danger mb-3 d-none">
+                                    Hapus Gambar Header
+                                </button>
                             </div>
 
                             <!-- Informasi Institusi -->
@@ -265,7 +296,7 @@
                                         placeholder="Selamat datang di ujian online...">{{ old('welcome_message', $ujian->ujianThema->welcome_message ?? '') }}</textarea>
                                 </div>
 
-                                <!-- Checkbox Gunakan Logo Custom -->
+                                <!-- Checkbox 1: Gunakan Logo Custom -->
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" id="use_custom_color"
                                         name="use_custom_color" value="1"
@@ -275,32 +306,45 @@
                                     </label>
                                 </div>
 
-                                <!-- Group Logo & Nama Institusi -->
-                                <div id="custom-logo-institution" style="display: none;">
-                                    <!-- Logo -->
+                                <!-- Section Upload Logo + Checkbox Kedua -->
+                                <div id="logo-section-wrapper" style="display: none;">
+                                    <!-- Upload Logo -->
                                     <div class="mb-3">
                                         <label for="logo" class="form-label">Logo Institusi</label>
                                         <input type="file" class="form-control" id="logo" name="logo"
                                             accept="image/png,image/jpg,image/jpeg,image/svg+xml">
                                         <small class="text-muted">Format: PNG, JPG, SVG. Maks 200x200px</small>
-                                        @if (!empty($ujian->ujianThema->logo_path))
-                                            <div class="mt-2">
-                                                <img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}"
-                                                    alt="Current Logo" class="img-thumbnail"
-                                                    style="max-width: 100px;">
-                                            </div>
-                                        @endif
+
+                                        <!-- Tombol hapus -->
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                style="display: none" id="remove-logo-btn">
+                                                Hapus Logo
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    <!-- Nama Institusi -->
-                                    <div class="mb-3">
-                                        <label for="institution_name" class="form-label">Nama Institusi</label>
-                                        <input type="text" class="form-control" id="institution_name"
-                                            name="institution_name"
-                                            value="{{ old('institution_name', $ujian->ujianThema->institution_name ?? '') }}"
-                                            placeholder="Nama sekolah/universitas/institusi">
+
+                                    <!-- Checkbox 2: Tampilkan Nama Institusi -->
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="show_institution_name"
+                                            name="show_institution_name" value="1"
+                                            {{ old('show_institution_name', $ujian->ujianThema->institution_name ? true : false) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="show_institution_name">
+                                            Tampilkan Nama Institusi
+                                        </label>
                                     </div>
                                 </div>
+
+                                <!-- Input Nama Institusi -->
+                                <div id="institution-name-section" class="mb-3" style="display: none;">
+                                    <label for="institution_name" class="form-label">Nama Institusi</label>
+                                    <input type="text" class="form-control" id="institution_name"
+                                        name="institution_name"
+                                        value="{{ old('institution_name', $ujian->ujianThema->institution_name ?? '') }}"
+                                        placeholder="Nama sekolah/universitas/institusi">
+                                </div>
+
 
                             </div>
 

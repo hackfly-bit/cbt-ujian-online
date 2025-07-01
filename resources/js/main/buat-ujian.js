@@ -1084,92 +1084,108 @@ import flatpickr from "flatpickr";
     };
 
     // Update Tampilan Preview
-window.updatePreview = function () {
-    const theme = $('input[name="theme"]:checked').val();
-    const isCustom = theme === "custom";
+    window.updatePreview = function () {
+        const theme = $('input[name="theme"]:checked').val();
+        const isCustom = theme === "custom";
 
-    const colors = isCustom
-        ? {
-              primary: $("#primary_color").val(),
-              secondary: $("#secondary_color").val(),
-              accent: $("#tertiary_color").val(),
-              background: $("#background_color").val(),
-              header: $("#header_color").val(),
-              font: $("#font_color").val(),
-              button: $("#button_color").val(),
-              buttonFont: $("#button_font_color").val(),
-          }
-        : {
-              background: $("#background_color").val(),
-              header: $("#header_color").val(),
-          };
+        const colors = isCustom
+            ? {
+                  primary: $("#primary_color").val(),
+                  secondary: $("#secondary_color").val(),
+                  tertiary: $("#tertiary_color").val(),
+                  background: $("#background_color").val(),
+                  header: $("#header_color").val(),
+                  font: $("#font_color").val(),
+                  button: $("#button_color").val(),
+                  buttonFont: $("#button_font_color").val(),
+              }
+            : {
+                  background: $("#background_color").val(),
+                  header: $("#header_color").val(),
+              };
 
-    applyThemeToPreview(
+        applyThemeToPreview(
+            theme,
+            colors,
+            $("#institution_name").val() || "Nama Institusi",
+            $("#welcome_message").val() ||
+                "Pesan sambutan akan ditampilkan di sini...",
+            isCustom
+        );
+    };
+
+    // Terapkan Tema ke Preview
+    window.applyThemeToPreview = function (
         theme,
         colors,
-        $("#institution_name").val() || "Nama Institusi",
-        $("#welcome_message").val() || "Pesan sambutan akan ditampilkan di sini...",
+        name,
+        message,
         isCustom
-    );
-};
+    ) {
+        const $preview = $("#live-preview");
+        const $header = $preview.find(".preview-header");
+        const $content = $preview.find(".preview-content");
+        const $welcomeText = $preview.find(".preview-welcome p");
+        const $institutionTitle = $preview.find(".preview-institution h4");
+        const $examCard = $preview.find(".exam-card");
+        const $button = $preview.find(".exam-card button");
+        const $footer = $(".footer-preview");
 
-// Terapkan Tema ke Preview
-window.applyThemeToPreview = function (
-    theme,
-    colors,
-    name,
-    message,
-    isCustom
-) {
-    const $preview = $("#live-preview");
-    const $header = $preview.find(".preview-header");
-    const $content = $preview.find(".preview-content");
-    const $examCard = $preview.find(".exam-card");
-    const $button = $preview.find(".exam-card button");
+        // Reset kelas tema sebelumnya dan tambahkan yang baru
+        $preview
+            .removeClass(
+                "classic-preview modern-preview glow-preview minimal-preview custom-preview"
+            )
+            .addClass(`${theme}-preview`);
 
-    // Reset kelas tema sebelumnya
-    $preview
-        .removeClass("classic-preview modern-preview glow-preview minimal-preview custom-preview")
-        .addClass(`${theme}-preview`);
+        // Ubah teks
+        $("#preview-institution-name").text(name);
+        $("#preview-welcome-message").text(message);
 
-    // Ubah teks
-    $("#preview-institution-name").text(name);
-    $("#preview-welcome-message").text(message);
+        if (isCustom) {
+            // Terapkan warna khusus dari objek colors
+            $header.css({
+                background: colors.header,
+            });
 
-    if (isCustom) {
-        // Header gradient
-        $header.css({
-            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-            color: "#fff",
-        });
+            $institutionTitle.css({
+                color: colors.primary,
+            });
 
-        // Background utama
-        $content.css("background-color", colors.background);
+            $content.css({
+                backgroundColor: colors.background,
+            });
 
-        // Font umum
-        $content.css("color", colors.font);
+            $welcomeText.css({
+                color: colors.secondary,
+            });
 
-        // Exam card background dan border
-        $examCard.css({
-            backgroundColor: colors.accent + "20", // transparan
-            border: `1px solid ${colors.accent}`,
-        });
+            $examCard.css({
+                backgroundColor: colors.tertiary,
+                color: colors.font,
+                border: `1px solid ${colors.tertiary}`,
+            });
 
-        // Tombol
-        $button.css({
-            backgroundColor: colors.button,
-            color: colors.buttonFont,
-            border: `1px solid ${colors.button}`,
-        });
-    } else {
-        // Reset semua style jika bukan custom
-        $header.removeAttr("style");
-        $content.removeAttr("style");
-        $examCard.removeAttr("style");
-        $button.removeAttr("style");
-    }
-};
+            $button.css({
+                backgroundColor: colors.button,
+                color: colors.buttonFont,
+                border: "none",
+            });
 
+            $footer.css({
+                color: colors.primary,
+            });
+        } else {
+            // Reset semua style manual jika bukan tema custom
+            $header.removeAttr("style");
+            $institutionTitle.removeAttr("style");
+            $content.removeAttr("style");
+            $welcomeText.removeAttr("style");
+            $examCard.removeAttr("style");
+            $button.removeAttr("style");
+            $footer.removeAttr("style");
+        }
+    };
 
     // Ambil Data Form Tampilan
     window.getTampilanData = function () {
@@ -1234,6 +1250,180 @@ window.applyThemeToPreview = function (
         $("#default-colors").toggle(!show);
         $("#custom-logo-institution").toggle(show);
     };
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkbox1 = document.getElementById("use_custom_color");
+        const checkbox2 = document.getElementById("show_institution_name");
+        const logoSection = document.getElementById("logo-section-wrapper");
+        const institutionNameSection = document.getElementById(
+            "institution-name-section"
+        );
+
+        const defaultLogo = document.getElementById("default-logo-preview");
+        const logoOnly = document.getElementById("preview-logo-only");
+        const logoWithInstitution = document.getElementById(
+            "preview-logo-with-institution"
+        );
+
+        const logoInput = document.getElementById("logo");
+        const previewImgOnly = document.getElementById(
+            "live-logo-preview-only"
+        );
+        const previewImgWithText = document.getElementById(
+            "live-logo-preview-with-text"
+        );
+
+        const institutionInput = document.getElementById("institution_name");
+        const institutionPreview = document.getElementById(
+            "preview-institution-name"
+        );
+
+        const placeholder =
+            previewImgOnly?.dataset.placeholder || "/images/placeholder.jpeg";
+
+        function toggleLogoPreview() {
+            const isLogoChecked = checkbox1.checked;
+            const isInstitutionChecked = checkbox2.checked;
+
+            defaultLogo?.style.setProperty("display", "none");
+            logoOnly?.style.setProperty("display", "none");
+            logoWithInstitution?.style.setProperty("display", "none");
+
+            if (!isLogoChecked) {
+                defaultLogo?.style.setProperty("display", "block");
+            } else if (isLogoChecked && !isInstitutionChecked) {
+                logoOnly?.style.setProperty("display", "block");
+            } else if (isLogoChecked && isInstitutionChecked) {
+                logoWithInstitution?.style.setProperty("display", "block");
+            }
+        }
+
+        function toggleLogoSection() {
+            const isLogoChecked = checkbox1.checked;
+            logoSection.style.display = isLogoChecked ? "block" : "none";
+
+            if (!isLogoChecked) {
+                institutionNameSection.style.display = "none";
+                checkbox2.checked = false;
+                resetLogoPreview(); // Reset semua saat uncheck logo
+            }
+
+            toggleLogoPreview();
+        }
+
+        function toggleInstitutionName() {
+            const isChecked = checkbox2.checked;
+            institutionNameSection.style.display = isChecked ? "block" : "none";
+
+            if (!isChecked) {
+                // Reset hanya bagian institusi
+                if (institutionInput) institutionInput.value = "";
+                if (institutionPreview)
+                    institutionPreview.textContent = "Nama Institusi";
+            }
+
+            toggleLogoPreview();
+        }
+
+        function resetLogoPreview() {
+            if (logoInput) logoInput.value = "";
+            if (previewImgOnly) previewImgOnly.src = placeholder;
+            if (previewImgWithText) previewImgWithText.src = placeholder;
+            if (institutionInput) institutionInput.value = "";
+            if (institutionPreview)
+                institutionPreview.textContent = "Nama Institusi";
+        }
+
+        if (logoInput) {
+            logoInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (file && file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        if (previewImgOnly)
+                            previewImgOnly.src = e.target.result;
+                        if (previewImgWithText)
+                            previewImgWithText.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    resetLogoPreview();
+                }
+            });
+        }
+
+        // Inisialisasi awal
+        toggleLogoSection();
+        toggleInstitutionName();
+
+        checkbox1.addEventListener("change", toggleLogoSection);
+        checkbox2.addEventListener("change", toggleInstitutionName);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const backgroundInput = document.getElementById("background_image");
+        const headerInput = document.getElementById("header_image");
+
+        const removeBgBtn = document.getElementById("remove_background_image");
+        const removeHeaderBtn = document.getElementById("remove_header_image");
+
+        const previewContent = document.getElementById("live-preview-content");
+        const previewHeader = document.getElementById("live-preview-header");
+
+        function applyBackgroundImage(input, element, removeBtn) {
+            const file = input.files[0];
+            if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    element.style.backgroundImage = `url(${e.target.result})`;
+                    element.style.backgroundSize = "cover";
+                    element.style.backgroundRepeat = "no-repeat";
+                    element.style.backgroundPosition = "center center";
+                    element.style.backgroundColor = "transparent";
+                    removeBtn.classList.remove("d-none");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetBackground(
+            element,
+            input,
+            removeBtn
+        ) {
+            input.value = "";
+            element.style.backgroundImage = "";
+            element.style.backgroundSize = "";
+            element.style.backgroundRepeat = "";
+            element.style.backgroundPosition = "";
+            element.style.backgroundColor = "";
+            removeBtn.classList.add("d-none");
+        }
+
+        if (backgroundInput) {
+            backgroundInput.addEventListener("change", function () {
+                applyBackgroundImage(this, previewContent, removeBgBtn);
+            });
+        }
+
+        if (removeBgBtn) {
+            removeBgBtn.addEventListener("click", function () {
+                resetBackground(previewContent, backgroundInput, removeBgBtn);
+            });
+        }
+
+        if (headerInput) {
+            headerInput.addEventListener("change", function () {
+                applyBackgroundImage(this, previewHeader, removeHeaderBtn);
+            });
+        }
+
+        if (removeHeaderBtn) {
+            removeHeaderBtn.addEventListener("click", function () {
+                resetBackground(previewHeader, headerInput, removeHeaderBtn);
+            });
+        }
+    });
 
     // ...existing code...
 })(window.jQuery);
