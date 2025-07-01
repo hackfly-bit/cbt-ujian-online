@@ -71,7 +71,10 @@
                     <a href="{{ route('home') }}">
                         @php
                             $branding = [
-                                'logoHitam' => \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '',
+                                'logoHitam' =>
+                                    \App\Models\SystemSetting::where('group', 'branding')
+                                        ->where('key', 'logoHitam')
+                                        ->value('value') ?? '',
                             ];
                         @endphp
                         <span>
@@ -225,8 +228,10 @@
 
         <footer>
             <div class="text-center">
-                <p class="text-base mb-0">© {{ date('Y') }} <a href="{{ route('any', 'index') }}ml"
-                        class="text-primary">MyLMS</a>. All rights reserved.</p>
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> © markazarabiyah.com - Supported by
+                <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
             </div>
         </footer>
 

@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 import flatpickr from "flatpickr";
 // import Datepicker from "bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js";
 
-
 (function ($) {
     "use strict";
 
@@ -146,29 +145,43 @@ import flatpickr from "flatpickr";
 
         // load sections from ujian.ujian_sections count is greater than 0
         if (ujian.ujian_sections && ujian.ujian_sections.length > 0) {
-            console.group('🔄 Loading existing sections');
-            console.log(`Total sections to load: ${ujian.ujian_sections.length}`);
+            console.group("🔄 Loading existing sections");
+            console.log(
+                `Total sections to load: ${ujian.ujian_sections.length}`
+            );
 
             ujian.ujian_sections.forEach((section, index) => {
                 self.sectionCount++;
                 const currentSectionIndex = self.sectionCount; // Capture immediately for closure
 
-                console.log(`\n--- Processing Section ${index + 1} (UI Section ${currentSectionIndex}) ---`);
-                console.log('Section data:', section);
+                console.log(
+                    `\n--- Processing Section ${
+                        index + 1
+                    } (UI Section ${currentSectionIndex}) ---`
+                );
+                console.log("Section data:", section);
 
                 const $container = $("#section-container");
                 const collapseId = `collapse-seksi-${currentSectionIndex}`;
                 const sectionHTML = `
-                <div class="section-item mb-2" data-section-index="${currentSectionIndex}" data-db-section-id="${section.id}">
+                <div class="section-item mb-2" data-section-index="${currentSectionIndex}" data-db-section-id="${
+                    section.id
+                }">
                 <div class="section-content d-flex justify-content-between align-items-center px-4 py-3">
                     <div class="d-flex align-items-center gap-3">
                     <span class="section-drag-handle cursor-grab text-muted">
                         <i class="bi bi-grip-vertical fs-2"></i>
                     </span>
-                    <strong class="section-title m-0">${section.nama_section || `Seksi ${currentSectionIndex}`}</strong>
+                    <strong class="section-title m-0">${
+                        section.nama_section || `Seksi ${currentSectionIndex}`
+                    }</strong>
                     </div>
                     <div class="text-muted section-toolbar d-flex align-items-center gap-2">
-                    <span>${section.ujian_section_soals ? section.ujian_section_soals.length : 0} soal</span>
+                    <span>${
+                        section.ujian_section_soals
+                            ? section.ujian_section_soals.length
+                            : 0
+                    } soal</span>
                     <button class="chevron-toggle btn btn-sm p-1" type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#${collapseId}"
@@ -182,35 +195,83 @@ import flatpickr from "flatpickr";
                     <form class="section-form" data-section-index="${currentSectionIndex}">
                     <div class="mb-2">
                         <label class="form-label">Nama Seksi</label>
-                        <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi" value="${section.nama_section || ''}">
+                        <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi" value="${
+                            section.nama_section || ""
+                        }">
                     </div>
                      <div class="mb-2">
                                 <label class="form-label">Instruksi</label>
-                                <textarea class="form-control" name="instruksi" placeholder="Instruksi pengerjaan soal">${section.instruksi || ''}</textarea>
+                                <textarea class="form-control" name="instruksi" placeholder="Instruksi pengerjaan soal">${
+                                    section.instruksi || ""
+                                }</textarea>
                             </div>
                     <div class="mb-2">
                         <label class="form-label">Formula Penilaian</label>
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <span>(</span>
                             <select class="form-select" name="answer_type" style="width: auto">
-                                <option value="correctAnswer" ${section.formula_type === 'correctAnswer' ? 'selected' : ''}>Jawaban Benar</option>
-                                <option value="incorrectAnswer" ${section.formula_type === 'incorrectAnswer' ? 'selected' : ''}>Jawaban Salah</option>
+                                <option value="correctAnswer" ${
+                                    section.formula_type === "correctAnswer"
+                                        ? "selected"
+                                        : ""
+                                }>Jawaban Benar</option>
+                                <option value="incorrectAnswer" ${
+                                    section.formula_type === "incorrectAnswer"
+                                        ? "selected"
+                                        : ""
+                                }>Jawaban Salah</option>
                             </select>
                             <select class="form-select" name="operation" style="width: auto">
-                                <option value="*" ${section.operation_1 === '*' ? 'selected' : ''}>×</option>
-                                <option value="+" ${section.operation_1 === '+' ? 'selected' : ''}>+</option>
-                                <option value="-" ${section.operation_1 === '-' ? 'selected' : ''}>-</option>
-                                <option value="/" ${section.operation_1 === '/' ? 'selected' : ''}>÷</option>
+                                <option value="*" ${
+                                    section.operation_1 === "*"
+                                        ? "selected"
+                                        : ""
+                                }>×</option>
+                                <option value="+" ${
+                                    section.operation_1 === "+"
+                                        ? "selected"
+                                        : ""
+                                }>+</option>
+                                <option value="-" ${
+                                    section.operation_1 === "-"
+                                        ? "selected"
+                                        : ""
+                                }>-</option>
+                                <option value="/" ${
+                                    section.operation_1 === "/"
+                                        ? "selected"
+                                        : ""
+                                }>÷</option>
                             </select>
-                            <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px" value="${section.value_1 || ''}">
+                            <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px" value="${
+                                section.value_1 || ""
+                            }">
                             <span>)</span>
                             <select class="form-select" name="operation2" style="width: auto">
-                                <option value="*" ${section.operation_2 === '*' ? 'selected' : ''}>×</option>
-                                <option value="+" ${section.operation_2 === '+' ? 'selected' : ''}>+</option>
-                                <option value="-" ${section.operation_2 === '-' ? 'selected' : ''}>-</option>
-                                <option value="/" ${section.operation_2 === '/' ? 'selected' : ''}>÷</option>
+                                <option value="*" ${
+                                    section.operation_2 === "*"
+                                        ? "selected"
+                                        : ""
+                                }>×</option>
+                                <option value="+" ${
+                                    section.operation_2 === "+"
+                                        ? "selected"
+                                        : ""
+                                }>+</option>
+                                <option value="-" ${
+                                    section.operation_2 === "-"
+                                        ? "selected"
+                                        : ""
+                                }>-</option>
+                                <option value="/" ${
+                                    section.operation_2 === "/"
+                                        ? "selected"
+                                        : ""
+                                }>÷</option>
                             </select>
-                            <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px" value="${section.value_2 || ''}">
+                            <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px" value="${
+                                section.value_2 || ""
+                            }">
                         </div>
                         <small class="text-muted">
                             Contoh: (Jawaban Benar × n) × n
@@ -232,7 +293,11 @@ import flatpickr from "flatpickr";
                         </div>
                         <div class="mt-2">
                         <small class="text-muted">
-                            <span class="selected-count">${section.ujian_section_soals ? section.ujian_section_soals.length : 0}</span> soal dipilih
+                            <span class="selected-count">${
+                                section.ujian_section_soals
+                                    ? section.ujian_section_soals.length
+                                    : 0
+                            }</span> soal dipilih
                         </small>
                         </div>
                     </div>
@@ -242,23 +307,43 @@ import flatpickr from "flatpickr";
             `;
 
                 $container.append(sectionHTML);
-                console.log(`✅ Section ${currentSectionIndex} HTML added to DOM`);
-                console.log(`Database section.id: ${section.id}, UI section: ${currentSectionIndex}, Category: ${section.kategori_id}`);
+                console.log(
+                    `✅ Section ${currentSectionIndex} HTML added to DOM`
+                );
+                console.log(
+                    `Database section.id: ${section.id}, UI section: ${currentSectionIndex}, Category: ${section.kategori_id}`
+                );
 
                 // Load categories and set selected category if exists
-                self.loadCategories(currentSectionIndex).then(() => {
-                    console.log(`📂 Categories loaded for UI section ${currentSectionIndex}`);
-                    if (section.kategori_id) {
-                        console.log(`🎯 Setting category ${section.kategori_id} for UI section ${currentSectionIndex} (DB section ${section.id})`);
-                        const $categoryDropdown = $(`.category-dropdown[data-section="${currentSectionIndex}"]`);
-                        $categoryDropdown.val(section.kategori_id);
+                self.loadCategories(currentSectionIndex)
+                    .then(() => {
+                        console.log(
+                            `📂 Categories loaded for UI section ${currentSectionIndex}`
+                        );
+                        if (section.kategori_id) {
+                            console.log(
+                                `🎯 Setting category ${section.kategori_id} for UI section ${currentSectionIndex} (DB section ${section.id})`
+                            );
+                            const $categoryDropdown = $(
+                                `.category-dropdown[data-section="${currentSectionIndex}"]`
+                            );
+                            $categoryDropdown.val(section.kategori_id);
 
-                        // Load questions for this category
-                        self.loadQuestionsIfExist(section.kategori_id, section.id, section.ujian_section_soals, currentSectionIndex);
-                    }
-                }).catch(error => {
-                    console.error(`❌ Error loading categories for section ${currentSectionIndex}:`, error);
-                });
+                            // Load questions for this category
+                            self.loadQuestionsIfExist(
+                                section.kategori_id,
+                                section.id,
+                                section.ujian_section_soals,
+                                currentSectionIndex
+                            );
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(
+                            `❌ Error loading categories for section ${currentSectionIndex}:`,
+                            error
+                        );
+                    });
             });
             console.groupEnd();
         }
@@ -277,17 +362,23 @@ import flatpickr from "flatpickr";
         });
 
         // Handle metode penilaian change
-        $("#section-container").on("change", ".metode-penilaian-dropdown", function () {
-            const $dropdown = $(this);
-            const selectedValue = $dropdown.val();
-            const $formulaGroup = $dropdown.closest('.section-form').find('.formula-input-group');
+        $("#section-container").on(
+            "change",
+            ".metode-penilaian-dropdown",
+            function () {
+                const $dropdown = $(this);
+                const selectedValue = $dropdown.val();
+                const $formulaGroup = $dropdown
+                    .closest(".section-form")
+                    .find(".formula-input-group");
 
-            if (selectedValue === 'manual') {
-                $formulaGroup.show();
-            } else {
-                $formulaGroup.hide();
+                if (selectedValue === "manual") {
+                    $formulaGroup.show();
+                } else {
+                    $formulaGroup.hide();
+                }
             }
-        });
+        );
 
         // Handle category selection change
         $("#section-container").on("change", ".category-dropdown", function () {
@@ -304,14 +395,18 @@ import flatpickr from "flatpickr";
                     self.loadQuestions(categoryId, sectionId);
                 } else {
                     // Clear questions
-                    const $questionContainer = $dropdown.closest('.section-form').find('.question-container');
+                    const $questionContainer = $dropdown
+                        .closest(".section-form")
+                        .find(".question-container");
                     $questionContainer.html(`
                         <div class="text-muted text-center py-3">
                             <i class="bi bi-list-check fs-3 d-block mb-2"></i>
                             Pilih kategori terlebih dahulu untuk melihat soal
                         </div>
                     `);
-                    self.updateSelectedCount($dropdown.closest('.section-form'));
+                    self.updateSelectedCount(
+                        $dropdown.closest(".section-form")
+                    );
                 }
             }, 300);
         });
@@ -319,7 +414,7 @@ import flatpickr from "flatpickr";
         // Handle question checkbox changes
         $("#section-container").on("change", ".question-checkbox", function () {
             const $checkbox = $(this);
-            const $form = $checkbox.closest('.section-form');
+            const $form = $checkbox.closest(".section-form");
             self.updateSelectedCount($form);
             self.updateSectionQuestionCount($form);
         });
@@ -335,8 +430,12 @@ import flatpickr from "flatpickr";
         console.log(`📋 Loading categories for UI section ${sectionId}`);
 
         if ($dropdown.length === 0) {
-            console.error(`❌ Category dropdown not found for section ${sectionId}`);
-            return Promise.reject(new Error(`Dropdown not found for section ${sectionId}`));
+            console.error(
+                `❌ Category dropdown not found for section ${sectionId}`
+            );
+            return Promise.reject(
+                new Error(`Dropdown not found for section ${sectionId}`)
+            );
         }
 
         // Show loading state
@@ -348,32 +447,40 @@ import flatpickr from "flatpickr";
             return Promise.resolve();
         }
 
-        return fetch('/filter/kategori')
-            .then(response => {
+        return fetch("/filter/kategori")
+            .then((response) => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
-            .then(data => {
+            .then((data) => {
                 // Cache the categories
                 this.categoriesCache = data;
                 this.populateCategories($dropdown, data);
             })
-            .catch(error => {
-                console.error(`Error loading categories for section ${sectionId}:`, error);
-                $dropdown.html('<option value="">Error loading categories</option>');
+            .catch((error) => {
+                console.error(
+                    `Error loading categories for section ${sectionId}:`,
+                    error
+                );
+                $dropdown.html(
+                    '<option value="">Error loading categories</option>'
+                );
                 throw error; // Re-throw to allow caller to handle
             });
     };
 
     // Helper method to populate category dropdown
     DragulaSections.prototype.populateCategories = function ($dropdown, data) {
-        console.log(`📝 Populating categories for dropdown:`, $dropdown.attr('data-section'));
+        console.log(
+            `📝 Populating categories for dropdown:`,
+            $dropdown.attr("data-section")
+        );
         let options = '<option value="">Pilih Kategori</option>';
 
         if (data && data.length > 0) {
-            data.forEach(category => {
+            data.forEach((category) => {
                 options += `<option value="${category.id}">${category.nama}</option>`;
             });
             console.log(`✅ Added ${data.length} categories to dropdown`);
@@ -392,17 +499,26 @@ import flatpickr from "flatpickr";
      * @param {Array} existingQuestions - Array of existing questions
      * @param {number} sectionCount - The section count for UI
      */
-    DragulaSections.prototype.loadQuestionsIfExist = function (categoryId, sectionId, existingQuestions, sectionCount) {
+    DragulaSections.prototype.loadQuestionsIfExist = function (
+        categoryId,
+        sectionId,
+        existingQuestions,
+        sectionCount
+    ) {
         console.group(`🔄 Loading questions for section ${sectionCount}`);
         console.log(`Category ID: ${categoryId}, Section DB ID: ${sectionId}`);
-        console.log('Existing questions:', existingQuestions);
+        console.log("Existing questions:", existingQuestions);
 
-        const $form = $(`.category-dropdown[data-section="${sectionCount}"]`).closest('.section-form');
+        const $form = $(
+            `.category-dropdown[data-section="${sectionCount}"]`
+        ).closest(".section-form");
         // FIX: Use scoped selector instead of global selector
-        const $questionContainer = $form.find('.question-container');
+        const $questionContainer = $form.find(".question-container");
 
         if ($questionContainer.length === 0) {
-            console.error(`❌ Question container not found for section ${sectionCount}`);
+            console.error(
+                `❌ Question container not found for section ${sectionCount}`
+            );
             console.groupEnd();
             return;
         }
@@ -419,20 +535,28 @@ import flatpickr from "flatpickr";
                 <div class="text-muted mt-2">Memuat soal...</div>
             </div>
         `);
-        fetch(`/filter/ujian-sections-soals?kategori=${categoryId}&section_id=${sectionId}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
+        fetch(
+            `/filter/ujian-sections-soals?kategori=${categoryId}&section_id=${sectionId}`,
+            {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    Accept: "application/json",
+                },
             }
-        })
-            .then(response => response.json())
-            .then(response => {
+        )
+            .then((response) => response.json())
+            .then((response) => {
                 // console.log('Loaded questions:', response);
-                let questionsHTML = '';
+                let questionsHTML = "";
                 const data = response.data || response; // Handle DataTables response format
                 if (data && data.length > 0) {
                     data.forEach((question, index) => {
-                        questionsHTML += self.generateQuestionHTML(question, sectionCount, existingQuestions, index);
+                        questionsHTML += self.generateQuestionHTML(
+                            question,
+                            sectionCount,
+                            existingQuestions,
+                            index
+                        );
                     });
                 } else {
                     questionsHTML = `
@@ -445,16 +569,23 @@ import flatpickr from "flatpickr";
                 // Update question container with loaded questions
                 $questionContainer.html(questionsHTML);
                 self.updateSelectedCount($form);
-                console.log(`✅ Successfully loaded ${data.length} questions for section ${sectionCount}`);
+                console.log(
+                    `✅ Successfully loaded ${data.length} questions for section ${sectionCount}`
+                );
                 console.groupEnd();
             })
-            .catch(error => {
-                console.error(`❌ Error loading questions for section ${sectionCount}:`, error);
+            .catch((error) => {
+                console.error(
+                    `❌ Error loading questions for section ${sectionCount}:`,
+                    error
+                );
                 $questionContainer.html(`
                     <div class="text-danger text-center py-3">
                         <i class="bi bi-exclamation-triangle fs-3 d-block mb-2"></i>
                         Error memuat soal. Silakan coba lagi.
-                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="$.DragulaSections.loadQuestionsIfExist('${categoryId}', '${sectionId}', ${JSON.stringify(existingQuestions)}, ${sectionCount})">
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="$.DragulaSections.loadQuestionsIfExist('${categoryId}', '${sectionId}', ${JSON.stringify(
+                    existingQuestions
+                )}, ${sectionCount})">
                             <i class="bi bi-arrow-clockwise me-1"></i>Coba Lagi
                         </button>
                     </div>
@@ -469,8 +600,10 @@ import flatpickr from "flatpickr";
      * @param {number} sectionId - The section ID for the UI
      */
     DragulaSections.prototype.loadQuestions = function (categoryId, sectionId) {
-        const $form = $(`.category-dropdown[data-section="${sectionId}"]`).closest('.section-form');
-        const $questionContainer = $form.find('.question-container');
+        const $form = $(
+            `.category-dropdown[data-section="${sectionId}"]`
+        ).closest(".section-form");
+        const $questionContainer = $form.find(".question-container");
 
         // Show loading state
         $questionContainer.html(`
@@ -484,18 +617,23 @@ import flatpickr from "flatpickr";
 
         fetch(`/bank-soal?kategori=${categoryId}`, {
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
+                "X-Requested-With": "XMLHttpRequest",
+                Accept: "application/json",
+            },
         })
-            .then(response => response.json())
-            .then(response => {
-                let questionsHTML = '';
+            .then((response) => response.json())
+            .then((response) => {
+                let questionsHTML = "";
                 const data = response.data || response; // Handle DataTables response format
 
                 if (data && data.length > 0) {
                     data.forEach((question, index) => {
-                        questionsHTML += this.generateQuestionHTML(question, sectionId, null, index);
+                        questionsHTML += this.generateQuestionHTML(
+                            question,
+                            sectionId,
+                            null,
+                            index
+                        );
                     });
                 } else {
                     questionsHTML = `
@@ -509,7 +647,7 @@ import flatpickr from "flatpickr";
                 $questionContainer.html(questionsHTML);
                 this.updateSelectedCount($form);
             })
-            .catch(error => {
+            .catch((error) => {
                 // console.error('Error loading questions:', error);
                 $questionContainer.html(`
                     <div class="text-danger text-center py-3">
@@ -528,27 +666,47 @@ import flatpickr from "flatpickr";
      * @param {number} index - The index of the question in the list
      * @returns {string} The HTML string for the question
      */
-    DragulaSections.prototype.generateQuestionHTML = function (question, sectionId, existingQuestions, index) {
+    DragulaSections.prototype.generateQuestionHTML = function (
+        question,
+        sectionId,
+        existingQuestions,
+        index
+    ) {
         const questionText = question.pertanyaan || `Soal ${(index || 0) + 1}`;
         const questionId = question.id;
         const tingkatKesulitan = question.tingkat_kesulitan
-            ? `<span class="badge bg-secondary-subtle text-dark small">${question.tingkat_kesulitan.nama || question.tingkat_kesulitan}</span>`
-            : '';
+            ? `<span class="badge bg-secondary-subtle text-dark small">${
+                  question.tingkat_kesulitan.nama || question.tingkat_kesulitan
+              }</span>`
+            : "";
         const kategori = question.kategori
-            ? `<span class="badge bg-primary-subtle text-primary small">${question.kategori.nama || question.kategori}</span>`
-            : '';
+            ? `<span class="badge bg-primary-subtle text-primary small">${
+                  question.kategori.nama || question.kategori
+              }</span>`
+            : "";
         const mediaIcon = question.is_audio
             ? '<i class="ri-audio-line text-primary me-1"></i>'
             : '<i class="ri-text-wrap text-muted me-1"></i>';
-        const isChecked = existingQuestions && existingQuestions.some(q => q.soal_id === questionId) ? 'checked' : '';
+        const isChecked =
+            existingQuestions &&
+            existingQuestions.some((q) => q.soal_id === questionId)
+                ? "checked"
+                : "";
 
         return `
             <div class="question-box d-flex align-items-center justify-content-between mb-3 p-3 rounded shadow-sm bg-light-subtle">
                 <div class="content me-3 w-100">
-                    <div class="fw-medium text-dark mb-2 d-flex align-items-center" title="${questionText.replace(/"/g, '&quot;')}">
+                    <div class="fw-medium text-dark mb-2 d-flex align-items-center" title="${questionText.replace(
+                        /"/g,
+                        "&quot;"
+                    )}">
                         ${mediaIcon}
                         <span class="text-truncate">
-                            ${questionText.length > 100 ? questionText.substring(0, 100) + '...' : questionText}
+                            ${
+                                questionText.length > 100
+                                    ? questionText.substring(0, 100) + "..."
+                                    : questionText
+                            }
                         </span>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
@@ -572,58 +730,61 @@ import flatpickr from "flatpickr";
     DragulaSections.prototype.validateSection = function (sectionData) {
         const errors = [];
 
-        if (!sectionData.nama_section || sectionData.nama_section.trim() === '') {
-            errors.push('Nama seksi harus diisi');
+        if (
+            !sectionData.nama_section ||
+            sectionData.nama_section.trim() === ""
+        ) {
+            errors.push("Nama seksi harus diisi");
         }
 
         if (!sectionData.kategori_id) {
-            errors.push('Kategori soal harus dipilih');
+            errors.push("Kategori soal harus dipilih");
         }
 
-        if (!sectionData.selected_questions || sectionData.selected_questions.length === 0) {
-            errors.push('Minimal satu soal harus dipilih');
+        if (
+            !sectionData.selected_questions ||
+            sectionData.selected_questions.length === 0
+        ) {
+            errors.push("Minimal satu soal harus dipilih");
         }
 
         return {
             isValid: errors.length === 0,
-            errors: errors
+            errors: errors,
         };
     };
 
     // Update selected question count
     DragulaSections.prototype.updateSelectedCount = function ($form) {
-        const selectedCount = $form.find('.question-checkbox:checked').length;
-        $form.find('.selected-count').text(selectedCount);
+        const selectedCount = $form.find(".question-checkbox:checked").length;
+        $form.find(".selected-count").text(selectedCount);
     };
 
     // Update section question count in header
     DragulaSections.prototype.updateSectionQuestionCount = function ($form) {
-        const selectedCount = $form.find('.question-checkbox:checked').length;
-        const $section = $form.closest('.section-item');
-        const $toolbar = $section.find('.section-toolbar span:first');
+        const selectedCount = $form.find(".question-checkbox:checked").length;
+        const $section = $form.closest(".section-item");
+        const $toolbar = $section.find(".section-toolbar span:first");
         $toolbar.text(`${selectedCount} soal`);
     };
 
-    $(document).on('input', '.section-nama-input', function () {
+    $(document).on("input", ".section-nama-input", function () {
         const $input = $(this);
-        const $section = $input.closest('.section-item');
-        const $title = $section.find('.section-title');
+        const $section = $input.closest(".section-item");
+        const $title = $section.find(".section-title");
         const val = $input.val().trim();
         if (val) {
             $title.text(val);
         } else {
             // fallback to default
             const idx = $section.index() + 1;
-            $title.text('Seksi ' + idx);
+            $title.text("Seksi " + idx);
         }
     });
 
     // Inisialisasi
     $.DragulaSections = new DragulaSections();
     $.DragulaSections.Constructor = DragulaSections;
-
-
-
 })(window.jQuery);
 
 // Custom functions and scripts section
@@ -633,38 +794,39 @@ import flatpickr from "flatpickr";
     // Initialize DragulaSections
     $.DragulaSections.init();
 
-
     window.toggleNilaiKelulusan = () => {
-        const metode = document.getElementById('metode_penilaian').value;
-        const group = document.getElementById('nilai_kelulusan_group');
-        group.style.display = metode === 'rumus_custom' ? 'block' : 'none';
-    }
+        const metode = document.getElementById("metode_penilaian").value;
+        const group = document.getElementById("nilai_kelulusan_group");
+        group.style.display = metode === "rumus_custom" ? "block" : "none";
+    };
     // document.addEventListener('DOMContentLoaded', toggleNilaiKelulusan);
 
     // Function to navigate to the next tab
     window.goToNextTab = function (targetTabId) {
         // Hide current active tab
-        const $currentActiveTab = $('.tab-pane.show.active');
-        const $currentActiveNavTab = $('.nav-link.active');
+        const $currentActiveTab = $(".tab-pane.show.active");
+        const $currentActiveNavTab = $(".nav-link.active");
 
-        $currentActiveTab.removeClass('show active');
-        $currentActiveNavTab.removeClass('active').attr('aria-selected', 'false');
+        $currentActiveTab.removeClass("show active");
+        $currentActiveNavTab
+            .removeClass("active")
+            .attr("aria-selected", "false");
 
         // Show target tab
-        const $targetTab = $('#' + targetTabId);
-        const $targetNavTab = $('#' + targetTabId + '-tab');
+        const $targetTab = $("#" + targetTabId);
+        const $targetNavTab = $("#" + targetTabId + "-tab");
 
-        $targetTab.addClass('show active');
-        $targetNavTab.addClass('active').attr('aria-selected', 'true');
+        $targetTab.addClass("show active");
+        $targetNavTab.addClass("active").attr("aria-selected", "true");
     };
 
     // Function to get all section data for form submission
     window.getSectionData = function () {
         const sections = [];
 
-        $('#section-container .section-item').each(function () {
+        $("#section-container .section-item").each(function () {
             const $section = $(this);
-            const $form = $section.find('.section-form');
+            const $form = $section.find(".section-form");
 
             // console.log('Processing section:', $form.find('select[name="kategori_id"]').val());
 
@@ -674,14 +836,18 @@ import flatpickr from "flatpickr";
                 instruksi: $form.find('textarea[name="instruksi"]').val(),
                 kategori_id: $form.find('select[name="kategori_id"]').val(),
                 formula_type: $form.find('select[name="answer_type"]').val(),
-                operation_1: $form.find('select[name="operation"]').val() || '*',
-                value_1: parseFloat($form.find('input[name="value"]').val()) || 1,
-                operation_2: $form.find('select[name="operation2"]').val() || '*',
-                value_2: parseFloat($form.find('input[name="value2"]').val()) || 1,
-                selected_questions: []
+                operation_1:
+                    $form.find('select[name="operation"]').val() || "*",
+                value_1:
+                    parseFloat($form.find('input[name="value"]').val()) || 1,
+                operation_2:
+                    $form.find('select[name="operation2"]').val() || "*",
+                value_2:
+                    parseFloat($form.find('input[name="value2"]').val()) || 1,
+                selected_questions: [],
             };
 
-            $form.find('.question-checkbox:checked').each(function () {
+            $form.find(".question-checkbox:checked").each(function () {
                 sectionData.selected_questions.push($(this).val());
             });
 
@@ -695,18 +861,18 @@ import flatpickr from "flatpickr";
     window.handleSaveUjian = function () {
         const sectionData = getSectionData();
 
-        if (typeof Swal === 'undefined') {
-            alert('Harap tambahkan minimal satu seksi ujian.');
+        if (typeof Swal === "undefined") {
+            alert("Harap tambahkan minimal satu seksi ujian.");
             return;
         }
 
         if (sectionData.length === 0) {
             return Swal.fire({
-                icon: 'warning',
-                title: 'Peringatan',
-                text: 'Harap tambahkan minimal satu seksi ujian.',
-                confirmButtonText: 'OK'
-            }).then(() => goToNextTab('seksi'));
+                icon: "warning",
+                title: "Peringatan",
+                text: "Harap tambahkan minimal satu seksi ujian.",
+                confirmButtonText: "OK",
+            }).then(() => goToNextTab("seksi"));
         }
 
         for (let i = 0; i < sectionData.length; i++) {
@@ -714,107 +880,124 @@ import flatpickr from "flatpickr";
 
             if (!section.nama_section) {
                 return Swal.fire({
-                    icon: 'warning',
-                    title: 'Peringatan',
+                    icon: "warning",
+                    title: "Peringatan",
                     text: `Harap isi nama seksi untuk Seksi ${i + 1}.`,
-                    confirmButtonText: 'OK'
-                }).then(() => goToNextTab('seksi'));
+                    confirmButtonText: "OK",
+                }).then(() => goToNextTab("seksi"));
             }
 
             if (section.selected_questions.length === 0) {
                 return Swal.fire({
-                    icon: 'warning',
-                    title: 'Peringatan',
+                    icon: "warning",
+                    title: "Peringatan",
                     text: `Harap pilih minimal satu soal untuk ${section.nama_section}.`,
-                    confirmButtonText: 'OK'
-                }).then(() => goToNextTab('seksi'));
+                    confirmButtonText: "OK",
+                }).then(() => goToNextTab("seksi"));
             }
         }
 
-        const totalQuestions = sectionData.reduce((sum, section) => sum + section.selected_questions.length, 0);
+        const totalQuestions = sectionData.reduce(
+            (sum, section) => sum + section.selected_questions.length,
+            0
+        );
         const confirmMessage = `Anda akan menyimpan ujian dengan ${sectionData.length} seksi dan total ${totalQuestions} soal. Lanjutkan?`;
 
         Swal.fire({
-            title: 'Konfirmasi',
+            title: "Konfirmasi",
             text: confirmMessage,
-            icon: 'question',
+            icon: "question",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, Simpan!',
-            cancelButtonText: 'Batal'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, Simpan!",
+            cancelButtonText: "Batal",
         }).then((result) => {
             if (!result.isConfirmed) return;
 
             Swal.fire({
-                title: 'Menyimpan...',
-                text: 'Mohon tunggu sebentar',
+                title: "Menyimpan...",
+                text: "Mohon tunggu sebentar",
                 allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
+                didOpen: () => Swal.showLoading(),
             });
 
             // Ambil ID dari URL jika ada
-            const urlParts = window.location.pathname.split('/');
-            let ujianId = (urlParts[1] === 'ujian' && /^\d+$/.test(urlParts[2])) ? urlParts[2] : null;
-            const url = ujianId ? `/ujian/${ujianId}` : '/ujian';
-            const method = ujianId ? 'POST' : 'POST'; // Jika pakai Route::put(), ganti method jadi PUT
+            const urlParts = window.location.pathname.split("/");
+            let ujianId =
+                urlParts[1] === "ujian" && /^\d+$/.test(urlParts[2])
+                    ? urlParts[2]
+                    : null;
+            const url = ujianId ? `/ujian/${ujianId}` : "/ujian";
+            const method = ujianId ? "POST" : "POST"; // Jika pakai Route::put(), ganti method jadi PUT
 
             const tampilanData = getTampilanData(); // Pastikan return-nya adalah FormData
 
             // append put
 
             if (ujianId) {
-                tampilanData.append('_method', 'PUT');
+                tampilanData.append("_method", "PUT");
             }
 
             // Tambah data tambahan
-            tampilanData.append('sections', JSON.stringify(sectionData));
-            tampilanData.append('detail', JSON.stringify({
-                nama: $('#nama_ujian').val(),
-                deskripsi: $('#deskripsi').val(),
-                durasi: $('#durasi_ujian').val() || 120,
-                jenis_ujian: $('#jenis_ujian').val(),
-                tanggal_selesai: $('#tanggal_kedaluwarsa').val(),
-            }));
-            tampilanData.append('peserta', JSON.stringify({
-                nama: $('#nama').is(':checked'),
-                email: $('#email').is(':checked'),
-                phone: $('#telp').is(':checked'),
-                institusi: $('#sekolah').is(':checked'),
-                nomor_induk: $('#no_induk').is(':checked'),
-                tanggal_lahir: $('#tanggal_lahir').is(':checked'),
-                alamat: $('#alamat').is(':checked'),
-                foto: $('#foto').is(':checked')
-            }));
-            tampilanData.append('pengaturan', JSON.stringify({
-                nilai_kelulusan: $('#nilai_kelulusan').val(),
-                hasil_ujian: $('#hasil_ujian_tersedia').val(),
-                acak_soal: $('#acak_soal').is(':checked'),
-                acak_jawaban: $('#acak_jawaban').is(':checked'),
-                lihat_hasil: $('#lihat_hasil').is(':checked'),
-                // lihat_pembahasan: $('#lihat_pembahasan').is(':checked'),
-                is_arabic: $('#is_arabic').is(':checked'),
-                answer_type: $('#answer_type').val(),
-                operation: $('#operation').val(),
-                value: $('#value').val(),
-                operation2: $('#operation2').val(),
-                value2: $('#value2').val(),
-                lockscreen: $('#lockscreen').is(':checked'),
-                foto: $('#foto').is(':checked')
-            }));
+            tampilanData.append("sections", JSON.stringify(sectionData));
+            tampilanData.append(
+                "detail",
+                JSON.stringify({
+                    nama: $("#nama_ujian").val(),
+                    deskripsi: $("#deskripsi").val(),
+                    durasi: $("#durasi_ujian").val() || 120,
+                    jenis_ujian: $("#jenis_ujian").val(),
+                    tanggal_selesai: $("#tanggal_kedaluwarsa").val(),
+                })
+            );
+            tampilanData.append(
+                "peserta",
+                JSON.stringify({
+                    nama: $("#nama").is(":checked"),
+                    email: $("#email").is(":checked"),
+                    phone: $("#telp").is(":checked"),
+                    institusi: $("#sekolah").is(":checked"),
+                    nomor_induk: $("#no_induk").is(":checked"),
+                    tanggal_lahir: $("#tanggal_lahir").is(":checked"),
+                    alamat: $("#alamat").is(":checked"),
+                    foto: $("#foto").is(":checked"),
+                })
+            );
+            tampilanData.append(
+                "pengaturan",
+                JSON.stringify({
+                    nilai_kelulusan: $("#nilai_kelulusan").val(),
+                    hasil_ujian: $("#hasil_ujian_tersedia").val(),
+                    acak_soal: $("#acak_soal").is(":checked"),
+                    acak_jawaban: $("#acak_jawaban").is(":checked"),
+                    lihat_hasil: $("#lihat_hasil").is(":checked"),
+                    // lihat_pembahasan: $('#lihat_pembahasan').is(':checked'),
+                    is_arabic: $("#is_arabic").is(":checked"),
+                    answer_type: $("#answer_type").val(),
+                    operation: $("#operation").val(),
+                    value: $("#value").val(),
+                    operation2: $("#operation2").val(),
+                    value2: $("#value2").val(),
+                    lockscreen: $("#lockscreen").is(":checked"),
+                    foto: $("#foto").is(":checked"),
+                })
+            );
 
             // Handle file uploads
-            if (tampilanData.has('logo')) {
-                const logoFile = tampilanData.get('logo');
-                tampilanData.delete('logo');
-                tampilanData.append('logo', logoFile);
+            if (tampilanData.has("logo")) {
+                const logoFile = tampilanData.get("logo");
+                tampilanData.delete("logo");
+                tampilanData.append("logo", logoFile);
             }
 
             $.ajax({
                 url: url,
                 type: method,
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                        "content"
+                    ),
                 },
                 processData: false,
                 contentType: false,
@@ -822,261 +1005,234 @@ import flatpickr from "flatpickr";
                 success: function (response) {
                     if (response.success) {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: 'Ujian berhasil disimpan!',
-                            confirmButtonText: 'OK'
+                            icon: "success",
+                            title: "Berhasil!",
+                            text: "Ujian berhasil disimpan!",
+                            confirmButtonText: "OK",
                         }).then(() => {
-                            window.location.href = '/ujian';
+                            window.location.href = "/ujian";
                         });
                     } else {
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: response.message || 'Gagal menyimpan ujian.',
-                            confirmButtonText: 'OK'
+                            icon: "error",
+                            title: "Gagal",
+                            text: response.message || "Gagal menyimpan ujian.",
+                            confirmButtonText: "OK",
                         });
                     }
                 },
                 error: function (xhr) {
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan ujian.',
-                        confirmButtonText: 'OK'
+                        icon: "error",
+                        title: "Error",
+                        text:
+                            xhr.responseJSON?.message ||
+                            "Terjadi kesalahan saat menyimpan ujian.",
+                        confirmButtonText: "OK",
                     });
-                }
+                },
             });
         });
     };
 
     // Prevent form submission on Enter key in section for
 
-    // Theme and appearance functionality
+    // Inisialisasi & DOM Ready
+    $(document).ready(function () {
+        if ($("#tampilan-form").length) {
+            initThemePreview();
+        }
+    });
+
+    // Fungsi Utama Preview Tema
     window.initThemePreview = function () {
-        // Toggle custom colors visibility
-        $('#use_custom_color').on('change', function () {
-            if ($(this).is(':checked')) {
-                $('#custom-colors').show();
-                $('#default-colors').hide();
-            } else {
-                $('#custom-colors').hide();
-                $('#default-colors').show();
+        // Klik kotak tema = pilih radio input
+        $(".theme-option").on("click", function () {
+            const radio = $(this).find('input[type="radio"]');
+            radio.prop("checked", true).trigger("change");
+        });
+
+        // Saat tema atau warna berubah, update preview
+        $('input[name="theme"], input[type="color"]').on(
+            "change input",
+            function () {
+                updatePreview();
+                toggleCustomColors();
             }
-            updatePreview();
-        });
+        );
 
-        // Theme selection
-        $('input[name="theme"]').on('change', function () {
-            updatePreview();
-        });
+        // Nama institusi & sambutan update preview
+        $("#institution_name, #welcome_message").on("input", updatePreview);
 
-        // Color changes
-        $('input[type="color"]').on('input', function () {
-            updatePreview();
-        });
-
-        // Text input changes
-        $('#institution_name, #welcome_message').on('input', function () {
-            updatePreview();
-        });
-
-        // File upload preview
-        $('#logo').on('change', function () {
+        // Preview logo langsung saat file dipilih
+        $("#logo").on("change", function () {
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    $('.preview-logo .logo-placeholder').html(`<img src="${e.target.result}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">`);
+                    $(".preview-logo .logo-placeholder").html(
+                        `<img src="${e.target.result}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">`
+                    );
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Initial preview
+        // Preview awal saat pertama kali load
         updatePreview();
         toggleCustomColors();
     };
 
-    window.updatePreview = function () {
-        const theme = $('input[name="theme"]:checked').val();
-        const useCustomColor = $('#use_custom_color').is(':checked');
-        const institutionName = $('#institution_name').val() || 'Nama Institusi';
-        const welcomeMessage = $('#welcome_message').val() || 'Pesan sambutan akan ditampilkan di sini...';
+    // Update Tampilan Preview
+window.updatePreview = function () {
+    const theme = $('input[name="theme"]:checked').val();
+    const isCustom = theme === "custom";
 
-        let colors = {};
+    const colors = isCustom
+        ? {
+              primary: $("#primary_color").val(),
+              secondary: $("#secondary_color").val(),
+              accent: $("#tertiary_color").val(),
+              background: $("#background_color").val(),
+              header: $("#header_color").val(),
+              font: $("#font_color").val(),
+              button: $("#button_color").val(),
+              buttonFont: $("#button_font_color").val(),
+          }
+        : {
+              background: $("#background_color").val(),
+              header: $("#header_color").val(),
+          };
 
-        if (useCustomColor) {
-            colors = {
-                primary: $('#primary_color').val(),
-                secondary: $('#secondary_color').val(),
-                accent: $('#tertiary_color').val()
-            };
-        } else {
-            colors = {
-                background: $('#background_color').val(),
-                header: $('#header_color').val()
-            };
-        }
+    applyThemeToPreview(
+        theme,
+        colors,
+        $("#institution_name").val() || "Nama Institusi",
+        $("#welcome_message").val() || "Pesan sambutan akan ditampilkan di sini...",
+        isCustom
+    );
+};
 
-        applyThemeToPreview(theme, colors, institutionName, welcomeMessage, useCustomColor);
-    };
+// Terapkan Tema ke Preview
+window.applyThemeToPreview = function (
+    theme,
+    colors,
+    name,
+    message,
+    isCustom
+) {
+    const $preview = $("#live-preview");
+    const $header = $preview.find(".preview-header");
+    const $content = $preview.find(".preview-content");
+    const $examCard = $preview.find(".exam-card");
+    const $button = $preview.find(".exam-card button");
 
-    window.applyThemeToPreview = function (theme, colors, institutionName, welcomeMessage, useCustomColor) {
-        const $preview = $('#live-preview');
-        const $header = $preview.find('.preview-header');
-        const $content = $preview.find('.preview-content');
-        const $examCard = $preview.find('.exam-card');
+    // Reset kelas tema sebelumnya
+    $preview
+        .removeClass("classic-preview modern-preview glow-preview minimal-preview custom-preview")
+        .addClass(`${theme}-preview`);
 
-        // Reset classes
-        $preview.removeClass('classic-preview modern-preview glow-preview minimal-preview');
-        $preview.addClass(theme + '-preview');
+    // Ubah teks
+    $("#preview-institution-name").text(name);
+    $("#preview-welcome-message").text(message);
 
-        // Update text content
-        $('#preview-institution-name').text(institutionName);
-        $('#preview-welcome-message').text(welcomeMessage);
+    if (isCustom) {
+        // Header gradient
+        $header.css({
+            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+            color: "#fff",
+        });
 
-        // Apply theme-specific styles
-        switch (theme) {
-            case 'classic':
-                if (useCustomColor) {
-                    $header.css({
-                        'background': `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-                        'color': '#fff'
-                    });
-                    $content.css('background', '#fff');
-                    $examCard.css({
-                        'background': colors.accent + '20',
-                        'border-color': colors.accent
-                    });
-                } else {
-                    $header.css({
-                        'background': colors.header,
-                        'color': '#333'
-                    });
-                    $content.css('background', colors.background);
-                }
-                break;
+        // Background utama
+        $content.css("background-color", colors.background);
 
-            case 'modern':
-                if (useCustomColor) {
-                    $header.css({
-                        'background': `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-                        'color': '#fff'
-                    });
-                    $content.css('background', '#f8f9fa');
-                    $examCard.css({
-                        'background': colors.accent + '20',
-                        'border-color': colors.accent
-                    });
-                } else {
-                    $header.css({
-                        'background': 'linear-gradient(135deg, #0d6efd 0%, #0056b3 100%)',
-                        'color': '#fff'
-                    });
-                    $content.css('background', colors.background);
-                }
-                break;
+        // Font umum
+        $content.css("color", colors.font);
 
-            case 'glow':
-                if (useCustomColor) {
-                    $header.css({
-                        'background': `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 50%, ${colors.accent} 100%)`,
-                        'color': '#fff'
-                    });
-                } else {
-                    $header.css({
-                        'background': 'linear-gradient(135deg, #6f42c1 0%, #e83e8c 50%, #fd7e14 100%)',
-                        'color': '#fff'
-                    });
-                }
-                $content.css('background', 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)');
-                break;
+        // Exam card background dan border
+        $examCard.css({
+            backgroundColor: colors.accent + "20", // transparan
+            border: `1px solid ${colors.accent}`,
+        });
 
-            case 'minimal':
-                if (useCustomColor) {
-                    $header.css({
-                        'background': colors.primary,
-                        'color': '#fff'
-                    });
-                    $content.css('background', colors.secondary + '10');
-                } else {
-                    $header.css({
-                        'background': colors.header,
-                        'color': '#fff'
-                    });
-                    $content.css('background', colors.background);
-                }
-                break;
-        }
-    };
+        // Tombol
+        $button.css({
+            backgroundColor: colors.button,
+            color: colors.buttonFont,
+            border: `1px solid ${colors.button}`,
+        });
+    } else {
+        // Reset semua style jika bukan custom
+        $header.removeAttr("style");
+        $content.removeAttr("style");
+        $examCard.removeAttr("style");
+        $button.removeAttr("style");
+    }
+};
 
-    window.toggleCustomColors = function () {
-        const useCustomColor = $('#use_custom_color').is(':checked');
-        if (useCustomColor) {
-            $('#custom-colors').show();
-            $('#default-colors').hide();
-        } else {
-            $('#custom-colors').hide();
-            $('#default-colors').show();
-        }
-    };
 
-    // Initialize on DOM ready
-    $(document).ready(function () {
-        if ($('#tampilan-form').length) {
-            initThemePreview();
-        }
-
-        // Trigger initial state for custom colors
-        $('#use_custom_color').trigger('change');
-    });
-
-    // Function to get tampilan data
+    // Ambil Data Form Tampilan
     window.getTampilanData = function () {
         const formData = new FormData();
+        const selectedTheme = $('input[name="theme"]:checked').val();
+        const isCustom = selectedTheme === "custom";
 
-        // Theme data
-        formData.append('theme', $('input[name="theme"]:checked').val() || 'classic');
-        formData.append('institution_name', $('#institution_name').val() || '');
-        formData.append('welcome_message', $('#welcome_message').val() || '');
-        formData.append('use_custom_color', $('#use_custom_color').is(':checked') ? 1 : 0);
+        formData.append("theme", selectedTheme);
+        formData.append("institution_name", $("#institution_name").val() || "");
+        formData.append("welcome_message", $("#welcome_message").val() || "");
+        formData.append("use_custom_color", isCustom ? 1 : 0);
 
-        // If use_custom_color is checked, send all custom color fields
-        if ($('#use_custom_color').is(':checked')) {
-            formData.append('primary_color', $('#primary_color').val() || '');
-            formData.append('secondary_color', $('#secondary_color').val() || '');
-            formData.append('tertiary_color', $('#tertiary_color').val() || '');
-            formData.append('background_color', $('#background_color').val() || '');
-            formData.append('header_color', $('#header_color').val() || '');
-            formData.append('font_color', $('#font_color').val() || '');
-            formData.append('button_color', $('#button_color').val() || '');
-            formData.append('button_font_color', $('#button_font_color').val() || '');
-        } else {
-            // Only send theme name, backend will use masterColors
+        if (isCustom) {
+            formData.append("primary_color", $("#primary_color").val() || "");
+            formData.append(
+                "secondary_color",
+                $("#secondary_color").val() || ""
+            );
+            formData.append("tertiary_color", $("#tertiary_color").val() || "");
+            formData.append(
+                "background_color",
+                $("#background_color").val() || ""
+            );
+            formData.append("header_color", $("#header_color").val() || "");
+            formData.append("font_color", $("#font_color").val() || "");
+            formData.append("button_color", $("#button_color").val() || "");
+            formData.append(
+                "button_font_color",
+                $("#button_font_color").val() || ""
+            );
         }
 
-        // File paths (for existing images, if any)
-        formData.append('background_image_path', $('#background_image_path').val() || '');
-        formData.append('header_image_path', $('#header_image_path').val() || '');
+        // File paths lama
+        formData.append(
+            "background_image_path",
+            $("#background_image_path").val() || ""
+        );
+        formData.append(
+            "header_image_path",
+            $("#header_image_path").val() || ""
+        );
 
-        // Files
-        const logoFile = $('#logo')[0]?.files[0];
-        if (logoFile) {
-            formData.append('logo', logoFile);
-        }
+        // Upload file baru
+        const logo = $("#logo")[0]?.files[0];
+        if (logo) formData.append("logo", logo);
 
-        const backgroundFile = $('#background_image')[0]?.files[0];
-        if (backgroundFile) {
-            formData.append('background_image', backgroundFile);
-        }
+        const bg = $("#background_image")[0]?.files[0];
+        if (bg) formData.append("background_image", bg);
 
-        const headerFile = $('#header_image')[0]?.files[0];
-        if (headerFile) {
-            formData.append('header_image', headerFile);
-        }
+        const header = $("#header_image")[0]?.files[0];
+        if (header) formData.append("header_image", header);
 
         return formData;
+    };
+
+    // Tampilkan/Sembunyikan Panel Warna Kustom
+    window.toggleCustomColors = function () {
+        const selectedTheme = $('input[name="theme"]:checked').val();
+        const show = selectedTheme === "custom";
+
+        $("#custom-colors").toggle(show);
+        $("#default-colors").toggle(!show);
+        $("#custom-logo-institution").toggle(show);
     };
 
     // ...existing code...
