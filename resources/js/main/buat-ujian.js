@@ -1044,6 +1044,10 @@ import flatpickr from "flatpickr";
         }
     });
 
+    // Variabel global untuk menyimpan background & header preview
+    let bgImagePreviewUrl = "";
+    let headerImagePreviewUrl = "";
+
     // Fungsi Utama Preview Tema
     window.initThemePreview = function () {
         // Klik kotak tema = pilih radio input
@@ -1131,52 +1135,32 @@ import flatpickr from "flatpickr";
         const $button = $preview.find(".exam-card button");
         const $footer = $(".footer-preview");
 
-        // Reset kelas tema sebelumnya dan tambahkan yang baru
         $preview
             .removeClass(
                 "classic-preview modern-preview glow-preview minimal-preview custom-preview"
             )
             .addClass(`${theme}-preview`);
 
-        // Ubah teks
         $("#preview-institution-name").text(name);
         $("#preview-welcome-message").text(message);
 
         if (isCustom) {
-            // Terapkan warna khusus dari objek colors
-            $header.css({
-                background: colors.header,
-            });
-
-            $institutionTitle.css({
-                color: colors.primary,
-            });
-
-            $content.css({
-                backgroundColor: colors.background,
-            });
-
-            $welcomeText.css({
-                color: colors.secondary,
-            });
-
+            $header.css({ background: colors.header });
+            $institutionTitle.css({ color: colors.primary });
+            $content.css({ backgroundColor: colors.background });
+            $welcomeText.css({ color: colors.secondary });
             $examCard.css({
                 backgroundColor: colors.tertiary,
                 color: colors.font,
                 border: `1px solid ${colors.tertiary}`,
             });
-
             $button.css({
                 backgroundColor: colors.button,
                 color: colors.buttonFont,
                 border: "none",
             });
-
-            $footer.css({
-                color: colors.primary,
-            });
+            $footer.css({ color: colors.primary });
         } else {
-            // Reset semua style manual jika bukan tema custom
             $header.removeAttr("style");
             $institutionTitle.removeAttr("style");
             $content.removeAttr("style");
@@ -1184,6 +1168,24 @@ import flatpickr from "flatpickr";
             $examCard.removeAttr("style");
             $button.removeAttr("style");
             $footer.removeAttr("style");
+        }
+
+        if (bgImagePreviewUrl) {
+            $content.css({
+                backgroundImage: `url(${bgImagePreviewUrl})`,
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center center",
+            });
+        }
+
+        if (headerImagePreviewUrl) {
+            $header.css({
+                backgroundImage: `url(${headerImagePreviewUrl})`,
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center center",
+            });
         }
     };
 
@@ -1218,7 +1220,6 @@ import flatpickr from "flatpickr";
             );
         }
 
-        // File paths lama
         formData.append(
             "background_image_path",
             $("#background_image_path").val() || ""
@@ -1228,7 +1229,6 @@ import flatpickr from "flatpickr";
             $("#header_image_path").val() || ""
         );
 
-        // Upload file baru
         const logo = $("#logo")[0]?.files[0];
         if (logo) formData.append("logo", logo);
 
@@ -1251,7 +1251,8 @@ import flatpickr from "flatpickr";
         $("#custom-logo-institution").toggle(show);
     };
 
-    document.addEventListener("DOMContentLoaded", function () {
+    // Toggle Logo dan Institusi
+    $(function () {
         const checkbox1 = document.getElementById("use_custom_color");
         const checkbox2 = document.getElementById("show_institution_name");
         const logoSection = document.getElementById("logo-section-wrapper");
@@ -1305,7 +1306,7 @@ import flatpickr from "flatpickr";
             if (!isLogoChecked) {
                 institutionNameSection.style.display = "none";
                 checkbox2.checked = false;
-                resetLogoPreview(); // Reset semua saat uncheck logo
+                resetLogoPreview();
             }
 
             toggleLogoPreview();
@@ -1316,7 +1317,6 @@ import flatpickr from "flatpickr";
             institutionNameSection.style.display = isChecked ? "block" : "none";
 
             if (!isChecked) {
-                // Reset hanya bagian institusi
                 if (institutionInput) institutionInput.value = "";
                 if (institutionPreview)
                     institutionPreview.textContent = "Nama Institusi";
@@ -1352,7 +1352,6 @@ import flatpickr from "flatpickr";
             });
         }
 
-        // Inisialisasi awal
         toggleLogoSection();
         toggleInstitutionName();
 
@@ -1360,7 +1359,8 @@ import flatpickr from "flatpickr";
         checkbox2.addEventListener("change", toggleInstitutionName);
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
+    // Handle background dan header image
+    $(function () {
         const backgroundInput = document.getElementById("background_image");
         const headerInput = document.getElementById("header_image");
 
@@ -1375,22 +1375,25 @@ import flatpickr from "flatpickr";
             if (file && file.type.startsWith("image/")) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    element.style.backgroundImage = `url(${e.target.result})`;
+                    const imageUrl = e.target.result;
+                    element.style.backgroundImage = `url(${imageUrl})`;
                     element.style.backgroundSize = "cover";
                     element.style.backgroundRepeat = "no-repeat";
                     element.style.backgroundPosition = "center center";
                     element.style.backgroundColor = "transparent";
                     removeBtn.classList.remove("d-none");
+
+                    if (input === backgroundInput) {
+                        bgImagePreviewUrl = imageUrl;
+                    } else if (input === headerInput) {
+                        headerImagePreviewUrl = imageUrl;
+                    }
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function resetBackground(
-            element,
-            input,
-            removeBtn
-        ) {
+        function resetBackground(element, input, removeBtn) {
             input.value = "";
             element.style.backgroundImage = "";
             element.style.backgroundSize = "";
@@ -1398,6 +1401,9 @@ import flatpickr from "flatpickr";
             element.style.backgroundPosition = "";
             element.style.backgroundColor = "";
             removeBtn.classList.add("d-none");
+
+            if (input === backgroundInput) bgImagePreviewUrl = "";
+            if (input === headerInput) headerImagePreviewUrl = "";
         }
 
         if (backgroundInput) {
