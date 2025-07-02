@@ -188,17 +188,19 @@ class UjianController extends Controller
             $ujianPesertaForm->foto = $peserta['foto'] ?? false;
             $ujianPesertaForm->save();
 
+            $use_custom_color = $request->input('use_custom_color') ? 1 : 0;
+            $show_institution_name = $request->input('show_institution_name') ? 1 : 0;
+
             // Create ujian theme
             $ujianThema = new \App\Models\UjianThema();
             $ujianThema->ujian_id = $ujian->id;
             $ujianThema->theme = $request->input('theme', 'classic');
             $ujianThema->institution_name = $request->input('institution_name');
             $ujianThema->welcome_message = $request->input('welcome_message');
-            $ujianThema->use_custom_color = $request->input('use_custom_color', false);
-            $ujianThema->show_institution_name = $request->input('show_institution_name', false);
+            $ujianThema->use_custom_color = $use_custom_color;
+            $ujianThema->show_institution_name = $show_institution_name;
 
-            if ($request->input('use_custom_color')) {
-                $ujianThema->use_custom_color = true;
+            if ($use_custom_color) {
                 $ujianThema->primary_color = $request->input('primary_color');
                 $ujianThema->secondary_color = $request->input('secondary_color');
                 $ujianThema->tertiary_color = $request->input('tertiary_color');
@@ -208,7 +210,6 @@ class UjianController extends Controller
                 $ujianThema->button_color = $request->input('button_color');
                 $ujianThema->button_font_color = $request->input('button_font_color');
             } else {
-                $ujianThema->use_custom_color = false;
                 $selectedTheme = $request->input('theme', 'klasik');
 
                 if (isset($masterColors[$selectedTheme])) {
@@ -425,14 +426,16 @@ class UjianController extends Controller
                 $ujianThema->ujian_id = $ujian->id;
             }
 
+            $use_custom_color = $request->input('use_custom_color') ? 1 : 0;
+            $show_institution_name = $request->input('show_institution_name') ? 1 : 0;
+
             $ujianThema->theme = $request->input('theme', 'classic');
             $ujianThema->institution_name = $request->input('institution_name');
             $ujianThema->welcome_message = $request->input('welcome_message');
-            $ujianThema->use_custom_color = $request->input('use_custom_color', false);
-            $ujianThema->show_institution_name = $request->input('show_institution_name', false);
+            $ujianThema->use_custom_color = $use_custom_color;
+            $ujianThema->show_institution_name = $show_institution_name;
 
-            if ($request->input('use_custom_color')) {
-                $ujianThema->use_custom_color = true;
+            if ($use_custom_color) {
                 $ujianThema->primary_color = $request->input('primary_color');
                 $ujianThema->secondary_color = $request->input('secondary_color');
                 $ujianThema->tertiary_color = $request->input('tertiary_color');
@@ -442,7 +445,6 @@ class UjianController extends Controller
                 $ujianThema->button_color = $request->input('button_color');
                 $ujianThema->button_font_color = $request->input('button_font_color');
             } else {
-                $ujianThema->use_custom_color = false;
                 $selectedTheme = $request->input('theme', 'klasik');
 
                 if (isset($masterColors[$selectedTheme])) {
@@ -539,7 +541,7 @@ class UjianController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
 
-            // Log::error($e);
+            Log::error($e);
 
             return response()->json([
                 'success' => false,

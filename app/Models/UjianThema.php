@@ -38,8 +38,8 @@ class UjianThema extends Model
         'welcome_message',
         'background_color',
         'header_color',
-        'use_custom_color',
-        'show_institution_name',
+        // 'use_custom_color',
+        // 'show_institution_name',
         'primary_color',
         'secondary_color',
         'tertiary_color',
@@ -52,9 +52,16 @@ class UjianThema extends Model
      * @var string
      */
     protected $table = 'ujian_themas';
+
     /**
-     * @var string
+     * The attributes that should be cast.
+     *
+     * @var array
      */
+    protected $casts = [
+        'use_custom_color' => 'boolean',
+        'show_institution_name' => 'boolean',
+    ];
 
     //  relationship with Ujian model
     public function ujian()
