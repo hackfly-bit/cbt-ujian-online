@@ -329,7 +329,7 @@
                                     <div class="form-check form-switch mb-3">
                                         <input class="form-check-input" type="checkbox" id="show_institution_name"
                                             name="show_institution_name" value="1"
-                                            {{ old('show_institution_name', $ujian->ujianThema->institution_name ? true : false) ? 'checked' : '' }}>
+                                            {{ old('show_institution_name', $ujian->ujianThema->show_institution_name ?? false) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="show_institution_name">
                                             Tampilkan Nama Institusi
                                         </label>
