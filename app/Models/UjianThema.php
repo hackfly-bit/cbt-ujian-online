@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $background_color
  * @property string $header_color
  * @property boolean $use_custom_color
+ * @property boolean $show_institution_name
  * @property string $primary_color
  * @property string $secondary_color
  * @property string $tertiary_color
@@ -38,6 +39,7 @@ class UjianThema extends Model
         'background_color',
         'header_color',
         'use_custom_color',
+        'show_institution_name',
         'primary_color',
         'secondary_color',
         'tertiary_color',

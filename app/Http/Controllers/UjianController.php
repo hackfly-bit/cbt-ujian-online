@@ -195,6 +195,7 @@ class UjianController extends Controller
             $ujianThema->institution_name = $request->input('institution_name');
             $ujianThema->welcome_message = $request->input('welcome_message');
             $ujianThema->use_custom_color = $request->input('use_custom_color', false);
+            $ujianThema->show_institution_name = $request->input('show_institution_name', false);
 
             if ($request->input('use_custom_color')) {
                 $ujianThema->use_custom_color = true;
@@ -428,6 +429,7 @@ class UjianController extends Controller
             $ujianThema->institution_name = $request->input('institution_name');
             $ujianThema->welcome_message = $request->input('welcome_message');
             $ujianThema->use_custom_color = $request->input('use_custom_color', false);
+            $ujianThema->show_institution_name = $request->input('show_institution_name', false);
 
             if ($request->input('use_custom_color')) {
                 $ujianThema->use_custom_color = true;

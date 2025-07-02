@@ -1198,7 +1198,8 @@ import flatpickr from "flatpickr";
         formData.append("theme", selectedTheme);
         formData.append("institution_name", $("#institution_name").val() || "");
         formData.append("welcome_message", $("#welcome_message").val() || "");
-        formData.append("use_custom_color", isCustom ? 1 : 0);
+        formData.append("use_custom_color", $("#use_custom_color").is(":checked"));
+        formData.append("show_institution_name", $("#show_institution_name").is(":checked"));
 
         if (isCustom) {
             formData.append("primary_color", $("#primary_color").val() || "");
