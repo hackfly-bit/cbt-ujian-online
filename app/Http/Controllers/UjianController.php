@@ -188,8 +188,8 @@ class UjianController extends Controller
             $ujianPesertaForm->foto = $peserta['foto'] ?? false;
             $ujianPesertaForm->save();
 
-            $use_custom_color = $request->input('use_custom_color') ? 1 : 0;
-            $show_institution_name = $request->input('show_institution_name') ? 1 : 0;
+            $use_custom_color = $request->boolean('use_custom_color') ? 1 : 0;
+            $show_institution_name = $request->boolean('show_institution_name') ? 1 : 0;
 
             // Create ujian theme
             $ujianThema = new \App\Models\UjianThema();
@@ -447,8 +447,8 @@ class UjianController extends Controller
                 $ujianThema->ujian_id = $ujian->id;
             }
 
-            $use_custom_color = $request->input('use_custom_color') ? 1 : 0;
-            $show_institution_name = $request->input('show_institution_name') ? 1 : 0;
+            $use_custom_color = $request->boolean('use_custom_color') ? 1 : 0;
+            $show_institution_name = $request->boolean('show_institution_name') ? 1 : 0;
 
             $ujianThema->theme = $request->input('theme', 'classic');
             $ujianThema->institution_name = $request->input('institution_name');
