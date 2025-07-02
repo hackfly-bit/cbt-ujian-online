@@ -238,19 +238,40 @@ class UjianController extends Controller
 
             // Handle file uploads
             if ($request->hasFile('logo')) {
-                $logoPath = $request->file('logo')->store('ujian/logos', 'public');
-                $ujianThema->logo_path = $logoPath;
+                // Hapus logo lama jika ada
+                if ($ujianThema->logo_path && file_exists(public_path($ujianThema->logo_path))) {
+                    unlink(public_path($ujianThema->logo_path));
+                }
+
+                $logoFile = $request->file('logo');
+                $logoName = time() . '_' . $logoFile->getClientOriginalName();
+                $logoFile->move(public_path('images/ujian/logos'), $logoName);
+                // Simpan path relatif dari public
+                $ujianThema->logo_path = 'images/ujian/logos/' . $logoName;
             }
 
             if ($request->hasFile('background_image')) {
-                $backgroundPath = $request->file('background_image')->store('ujian/backgrounds', 'public');
-                $ujianThema->background_image_path = $backgroundPath;
+                if ($ujianThema->background_image_path && file_exists(public_path($ujianThema->background_image_path))) {
+                    unlink(public_path($ujianThema->background_image_path));
+                }
+
+                $backgroundFile = $request->file('background_image');
+                $backgroundName = time() . '_' . $backgroundFile->getClientOriginalName();
+                $backgroundFile->move(public_path('images/ujian/backgrounds'), $backgroundName);
+                $ujianThema->background_image_path = 'images/ujian/backgrounds/' . $backgroundName;
             }
 
             if ($request->hasFile('header_image')) {
-                $headerPath = $request->file('header_image')->store('ujian/headers', 'public');
-                $ujianThema->header_image_path = $headerPath;
+                if ($ujianThema->header_image_path && file_exists(public_path($ujianThema->header_image_path))) {
+                    unlink(public_path($ujianThema->header_image_path));
+                }
+
+                $headerFile = $request->file('header_image');
+                $headerName = time() . '_' . $headerFile->getClientOriginalName();
+                $headerFile->move(public_path('images/ujian/headers'), $headerName);
+                $ujianThema->header_image_path = 'images/ujian/headers/' . $headerName;
             }
+
 
             $ujianThema->save();
 
@@ -472,30 +493,38 @@ class UjianController extends Controller
 
             // Handle file uploads
             if ($request->hasFile('logo')) {
-                // Delete old logo if exists
-                if ($ujianThema->logo_path && Storage::disk('public')->exists($ujianThema->logo_path)) {
-                    Storage::disk('public')->delete($ujianThema->logo_path);
+                // Hapus logo lama jika ada
+                if ($ujianThema->logo_path && file_exists(public_path($ujianThema->logo_path))) {
+                    unlink(public_path($ujianThema->logo_path));
                 }
-                $logoPath = $request->file('logo')->store('ujian/logos', 'public');
-                $ujianThema->logo_path = $logoPath;
+
+                $logoFile = $request->file('logo');
+                $logoName = time() . '_' . $logoFile->getClientOriginalName();
+                $logoFile->move(public_path('images/ujian/logos'), $logoName);
+                // Simpan path relatif dari public
+                $ujianThema->logo_path = 'images/ujian/logos/' . $logoName;
             }
 
             if ($request->hasFile('background_image')) {
-                // Delete old background if exists
-                if ($ujianThema->background_image_path && Storage::disk('public')->exists($ujianThema->background_image_path)) {
-                    Storage::disk('public')->delete($ujianThema->background_image_path);
+                if ($ujianThema->background_image_path && file_exists(public_path($ujianThema->background_image_path))) {
+                    unlink(public_path($ujianThema->background_image_path));
                 }
-                $backgroundPath = $request->file('background_image')->store('ujian/backgrounds', 'public');
-                $ujianThema->background_image_path = $backgroundPath;
+
+                $backgroundFile = $request->file('background_image');
+                $backgroundName = time() . '_' . $backgroundFile->getClientOriginalName();
+                $backgroundFile->move(public_path('images/ujian/backgrounds'), $backgroundName);
+                $ujianThema->background_image_path = 'images/ujian/backgrounds/' . $backgroundName;
             }
 
             if ($request->hasFile('header_image')) {
-                // Delete old header if exists
-                if ($ujianThema->header_image_path && Storage::disk('public')->exists($ujianThema->header_image_path)) {
-                    Storage::disk('public')->delete($ujianThema->header_image_path);
+                if ($ujianThema->header_image_path && file_exists(public_path($ujianThema->header_image_path))) {
+                    unlink(public_path($ujianThema->header_image_path));
                 }
-                $headerPath = $request->file('header_image')->store('ujian/headers', 'public');
-                $ujianThema->header_image_path = $headerPath;
+
+                $headerFile = $request->file('header_image');
+                $headerName = time() . '_' . $headerFile->getClientOriginalName();
+                $headerFile->move(public_path('images/ujian/headers'), $headerName);
+                $ujianThema->header_image_path = 'images/ujian/headers/' . $headerName;
             }
 
             $ujianThema->save();
