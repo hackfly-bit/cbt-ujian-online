@@ -146,7 +146,7 @@
                         <div class="card-body">
                             <h4 class="fw-bold mb-2">تسجيل المشارك</h4>
                             <p class="text-base mb-4">املأ بياناتك الشخصية لبدء الاختبار</p>
-                            <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}">
+                            <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}" enctype="multipart/form-data" >
                                 @if (sizeof($errors) > 0)
                                     <ul>
                                         @foreach ($errors->all() as $error)

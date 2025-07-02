@@ -63,6 +63,14 @@ class UjianPesertaController extends Controller
             'lockscreen_enabled' => $ujian->ujianPengaturan->lockscreen ?? false
         ]);
 
+        if ($request->hasFile('foto')) {
+            $pesertaFoto = $request->file('foto');
+            $fileName = time() . '_' . $pesertaFoto->getClientOriginalName();
+            $pesertaFoto->move(public_path('images/ujian/peserta'), $fileName);
+            // Save relative path from public
+            $path = 'images/ujian/peserta/' . $fileName;
+        }
+
         $peserta = Peserta::updateOrCreate(
             ['email' => $request->email],
             [
@@ -72,7 +80,7 @@ class UjianPesertaController extends Controller
                 'nomor_induk' => $request->nomor_induk ?? null,
                 'tanggal_lahir' => $request->tanggal_lahir ?? null,
                 'alamat' => $request->alamat ?? null,
-                'foto' => $request->file('foto') ? $request->file('foto')->store('peserta_foto', 'public') : null,
+                'foto' => $path ?? null,
                 'created_at' => now(),
                 'updated_at' => now()
             ]

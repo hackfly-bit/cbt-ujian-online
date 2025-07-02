@@ -136,7 +136,7 @@
                             <h4 class="fw-bold mb-2">Pendaftaran Peserta</h4>
                             <p class="text-base mb-4">Lengkapi data diri Anda untuk mulai mengikuti ujian</p>
 
-                            <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}">
+                            <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}" enctype="multipart/form-data" >
                                 @if (sizeof($errors) > 0)
                                     <ul>
                                         @foreach ($errors->all() as $error)
