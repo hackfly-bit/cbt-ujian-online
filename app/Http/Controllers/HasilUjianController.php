@@ -117,7 +117,6 @@ class HasilUjianController extends Controller
     {
         $hasilUjian = HasilUjian::with(['peserta', 'ujian', 'sertifikat'])->findOrFail($id);
 
-        // Ambil sertifikat berdasarkan ujian_id
         $sertifikat = Sertifikat::where('ujian_id', $hasilUjian->ujian_id)->first();
 
         if (!$sertifikat || !$sertifikat->template) {
@@ -127,7 +126,6 @@ class HasilUjianController extends Controller
             ], 404);
         }
 
-        // Parse template JSON (Fabric.js)
         $templateJson = json_decode($sertifikat->template, true);
 
         if (!$templateJson || !is_array($templateJson)) {
@@ -137,7 +135,6 @@ class HasilUjianController extends Controller
             ], 500);
         }
 
-        // === Data pengganti untuk placeholder ===
         $templateVars = [
             'peserta_nama'   => $hasilUjian->peserta->nama ?? '-',
             'phone'          => $hasilUjian->peserta->phone ?? '-',
@@ -153,14 +150,13 @@ class HasilUjianController extends Controller
                 : now()->translatedFormat('d F Y'),
         ];
 
-        // === Ambil nilai per section ===
         $nilaiSection = [];
         $totalNilai = 0;
         $detail = json_decode($hasilUjian->detail_section, true);
 
         if (is_array($detail)) {
             foreach ($detail as $section) {
-                $label = 'Nilai ' . $section['section_name']; // Contoh: "Nilai Reading"
+                $label = 'Nilai ' . $section['section_name'];
                 $nilaiSection[$label] = number_format($section['score'], 2);
                 $totalNilai += $section['score'];
             }
@@ -169,9 +165,15 @@ class HasilUjianController extends Controller
         $templateVars['nilai_section'] = $nilaiSection;
         $templateVars['total_nilai'] = number_format($totalNilai, 2);
 
-        // === Replace placeholder di objek Fabric.js ===
+        // Ambil URL foto peserta
+        $fotoPesertaUrl = $hasilUjian->peserta->foto
+            ? asset($hasilUjian->peserta->foto)
+            : asset('images/placeholder.jpeg');
+
         if (isset($templateJson['objects']) && is_array($templateJson['objects'])) {
-            $templateJson['objects'] = array_map(function ($obj) use ($templateVars) {
+            $templateJson['objects'] = array_map(function ($obj) use ($templateVars, $fotoPesertaUrl) {
+
+                // Replace teks
                 if (
                     isset($obj['type'], $obj['text']) &&
                     strtolower($obj['type']) === 'textbox' &&
@@ -180,12 +182,10 @@ class HasilUjianController extends Controller
                     $obj['text'] = preg_replace_callback('/\[(.*?)\]/', function ($matches) use ($templateVars) {
                         $key = trim($matches[1]);
 
-                        // Cek nilai section
                         if (isset($templateVars['nilai_section'][$key])) {
                             return $templateVars['nilai_section'][$key];
                         }
 
-                        // Cek placeholder statis
                         $static = [
                             'Nama Lengkap'   => $templateVars['peserta_nama'],
                             'No. Telp'       => $templateVars['phone'],
@@ -198,9 +198,40 @@ class HasilUjianController extends Controller
                             'Total Nilai'    => $templateVars['total_nilai'],
                         ];
 
-                        return $static[$key] ?? $matches[0]; // Biarkan tetap kalau tidak ditemukan
+                        return $static[$key] ?? $matches[0];
                     }, $obj['text']);
                 }
+
+                // Replace gambar
+                if (
+                    isset($obj['type'], $obj['src']) &&
+                    strtolower($obj['type']) === 'image' &&
+                    str_contains($obj['src'], 'placeholder.jpeg')
+                ) {
+                    $obj['src'] = $fotoPesertaUrl;
+
+                    // Ambil dimensi frame
+                    $frameWidth = ($obj['width'] ?? 1) * ($obj['scaleX'] ?? 1);
+                    $frameHeight = ($obj['height'] ?? 1) * ($obj['scaleY'] ?? 1);
+
+                    // Reset scale ke default
+                    $obj['scaleX'] = 1;
+                    $obj['scaleY'] = 1;
+                    $obj['width'] = $frameWidth;
+                    $obj['height'] = $frameHeight;
+
+                    // Set object fit untuk memastikan gambar tidak terpotong
+                    $obj['cropX'] = 0;
+                    $obj['cropY'] = 0;
+                    $obj['objectFit'] = 'contain'; // menggunakan contain agar foto fit dalam frame
+                    
+                    // Reset koordinat untuk memastikan posisi tetap center
+                    if (isset($obj['left'], $obj['top'])) {
+                        $obj['left'] = $obj['left'];
+                        $obj['top'] = $obj['top'];
+                    }
+                }
+
                 return $obj;
             }, $templateJson['objects']);
         }
@@ -210,16 +241,17 @@ class HasilUjianController extends Controller
             'data' => [
                 'sertifikat'    => $templateJson,
                 'judul'         => $sertifikat->judul ?? 'Sertifikat',
-                'peserta_nama'   => $hasilUjian->peserta->nama ?? '-',
-                'tanggal_ujian'  => $hasilUjian->waktu_selesai
-                    ? \Carbon\Carbon::parse($hasilUjian->waktu_selesai)->translatedFormat('d F Y')
-                    : now()->translatedFormat('d F Y'),
+                'peserta_nama'  => $templateVars['peserta_nama'],
+                'tanggal_ujian' => $templateVars['tanggal_ujian'],
                 'ujian_nama'    => $templateVars['ujian_nama'],
                 'template_data' => $templateVars,
                 'template'      => true,
             ]
         ]);
     }
+
+
+
 
 
     /**
