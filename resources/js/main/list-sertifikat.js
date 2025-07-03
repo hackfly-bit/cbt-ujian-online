@@ -189,7 +189,10 @@ document.addEventListener("DOMContentLoaded", function () {
             // Send delete request
             $.ajax({
                 url: `/sertifikat/${deleteId}`,
-                type: "DELETE",
+                type: "POST",
+                data: {
+                    _method: "DELETE",
+                },
                 headers: {
                     "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
                         "content"

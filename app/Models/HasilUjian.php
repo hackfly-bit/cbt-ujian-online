@@ -59,6 +59,7 @@ class HasilUjian extends Model
     protected $casts = [
         'waktu_mulai' => 'datetime',
         'waktu_selesai_timestamp' => 'datetime',
+        'detail_section' => 'array',
     ];
 
     /**

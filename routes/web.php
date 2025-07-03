@@ -135,6 +135,9 @@ Route::group(['prefix' => 'hasil-ujian', 'as' => 'hasil-ujian.', 'middleware' =>
     Route::get('/download/results', [HasilUjianController::class, 'downloadResults'])->name('download');
 });
 
+// Route untuk QR Code - Hasil Ujian Publik (tanpa auth)
+Route::get('/hasil-ujian-ku/{id}', [HasilUjianController::class, 'showPublicResult'])->name('hasil-ujian.public');
+
 Route::get('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::class, 'ujianLogin'])->name('ujian.login');
 Route::post('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::class, 'generateSession'])->name('ujian.generateSession');
 Route::get('/kerjakan/{link}/ujian', [\App\Http\Controllers\UjianPesertaController::class, 'ujianPeserta'])->name('ujian.peserta');

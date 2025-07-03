@@ -28,6 +28,10 @@ class Sertifikat extends Model
      */
     protected $fillable = ['ujian_id', 'judul', 'template', 'created_at', 'updated_at'];
 
+    protected $casts = [
+        'template' => 'array',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

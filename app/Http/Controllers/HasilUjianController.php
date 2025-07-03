@@ -7,6 +7,8 @@ use App\Models\HasilUjian;
 use App\Models\Sertifikat;
 use App\Models\Ujian;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Log;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class HasilUjianController extends Controller
 {
@@ -165,13 +167,20 @@ class HasilUjianController extends Controller
         $templateVars['nilai_section'] = $nilaiSection;
         $templateVars['total_nilai'] = number_format($totalNilai, 2);
 
-        // Ambil URL foto peserta
+        // Ambil URL dan path foto peserta
+        $fotoPesertaPath = $hasilUjian->peserta->foto
+            ? public_path($hasilUjian->peserta->foto)
+            : public_path('images/placeholder.jpeg');
+
         $fotoPesertaUrl = $hasilUjian->peserta->foto
             ? asset($hasilUjian->peserta->foto)
             : asset('images/placeholder.jpeg');
 
+        // Generate QR Code URL untuk hasil ujian
+        $qrCodeUrl = url('/hasil-ujian-ku/' . $hasilUjian->id);
+        
         if (isset($templateJson['objects']) && is_array($templateJson['objects'])) {
-            $templateJson['objects'] = array_map(function ($obj) use ($templateVars, $fotoPesertaUrl) {
+            $templateJson['objects'] = array_map(function ($obj) use ($templateVars, $fotoPesertaUrl, $fotoPesertaPath, $qrCodeUrl) {
 
                 // Replace teks
                 if (
@@ -208,33 +217,143 @@ class HasilUjianController extends Controller
                     strtolower($obj['type']) === 'image' &&
                     str_contains($obj['src'], 'placeholder.jpeg')
                 ) {
-                    $obj['src'] = $fotoPesertaUrl;
+                    // Simpan dimensi asli placeholder
+                    $originalWidth = $obj['width'] ?? 1;
+                    $originalHeight = $obj['height'] ?? 1;
+                    $originalScaleX = $obj['scaleX'] ?? 1;
+                    $originalScaleY = $obj['scaleY'] ?? 1;
+                    
+                    // Get template placeholder dimensions (ukuran yang terlihat)
+                    $templateWidth = $originalWidth * $originalScaleX;
+                    $templateHeight = $originalHeight * $originalScaleY;
 
-                    // Ambil dimensi frame
-                    $frameWidth = ($obj['width'] ?? 1) * ($obj['scaleX'] ?? 1);
-                    $frameHeight = ($obj['height'] ?? 1) * ($obj['scaleY'] ?? 1);
+                    // Get participant photo dimensions
+                    $imageSize = false;
+                    if (file_exists($fotoPesertaPath)) {
+                        $imageSize = getimagesize($fotoPesertaPath);
+                    }
 
-                    // Reset scale ke default
-                    $obj['scaleX'] = 1;
-                    $obj['scaleY'] = 1;
-                    $obj['width'] = $frameWidth;
-                    $obj['height'] = $frameHeight;
+                    if ($imageSize) {
+                        $photoWidth = $imageSize[0];
+                        $photoHeight = $imageSize[1];
 
-                    // Set object fit untuk memastikan gambar tidak terpotong
+                        // Calculate aspect ratios
+                        $templateRatio = $templateWidth / $templateHeight;
+                        $photoRatio = $photoWidth / $photoHeight;
+
+                        // Calculate scale to fit photo in template area
+                        if ($photoRatio > $templateRatio) {
+                            // Photo is wider - fit to height
+                            $scale = $templateHeight / $photoHeight;
+                        } else {
+                            // Photo is taller - fit to width
+                            $scale = $templateWidth / $photoWidth;
+                        }
+
+                        // Update object properties - pertahankan width/height asli, ubah scale
+                        $obj['src'] = $fotoPesertaUrl;
+                        $obj['width'] = $photoWidth;
+                        $obj['height'] = $photoHeight;
+                        $obj['scaleX'] = $scale;
+                        $obj['scaleY'] = $scale;
+                        
+                        // Center the image in the original placeholder position
+                        $scaledWidth = $photoWidth * $scale;
+                        $scaledHeight = $photoHeight * $scale;
+                        
+                        if (isset($obj['left'], $obj['top'])) {
+                            // Hitung offset untuk centering
+                            $offsetX = ($templateWidth - $scaledWidth) / 2;
+                            $offsetY = ($templateHeight - $scaledHeight) / 2;
+                            
+                            // Pertahankan posisi asli placeholder dan tambahkan offset centering
+                            $obj['left'] = $obj['left'] + $offsetX;
+                            $obj['top'] = $obj['top'] + $offsetY;
+                        }
+                    } else {
+                        // Fallback if image dimensions cannot be determined
+                        $obj['src'] = $fotoPesertaUrl;
+                        // Pertahankan dimensi dan scale asli placeholder
+                        $obj['width'] = $originalWidth;
+                        $obj['height'] = $originalHeight;
+                        $obj['scaleX'] = $originalScaleX;
+                        $obj['scaleY'] = $originalScaleY;
+                    }
+
+                    // Reset crop settings
                     $obj['cropX'] = 0;
                     $obj['cropY'] = 0;
-                    $obj['objectFit'] = 'contain'; // menggunakan contain agar foto fit dalam frame
+                    $obj['objectFit'] = 'contain';
+                }
+
+                // Replace QR Code
+                if (
+                    isset($obj['type'], $obj['src']) &&
+                    strtolower($obj['type']) === 'image' &&
+                    str_contains($obj['src'], 'qrcode.jpg')
+                ) {
+                    // Simpan dimensi asli placeholder QR code
+                    $originalWidth = $obj['width'] ?? 200;
+                    $originalHeight = $obj['height'] ?? 200;
+                    $originalScaleX = $obj['scaleX'] ?? 1;
+                    $originalScaleY = $obj['scaleY'] ?? 1;
                     
-                    // Reset koordinat untuk memastikan posisi tetap center
+                    // Get template placeholder dimensions (ukuran yang terlihat)
+                    $templateWidth = $originalWidth * $originalScaleX;
+                    $templateHeight = $originalHeight * $originalScaleY;
+                    
+                    // Tentukan ukuran QR code berdasarkan ukuran placeholder
+                    $qrSize = max($templateWidth, $templateHeight);
+                    
+                    // Generate QR Code sebagai SVG dengan ukuran yang disesuaikan
+                    $qrCodeSvg = QrCode::format('svg')
+                        ->size($qrSize)
+                        ->margin(1)
+                        ->generate($qrCodeUrl);
+                    
+                    // Convert SVG ke data URL
+                    $qrCodeDataUrl = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
+                    
+                    // Update src dengan QR code yang di-generate
+                    $obj['src'] = $qrCodeDataUrl;
+                    
+                    // Sesuaikan dimensi QR code dengan placeholder
+                    $obj['width'] = $qrSize;
+                    $obj['height'] = $qrSize;
+                    
+                    // Hitung scale untuk fit ke placeholder
+                    $scaleX = $templateWidth / $qrSize;
+                    $scaleY = $templateHeight / $qrSize;
+                    $scale = min($scaleX, $scaleY); // Gunakan scale terkecil untuk maintain aspect ratio
+                    
+                    $obj['scaleX'] = $scale;
+                    $obj['scaleY'] = $scale;
+                    
+                    // Center QR code dalam placeholder
+                    $scaledWidth = $qrSize * $scale;
+                    $scaledHeight = $qrSize * $scale;
+                    
                     if (isset($obj['left'], $obj['top'])) {
-                        $obj['left'] = $obj['left'];
-                        $obj['top'] = $obj['top'];
+                        // Hitung offset untuk centering
+                        $offsetX = ($templateWidth - $scaledWidth) / 2;
+                        $offsetY = ($templateHeight - $scaledHeight) / 2;
+                        
+                        // Pertahankan posisi asli placeholder dan tambahkan offset centering
+                        $obj['left'] = $obj['left'] + $offsetX;
+                        $obj['top'] = $obj['top'] + $offsetY;
                     }
+                    
+                    // Reset crop settings untuk QR code
+                    $obj['cropX'] = 0;
+                    $obj['cropY'] = 0;
+                    $obj['objectFit'] = 'contain';
                 }
 
                 return $obj;
             }, $templateJson['objects']);
         }
+
+        Log::info('Template JSON:', $templateJson);
 
         return response()->json([
             'success' => true,
@@ -253,6 +372,53 @@ class HasilUjianController extends Controller
 
 
 
+
+    /**
+     * Menampilkan hasil ujian publik (untuk QR Code)
+     */
+    public function showPublicResult(string $id)
+    {
+        $hasilUjian = HasilUjian::with(['peserta', 'ujian', 'sertifikat'])->findOrFail($id);
+
+        // Parse detail section jika ada
+        $detailSection = null;
+        if ($hasilUjian->detail_section) {
+            $detailSection = json_decode($hasilUjian->detail_section, true);
+        }
+
+        $data = [
+            'title' => 'Hasil Ujian - ' . ($hasilUjian->peserta->nama ?? 'Peserta'),
+            'hasil_ujian' => [
+                'id' => $hasilUjian->id,
+                'peserta' => [
+                    'nama' => $hasilUjian->peserta->nama ?? '-',
+                    'email' => $hasilUjian->peserta->email ?? '-',
+                    'phone' => $hasilUjian->peserta->phone ?? '-',
+                    'institusi' => $hasilUjian->peserta->institusi ?? '-',
+                ],
+                'ujian' => [
+                    'nama_ujian' => $hasilUjian->ujian->nama_ujian ?? '-',
+                    'deskripsi' => $hasilUjian->ujian->deskripsi ?? '-',
+                ],
+                'hasil' => [
+                    'total_soal' => $hasilUjian->total_soal,
+                    'soal_dijawab' => $hasilUjian->soal_dijawab,
+                    'jawaban_benar' => $hasilUjian->jawaban_benar,
+                    'hasil_nilai' => number_format($hasilUjian->hasil_nilai, 2),
+                    'durasi_pengerjaan' => $hasilUjian->durasi_pengerjaan . ' menit',
+                ],
+                'waktu' => [
+                    'waktu_mulai' => $hasilUjian->waktu_mulai ? \Carbon\Carbon::parse($hasilUjian->waktu_mulai)->format('d-m-Y H:i:s') : '-',
+                    'waktu_selesai' => $hasilUjian->waktu_selesai ? \Carbon\Carbon::parse($hasilUjian->waktu_selesai)->format('d-m-Y H:i:s') : '-',
+                ],
+                'detail_section' => $detailSection,
+                'status' => $hasilUjian->status,
+                'sertifikat_available' => $hasilUjian->sertifikat_id ? true : false
+            ]
+        ];
+
+        return view('hasil-ujian.public', $data);
+    }
 
     /**
      * Download hasil ujian dalam format Excel/CSV

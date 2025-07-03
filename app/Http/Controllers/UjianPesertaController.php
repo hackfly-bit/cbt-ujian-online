@@ -112,6 +112,18 @@ class UjianPesertaController extends Controller
                     'exam_end_time' => $existingHasilUjian->waktu_selesai,
                     'section_results' => $existingHasilUjian->detail_section ? json_decode($existingHasilUjian->detail_section, true) : []
                 ];
+
+                // pastikan ujian telah selesai
+                if ($existingHasilUjian->status != 'completed') {
+                    // force update status to completed
+                    $existingHasilUjian->update([
+                        'status' => 'completed',
+                        'waktu_selesai' => now(),
+                        'waktu_selesai_timestamp' => now()->timestamp,
+                        'updated_at' => now()
+                    ]);
+                }
+
                 // Tampilkan halaman selesai
                 $isArabic = $ujian->ujianPengaturan->is_arabic ?? false;
                 if ($isArabic) {
