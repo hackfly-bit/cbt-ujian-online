@@ -1,3 +1,12 @@
+@php
+    $thema = $ujian->ujianThema ?? null;
+    $logoPath = $thema->logo_path ?? null;
+    $institutionName = $thema->institution_name ?? null;
+    $showLogoAndText = $logoPath && $institutionName;
+    $showLogoOnly = $logoPath && !$institutionName;
+    $brandingLogo = \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '';
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,58 +15,85 @@
     @include('layouts.shared/head-css')
     @vite(['resources/js/head.js'])
     <style>
-        body {
-            background-color: {{ $ujian->ujianThema->background_color ?? '#f0f2f5' }};
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --primary-color: {{ $thema->primary_color ?? '#2c2c2c' }};
+            --secondary-color: {{ $thema->secondary_color ?? '#6c757d' }};
+            --tertiary-color: {{ $thema->tertiary_color ?? '#f5f5f5' }};
+            --background-color: {{ $thema->background_color ?? '#ffffff' }};
+            --header-color: {{ $thema->header_color ?? '#f0f0f0' }};
+            --font-color: {{ $thema->font_color ?? '#212529' }};
+            --button-color: {{ $thema->button_color ?? '#0080ff' }};
+            --button-font-color: {{ $thema->button_font_color ?? '#ffffff' }};
         }
 
-        @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--font-color);
+        }
+
+        /* ✅ Validasi background image */
+        @if ($thema && $thema->background_image_path)
             body.authentication-bg {
-                background-image: url('{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}');
+                background-image: url('{{ asset($thema->background_image_path) }}');
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
             }
-        @endif
-
-        @if ($ujian->ujianThema && $ujian->ujianThema->font_color)
-            .text-muted,
-            .text-dark,
-            h4,
-            h5,
-            label {
-                color: {{ $ujian->ujianThema->font_color }} !important;
+        @else
+            body.authentication-bg {
+                background: var(--background-color);
             }
         @endif
 
-        @if ($ujian->ujianThema && $ujian->ujianThema->border_color)
-            .card,
-            .form-control,
-            .input-group-text {
-                border-color: {{ $ujian->ujianThema->border_color }} !important;
+        /* ✅ Validasi header image */
+        @if ($thema && $thema->header_image_path)
+            .card-header-form {
+                background-image: url('{{ asset($thema->header_image_path) }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                color: var(--font-color);
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            }
+        @else
+            .card-header-form {
+                background: var(--header-color) !important;
+            }
+            .card-header-form h4 {
+                color: var(--secondary-color) !important;
             }
         @endif
 
-        .card-header {
-            background-color: {{ $ujian->ujianThema->header_color ?? '#ffffff' }} !important;
+        .text-muted,
+        .text-dark,
+        h4,
+        h5,
+        label {
+            color: var(--font-color);
+        }
+        .card {
+            background-color: var(--tertiary-color);
         }
 
-        @if ($ujian->ujianThema && $ujian->ujianThema->use_custom_color)
-            .btn-primary {
-                background-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-                border-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-                color: {{ $ujian->ujianThema->button_font_color ?? 'white' }};
-            }
+        .footer-text {
+            color: var(--primary-color);
+        }
 
-            .text-primary {
-                color: {{ $ujian->ujianThema->primary_color ?? '#0d6efd' }} !important;
-            }
+        .btn-primary {
+            background-color: var(--button-color);
+            border-color: var(--button-color);
+            color: var(--button-font-color);
+        }
 
-            .border-primary {
-                border-color: {{ $ujian->ujianThema->secondary_color ?? '#0d6efd' }} !important;
-            }
-        @endif
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .border-primary {
+            border-color: var(--secondary-color) !important;
+        }
     </style>
+
 </head>
 
 <body class="authentication-bg position-relative">
@@ -65,32 +101,54 @@
     <div class="account-pages pt-5 pb-4 d-flex flex-column min-vh-100">
         <div class="container flex-grow-1">
 
+            @php
+                $thema = $ujian->ujianThema ?? null;
+
+                $logoPath = $thema->logo_path ?? null;
+                $institutionName = $thema->institution_name ?? null;
+
+                $showLogoAndText = $logoPath && $institutionName;
+                $showLogoOnly = $logoPath && !$institutionName;
+
+                // Logo default dari pengaturan branding
+                $brandingLogo =
+                    \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ??
+                    '';
+            @endphp
+
             <div class="text-center mb-5">
-                <!-- Logo -->
-                <div class="text-center">
-                    <a href="{{ route('home') }}">
-                        @php
-                            $branding = [
-                                'logoHitam' =>
-                                    \App\Models\SystemSetting::where('group', 'branding')
-                                        ->where('key', 'logoHitam')
-                                        ->value('value') ?? '',
-                            ];
-                        @endphp
-                        <span>
-                            <img src="{{ $branding['logoHitam'] ? asset($branding['logoHitam']) : asset('images/placeholder.jpeg') }}"
-                                alt="logo" height="60">
-                        </span>
-                    </a>
-                </div>
+                {{-- ✅ Logo + Nama Institusi --}}
+                @if ($showLogoAndText)
+                    <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+                        <div class="preview-logo">
+                            <img src="{{ asset($logoPath) }}" alt="logo" height="50">
+                        </div>
+                        <div class="preview-institution">
+                            <h3 class="fw-bold mb-0">{{ $institutionName }}</h3>
+                        </div>
+                    </div>
+
+                    {{-- ✅ Logo saja --}}
+                @elseif ($showLogoOnly)
+                    <div class="preview-logo">
+                        <img src="{{ asset($logoPath) }}" alt="logo" height="80">
+                    </div>
+
+                    {{-- ❌ Tidak ada logo dan nama institusi → pakai logo default --}}
+                @else
+                    <div class="preview-logo">
+                        <img src="{{ $brandingLogo ? asset($brandingLogo) : asset('images/placeholder.jpeg') }}"
+                            alt="logo" height="60">
+                    </div>
+                @endif
             </div>
 
-            <div class="row justify-content-center">
 
+            <div class="row justify-content-center">
                 <div class="col-md-10">
                     <div class="card card-header-form shadow-sm border-0 rounded-2 py-5 px-4">
                         @if ($ujian->ujianThema && $ujian->ujianThema->welcome_message)
-                            <h4 class="fw-bold text-center">{{ $ujian->ujianThema->welcome_message }}</h4>
+                            <h4 class="text-center mb-0">{{ $ujian->ujianThema->welcome_message }}</h4>
                         @endif
                     </div>
                 </div>
@@ -102,11 +160,6 @@
                 <div class="col-md-4 mb-3">
 
                     <div class="card shadow-sm border-0 rounded-2">
-                        <div class="card-header">
-                            @if ($ujian->ujianThema && $ujian->ujianThema->institution_name)
-                                <h5 class="text-center mb-0">{{ $ujian->ujianThema->institution_name }}</h5>
-                            @endif
-                        </div>
                         <div class="card-body">
                             <h4 class="fw-bold mb-2">{{ $ujian->nama_ujian }}</h4>
                             <p class="text-base mb-3">{{ $ujian->deskripsi }}</p>
@@ -136,7 +189,8 @@
                             <h4 class="fw-bold mb-2">Pendaftaran Peserta</h4>
                             <p class="text-base mb-4">Lengkapi data diri Anda untuk mulai mengikuti ujian</p>
 
-                            <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}" enctype="multipart/form-data" >
+                            <form method="POST" action="{{ route('ujian.generateSession', $ujian->link) }}"
+                                enctype="multipart/form-data">
                                 @if (sizeof($errors) > 0)
                                     <ul>
                                         @foreach ($errors->all() as $error)
@@ -226,7 +280,7 @@
 
         </div>
 
-        <footer>
+        <footer class="footer-text">
             <div class="text-center">
                 <script>
                     document.write(new Date().getFullYear())

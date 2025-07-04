@@ -157,7 +157,9 @@
                             </h4>
                             <div class="card" id="theme-preview-container">
                                 <div class="card-body">
-                                    <div id="live-preview" class="theme-preview-large">
+                                    <div id="live-preview" class="theme-preview-large"
+                                        data-bg="{{ $ujian->ujianThema->background_image_path ? asset($ujian->ujianThema->background_image_path) : '' }}"
+                                        data-header="{{ $ujian->ujianThema->header_image_path ? asset($ujian->ujianThema->header_image_path) : '' }}">
                                         <div class="preview-content" id="live-preview-content">
                                             @php
                                                 $branding = [
@@ -258,11 +260,19 @@
                                 <h4 class="mb-3"><i class="ri-image-line me-1 text-primary"></i> Background & Header
                                 </h4>
 
+                                <input type="hidden" name="remove_background_image"
+                                    id="remove_background_image_flag" value="">
+                                <input type="hidden" name="remove_header_image" id="remove_header_image_flag"
+                                    value="">
+
+
                                 <!-- Background -->
                                 <div class="mb-2">
                                     <label for="background_image" class="form-label">Gambar Latar (Opsional)</label>
                                     <input type="file" class="form-control" id="background_image"
                                         name="background_image" accept="image/*">
+                                    <input type="hidden" name="remove_background_image"
+                                        id="remove_background_image_flag" value="">
                                     <small class="text-muted">Background untuk halaman ujian</small>
                                 </div>
 
@@ -276,6 +286,8 @@
                                     <label for="header_image" class="form-label">Gambar Header (Opsional)</label>
                                     <input type="file" class="form-control" id="header_image" name="header_image"
                                         accept="image/*">
+                                    <input type="hidden" name="remove_header_image" id="remove_header_image_flag"
+                                        value="">
                                     <small class="text-muted">Banner untuk bagian header</small>
                                 </div>
 
@@ -298,6 +310,7 @@
 
                                 <!-- Checkbox 1: Gunakan Logo Custom -->
                                 <div class="form-check form-switch mb-3">
+                                    <input type="hidden" name="use_custom_color" value="0">
                                     <input class="form-check-input" type="checkbox" id="use_custom_color"
                                         name="use_custom_color" value="1"
                                         {{ old('use_custom_color', $ujian->ujianThema->use_custom_color ?? false) ? 'checked' : '' }}>
@@ -327,6 +340,7 @@
 
                                     <!-- Checkbox 2: Tampilkan Nama Institusi -->
                                     <div class="form-check form-switch mb-3">
+                                        <input type="hidden" name="show_institution_name" value="0">
                                         <input class="form-check-input" type="checkbox" id="show_institution_name"
                                             name="show_institution_name" value="1"
                                             {{ old('show_institution_name', $ujian->ujianThema->show_institution_name ?? false) ? 'checked' : '' }}>

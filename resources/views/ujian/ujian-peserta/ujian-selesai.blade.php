@@ -1,3 +1,13 @@
+@php
+    $thema = $ujian->ujianThema ?? null;
+    $logoPath = $thema->logo_path ?? null;
+    $institutionName = $thema->institution_name ?? null;
+    $showLogoAndText = $logoPath && $institutionName;
+    $showLogoOnly = $logoPath && !$institutionName;
+    $brandingLogo =
+        \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '';
+@endphp
+
 @extends('layouts.app-simple')
 
 @section('title', 'Ujian Selesai')
@@ -6,15 +16,27 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css">
     <style>
+        :root {
+            --primary-color: {{ $thema->primary_color ?? '#2c2c2c' }};
+            --secondary-color: {{ $thema->secondary_color ?? '#6c757d' }};
+            --tertiary-color: {{ $thema->tertiary_color ?? '#f5f5f5' }};
+            --background-color: {{ $thema->background_color ?? '#ffffff' }};
+            --header-color: {{ $thema->header_color ?? '#f0f0f0' }};
+            --font-color: {{ $thema->font_color ?? '#212529' }};
+            --button-color: {{ $thema->button_color ?? '#0080ff' }};
+            --button-font-color: {{ $thema->button_font_color ?? '#ffffff' }};
+            --border-color: {{ $thema->border_color ?? '#e5e7eb' }};
+        }
+
         body {
-            background-color: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#f8f9fa' }};
+            background: var(--background-color);
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
 
             @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
-                background-image: url('{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}');
+                background-image: url('{{ asset($ujian->ujianThema->background_image_path) }}');
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
@@ -32,7 +54,7 @@
         }
 
         .bento-card {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color : 'rgba(255, 255, 255, 0.95)' }};
+            background: var(--tertiary-color, rgba(255, 255, 255, 0.95));
             border-radius: 16px;
             padding: 32px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -41,12 +63,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-
-            @if ($ujian->ujianThema && $ujian->ujianThema->header_image_path)
-                background-image: url('{{ asset('storage/' . $ujian->ujianThema->header_image_path) }}');
-                background-size: cover;
-                background-position: center;
-            @endif
         }
 
         .bento-card:hover {
@@ -61,16 +77,22 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
+            background: var(--primary-color, #4f46e5);
             border-radius: 24px 24px 0 0;
         }
 
         .bento-hero {
             grid-column: 1 / -1;
             text-align: center;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#fff' }};
+            background: var(--header-color, #4f46e5);
+            color: var(--secondary-color, #fff);
             border: none;
+            
+            @if ($ujian->ujianThema && $ujian->ujianThema->header_image_path)
+                background-image: url('{{ asset($ujian->ujianThema->header_image_path) }}');
+                background-size: cover;
+                background-position: center;
+            @endif
         }
 
         .bento-hero::before {
@@ -83,8 +105,9 @@
         }
 
         .success-icon {
-            font-size: 80px;
-            margin-bottom: 24px;
+            font-size: 180px;
+            line-height: 1;
+            margin-bottom: 0px;
             animation: bounce 2s infinite;
         }
 
@@ -104,14 +127,18 @@
         .bento-score {
             grid-column: span 4;
             text-align: center;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color . '15' : '#10b98115' }};
+            background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .score-circle {
             width: 150px;
             height: 150px;
             border-radius: 50%;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#10b981' }};
+            background: var(--header-color, #10b981);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -129,7 +156,7 @@
         .score-label {
             font-size: 16px;
             font-weight: 600;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#374151' }};
+            color: var(--font-color, #374151);
             margin-top: 8px;
         }
 
@@ -145,15 +172,15 @@
 
         .info-item {
             padding: 20px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color . '50' : 'rgba(249, 250, 251, 0.8)' }};
+            background: color-mix(in srgb, var(--background-color) 50%, transparent);
             border-radius: 16px;
-            border: 1px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color . '20' : 'rgba(229, 231, 235, 0.5)' }};
+            border: 1px solid color-mix(in srgb, var(--border-color) 20%, transparent);
         }
 
         .info-label {
             font-size: 14px;
             font-weight: 500;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color . '80' : '#6b7280' }};
+            color: color-mix(in srgb, var(--font-color) 80%, transparent);
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -162,7 +189,7 @@
         .info-value {
             font-size: 18px;
             font-weight: 700;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
+            color: var(--font-color, #111827);
         }
 
         .bento-stats {
@@ -178,29 +205,28 @@
         .stat-card {
             text-align: center;
             padding: 24px 16px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color . '10' : '#f3f4f610' }};
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
             border-radius: 16px;
-            border: 1px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color . '30' : 'rgba(229, 231, 235, 0.3)' }};
+            border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
         }
 
         .stat-number {
             font-size: 32px;
             font-weight: 900;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#3b82f6' }};
+            color: var(--primary-color, #3b82f6);
             margin-bottom: 8px;
         }
 
         .stat-label {
             font-size: 12px;
             font-weight: 600;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color . '70' : '#6b7280' }};
+            color: color-mix(in srgb, var(--font-color) 70%, transparent);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .bento-time {
             grid-column: span 6;
-            
         }
 
         .time-content {
@@ -210,27 +236,27 @@
         }
 
         .time-icon {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->tertiary_color ? $ujian->ujianThema->tertiary_color : '#f59e0b' }};
+            background: var(--header-color, #f59e0b);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
+            font-size: 28px;
         }
 
         .time-details h4 {
             font-size: 18px;
             font-weight: 700;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
+            color: var(--font-color, #111827);
             margin-bottom: 8px;
         }
 
         .time-details p {
             font-size: 14px;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color . '80' : '#6b7280' }};
+            color: color-mix(in srgb, var(--font-color) 80%, transparent);
             margin: 0;
         }
 
@@ -249,7 +275,7 @@
             width: 48px;
             height: 48px;
             border-radius: 12px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#3b82f6' }};
+            background: var(--primary-color, #3b82f6);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -260,7 +286,7 @@
         .sections-title {
             font-size: 24px;
             font-weight: 800;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
+            color: var(--font-color, #111827);
             margin: 0;
         }
 
@@ -271,10 +297,10 @@
         }
 
         .section-card {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#ffffff' }};
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
             border-radius: 20px;
             padding: 24px;
-            border: 1px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color . '30' : 'rgba(229, 231, 235, 0.3)' }};
+            border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
             position: relative;
             overflow: hidden;
         }
@@ -286,7 +312,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color : '#3b82f6' }};
+            background: var(--border-color, #3b82f6);
         }
 
         .section-header {
@@ -299,13 +325,13 @@
         .section-name {
             font-size: 18px;
             font-weight: 700;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
+            color: var(--font-color, #111827);
         }
 
         .section-score {
             font-size: 24px;
             font-weight: 900;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#10b981' }};
+            color: var(--primary-color, #10b981);
         }
 
         .section-stats {
@@ -318,20 +344,20 @@
         .section-stat {
             text-align: center;
             padding: 12px 8px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color . '50' : 'rgba(255, 255, 255, 0.7)' }};
+            background: color-mix(in srgb, var(--header-color) 50%, transparent);
             border-radius: 12px;
         }
 
         .section-stat-number {
             font-size: 20px;
             font-weight: 800;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->secondary_color ? $ujian->ujianThema->secondary_color : '#3b82f6' }};
+            color: var(--primary-color, #3b82f6);
         }
 
         .section-stat-label {
             font-size: 10px;
             font-weight: 600;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color . '70' : '#6b7280' }};
+            color: var(--primary-color, #3b82f6);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-top: 4px;
@@ -339,7 +365,7 @@
 
         .progress-bar {
             height: 8px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#e5e7eb' }};
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
             border-radius: 4px;
             overflow: hidden;
             margin-top: 16px;
@@ -347,14 +373,13 @@
 
         .progress-fill {
             height: 100%;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#10b981' }};
+            background: var(--header-color, #10b981);
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .bento-actions {
             grid-column: 1 / -1;
             text-align: center;
-            
         }
 
         .action-buttons {
@@ -367,9 +392,9 @@
         .btn {
             padding: 16px 32px;
             border: none;
-            border-radius: 16px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: 700;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
@@ -380,26 +405,24 @@
             justify-content: center;
         }
 
-        .btn-primary {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->button_color ? $ujian->ujianThema->button_color : '#3b82f6' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#ffffff' }};
-            box-shadow: 0 8px 32px {{ $ujian->ujianThema && $ujian->ujianThema->button_color ? $ujian->ujianThema->button_color . '40' : 'rgba(59, 130, 246, 0.3)' }};
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px {{ $ujian->ujianThema && $ujian->ujianThema->button_color ? $ujian->ujianThema->button_color . '50' : 'rgba(59, 130, 246, 0.4)' }};
-        }
-
+        .btn-primary,
         .btn-secondary {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color : '#ffffff' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#374151' }};
-            border: 2px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color : '#e5e7eb' }};
+            background: var(--button-color, #3b82f6);
+            color: var(--button-font-color, #ffffff);
+            box-shadow: 0 8px 32px color-mix(in srgb, var(--button-color) 40%, transparent);
+            border: 2px solid var(--border-color, #e5e7eb);
         }
 
+        .btn-primary:hover,
         .btn-secondary:hover {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#f9fafb' }};
             transform: translateY(-2px);
+            box-shadow: 0 12px 40px color-mix(in srgb, var(--button-color) 50%, transparent);
+        }
+
+        .footer-text {
+            margin-top: 50px;
+            color: var(--primary-color);
+            font-size: 14px;
         }
 
         @keyframes fadeInUp {
@@ -435,7 +458,7 @@
 
         @keyframes pulse {
             0% {
-                box-shadow: 0 0 0 0 {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color . '70' : 'rgba(59, 130, 246, 0.7)' }};
+                box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 70%, transparent);
             }
 
             70% {
@@ -462,7 +485,7 @@
         .institution-name {
             font-size: 24px;
             font-weight: 800;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
+            color: var(--font-color, #111827);
             margin: 0;
         }
 
@@ -558,17 +581,38 @@
 @endsection
 
 @section('content')
-    <!-- Institution Header (if available) -->
-    @if ($ujian->ujianThema && ($ujian->ujianThema->institution_name || $ujian->ujianThema->logo_path))
-        <div class="institution-header">
-            @if ($ujian->ujianThema->logo_path)
-                <img src="{{ asset('storage/' . $ujian->ujianThema->logo_path) }}" alt="Logo" class="institution-logo">
-            @endif
-            @if ($ujian->ujianThema->institution_name)
-                <h2 class="institution-name">{{ $ujian->ujianThema->institution_name }}</h2>
-            @endif
-        </div>
-    @endif
+    @php
+        $thema = $ujian->ujianThema ?? null;
+        $logoPath = $thema->logo_path ?? null;
+        $institutionName = $thema->institution_name ?? null;
+        $showLogoAndText = $logoPath && $institutionName;
+        $showLogoOnly = $logoPath && !$institutionName;
+        // Logo default dari pengaturan branding
+        $brandingLogo =
+            \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '';
+    @endphp
+
+    <div class="institution-header my-5">
+        @if ($showLogoAndText)
+            <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+                <div class="institution-logo">
+                    <img src="{{ asset($logoPath) }}" alt="logo" style="max-height:80px;">
+                </div>
+                <div class="institution-name" style="font-size:24px;font-weight:800;margin:0;">
+                    {{ $institutionName }}
+                </div>
+            </div>
+        @elseif ($showLogoOnly)
+            <div class="institution-logo">
+                <img src="{{ asset($logoPath) }}" alt="logo" style="max-height:80px;">
+            </div>
+        @else
+            <div class="institution-logo">
+                <img src="{{ $brandingLogo ? asset($brandingLogo) : asset('images/placeholder.jpeg') }}" alt="logo"
+                    style="max-height:80px;">
+            </div>
+        @endif
+    </div>
 
     <!-- Bento Grid Container -->
     <div class="bento-container">
@@ -708,25 +752,25 @@
             </div>
 
 
-        <!-- Action Buttons -->
-        <div class="bento-card bento-actions">
-            <h4
-                style="color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }}; margin-bottom: 32px; font-weight: 700; text-align: center;">
-                <i class="ri-settings-3-line"
-                    style="color: {{ $ujian->ujianThema && $ujian->ujianThema->tertiary_color ? $ujian->ujianThema->tertiary_color : '#f59e0b' }}; margin-right: 8px;"></i>
-                Tindakan Selanjutnya
-            </h4>
-            <div class="action-buttons">
-                <a href="{{ url('/') }}" class="btn btn-primary">
-                    <i class="ri-home-line"></i>
-                    Kembali ke Beranda
-                </a>
-                <button onclick="window.print()" class="btn btn-secondary">
-                    <i class="ri-printer-line"></i>
-                    Cetak Hasil
-                </button>
+            <!-- Action Buttons -->
+            <div class="bento-card bento-actions">
+                <h4
+                    style="color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }}; margin-bottom: 32px; font-weight: 700; text-align: center;">
+                    <i class="ri-settings-3-line"
+                        style="color: {{ $ujian->ujianThema && $ujian->ujianThema->tertiary_color ? $ujian->ujianThema->tertiary_color : '#f59e0b' }}; margin-right: 8px;"></i>
+                    Tindakan Selanjutnya
+                </h4>
+                <div class="action-buttons">
+                    <a href="{{ url('/') }}" class="btn btn-primary">
+                        <i class="ri-home-line"></i>
+                        Kembali ke Beranda
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="ri-printer-line"></i>
+                        Cetak Hasil
+                    </button>
+                </div>
             </div>
-        </div>
         @endif
 
         @if (!isset($examSummary))
@@ -753,6 +797,15 @@
         @endif
 
     </div>
+
+    <footer class="footer-text">
+        <div class="text-center">
+            <script>
+                document.write(new Date().getFullYear())
+            </script> © markazarabiyah.com - Supported by
+            <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
+        </div>
+    </footer>
 @endsection
 
 @section('script')

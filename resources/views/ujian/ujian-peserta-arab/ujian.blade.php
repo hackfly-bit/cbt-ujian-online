@@ -1,3 +1,13 @@
+@php
+    $thema = $ujian->ujianThema ?? null;
+    $logoPath = $thema->logo_path ?? null;
+    $institutionName = $thema->institution_name ?? null;
+    $showLogoAndText = $logoPath && $institutionName;
+    $showLogoOnly = $logoPath && !$institutionName;
+    $brandingLogo =
+        \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '';
+@endphp
+
 @extends('layouts.app-simple')
 
 @section('title', 'الاختبار عبر الإنترنت')
@@ -7,23 +17,37 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         @font-face {
-             font-family: "Lotus Linotype Bold";
-             src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot");
-             src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot?#iefix")format("embedded-opentype"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff2")format("woff2"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff")format("woff"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.ttf")format("truetype"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.svg#Lotus Linotype Bold")format("svg");
-         }
+            font-family: "Lotus Linotype Bold";
+            src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot");
+            src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot?#iefix")format("embedded-opentype"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff2")format("woff2"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff")format("woff"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.ttf")format("truetype"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.svg#Lotus Linotype Bold")format("svg");
+        }
+
+        :root {
+            --primary-color: {{ $thema->primary_color ?? '#2c2c2c' }};
+            --secondary-color: {{ $thema->secondary_color ?? '#6c757d' }};
+            --tertiary-color: {{ $thema->tertiary_color ?? '#f5f5f5' }};
+            --background-color: {{ $thema->background_color ?? '#ffffff' }};
+            --header-color: {{ $thema->header_color ?? '#f0f0f0' }};
+            --font-color: {{ $thema->font_color ?? '#212529' }};
+            --button-color: {{ $thema->button_color ?? '#0080ff' }};
+            --button-font-color: {{ $thema->button_font_color ?? '#ffffff' }};
+            --border-color: {{ $thema->border_color ?? '#e5e7eb' }};
+        }
 
         body {
-            background-color: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#f8f9fa' }};
+            background: var(--background-color);
             font-family: 'Lotus Linotype Bold', 'Noto Kufi Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
-            @if($ujian->ujianThema && $ujian->ujianThema->background_image_path)
-            background-image: url('{{ asset("storage/" . $ujian->ujianThema->background_image_path) }}');
-            background-size: cover;
-            background-position: center;
+            min-height: 100vh; 
+
+            @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
+                background-image: url('{{ asset($ujian->ujianThema->background_image_path) }}');
+                background-size: cover;
+                background-position: center;
             @endif
         }
 
@@ -31,10 +55,14 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 0 40px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
         }
 
         .exam-header {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color : 'white' }};
+            background: var(--header-color, #4f46e5);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
@@ -42,23 +70,37 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            @if($ujian->ujianThema && $ujian->ujianThema->header_image_path)
-            background-image: url('{{ asset("storage/" . $ujian->ujianThema->header_image_path) }}');
-            background-size: cover;
-            background-position: center;
-            @endif
+
+            /* @if ($ujian->ujianThema && $ujian->ujianThema->header_image_path)
+                background-image: url('{{ asset($ujian->ujianThema->header_image_path) }}');
+                background-size: cover;
+                background-position: center;
+            @endif */
         }
 
         .exam-title {
             font-size: 24px;
             font-weight: bold;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#333' }};
+            color: var(--secondary-color);
             margin: 0;
         }
 
+        .exam-subtitle {
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--secondary-color, #666);
+        }
+
+        .exam-subtitle-text {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #d33;
+            font-weight: bold;
+        }
+
         .timer {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->button_color ? $ujian->ujianThema->button_color : '#d33' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : 'white' }};
+            background: red;
+            color: var(--button-font-color, white);
             padding: 10px 20px;
             border-radius: 25px;
             font-weight: bold;
@@ -72,7 +114,7 @@
 
         .question-panel {
             flex: 1;
-            background: white;
+            background: var(--tertiary-color, #f8f9fa);
             border-radius: 10px;
             padding: 30px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -83,13 +125,13 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border-right: 4px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color : '#2196f3' }};
+            border-right: 4px solid #2196f3;
             border-left: none;
         }
 
         .section-title {
             font-weight: bold;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#1976d2' }};
+            color: var(--font-color);
             margin-bottom: 5px;
         }
 
@@ -401,8 +443,8 @@
         }
 
         .btn-next {
-            background: #2196f3;
-            color: white;
+            background: var(--button-color);
+            color: var(--button-font-color);
         }
 
         .btn-prev:hover,
@@ -540,8 +582,15 @@
         }
 
         @keyframes flash {
-            0%, 100% { background: rgba(220, 53, 69, 0.1); }
-            50% { background: rgba(220, 53, 69, 0.3); }
+
+            0%,
+            100% {
+                background: rgba(220, 53, 69, 0.1);
+            }
+
+            50% {
+                background: rgba(220, 53, 69, 0.3);
+            }
         }
 
         /* تعطيل تحديد النص عندما يكون قفل الشاشة نشطًا */
@@ -564,25 +613,25 @@
 
 @section('content')
     <!-- مؤشر قفل الشاشة -->
-    @if($lockscreenEnabled)
+    @if ($lockscreenEnabled)
         <div class="lockscreen-indicator active" id="lockscreenIndicator">
             🔒 قفل الشاشة نشط
         </div>
         <div class="lockscreen-warning-overlay" id="lockscreenOverlay"></div>
     @endif
 
-    <div class="exam-container @if($lockscreenEnabled) lockscreen-active @endif">
+    <div class="exam-container @if ($lockscreenEnabled) lockscreen-active @endif">
         <!-- الرأس -->
         <div class="exam-header">
             <div>
                 <h1 class="exam-title">{{ $ujian->nama_ujian ?? 'اختبار' }}</h1>
-                <div style="margin-top: 8px; font-size: 14px; color: #666;">
+                <div class="exam-subtitle">
                     <strong>القسم {{ $currentSectionNumber ?? 1 }} من {{ $totalSections ?? 1 }}</strong>
                     | {{ $totalQuestionsInSection ?? 0 }} سؤال في هذا القسم
                     | المجموع: {{ $totalQuestions ?? 0 }} سؤال
                 </div>
                 @if (isset($sectionTimeRemaining) && $sectionTimeRemaining !== null)
-                    <div style="margin-top: 5px; font-size: 12px; color: #d33; font-weight: bold;">
+                    <div class="exam-subtitle-text">
                         ⏱️ وقت القسم: <span id="section-timer">{{ gmdate('i:s', $sectionTimeRemaining) }}</span>
                     </div>
                 @endif
@@ -630,20 +679,20 @@
                     </div>
                 @endif
 
-                    @if (isset($currentQuestion))
-                        @if ($currentQuestion->is_audio && $currentQuestion->audio_file)
-                            <div class="audio-player">
-                                <audio controls preload="metadata">
-                                    <source src="{{ asset('/' . $currentQuestion->audio_file) }}" type="audio/mpeg">
-                                    متصفحك لا يدعم عنصر الصوت.
-                                </audio>
-                            </div>
-                        @endif
-
-                        <div class="question-text">
-                            {{ $currentQuestion->pertanyaan ?? 'اختر الجمع الصحيح لكلمة "مؤنث"' }}
+                @if (isset($currentQuestion))
+                    @if ($currentQuestion->is_audio && $currentQuestion->audio_file)
+                        <div class="audio-player">
+                            <audio controls preload="metadata">
+                                <source src="{{ asset('/' . $currentQuestion->audio_file) }}" type="audio/mpeg">
+                                متصفحك لا يدعم عنصر الصوت.
+                            </audio>
                         </div>
                     @endif
+
+                    <div class="question-text">
+                        {{ $currentQuestion->pertanyaan ?? 'اختر الجمع الصحيح لكلمة "مؤنث"' }}
+                    </div>
+                @endif
                 <!-- خيارات الإجابة -->
                 <form id="exam-form">
                     <ul class="answer-options">
@@ -1292,7 +1341,8 @@
                     window.setNavigationFlag();
                 }
                 navigateToUrl(
-                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`);
+                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`
+                    );
             }
         }
 
@@ -1400,7 +1450,8 @@
                         // تحديث نص التقدم
                         const progressText = document.querySelector('.section-progress div');
                         if (progressText) {
-                            progressText.textContent = `${answeredQuestionsInSection.length} من ${totalQuestionsInSection} سؤال تمت الإجابة عليه`;
+                            progressText.textContent =
+                                `${answeredQuestionsInSection.length} من ${totalQuestionsInSection} سؤال تمت الإجابة عليه`;
                         }
                     }
                 })
@@ -1518,11 +1569,11 @@
             localStorage.removeItem('lockscreen_warnings');
             localStorage.removeItem('tab_switch_count');
             localStorage.removeItem('exam_start_time');
-            
+
             // إعادة تعيين المتغيرات
             tabSwitchCount = 0;
             isTabActive = true;
-            
+
             console.log('تم تنظيف بيانات قفل الشاشة');
         }
 

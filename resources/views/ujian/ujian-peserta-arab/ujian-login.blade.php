@@ -1,3 +1,12 @@
+@php
+    $thema = $ujian->ujianThema ?? null;
+    $logoPath = $thema->logo_path ?? null;
+    $institutionName = $thema->institution_name ?? null;
+    $showLogoAndText = $logoPath && $institutionName;
+    $showLogoOnly = $logoPath && !$institutionName;
+    $brandingLogo = \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '';
+@endphp
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -16,59 +25,84 @@
                  url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.svg#Lotus Linotype Bold")format("svg");
          }
 
+         :root {
+            --primary-color: {{ $thema->primary_color ?? '#2c2c2c' }};
+            --secondary-color: {{ $thema->secondary_color ?? '#6c757d' }};
+            --tertiary-color: {{ $thema->tertiary_color ?? '#f5f5f5' }};
+            --background-color: {{ $thema->background_color ?? '#ffffff' }};
+            --header-color: {{ $thema->header_color ?? '#f0f0f0' }};
+            --font-color: {{ $thema->font_color ?? '#212529' }};
+            --button-color: {{ $thema->button_color ?? '#0080ff' }};
+            --button-font-color: {{ $thema->button_font_color ?? '#ffffff' }};
+        }
+
          body {
-             background-color: {{ $ujian->ujianThema->background_color ?? '#f0f2f5' }};
              font-family: 'Lotus Linotype Bold', 'Noto Kufi Arabic', 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif';
-             font-size: 16px;
+             color: var(--font-color);
              direction: rtl;
          }
 
-        @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
+        /* ✅ Validasi background image */
+        @if ($thema && $thema->background_image_path)
             body.authentication-bg {
-                background-image: url('{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}');
+                background-image: url('{{ asset($thema->background_image_path) }}');
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
             }
-        @endif
-
-        @if ($ujian->ujianThema && $ujian->ujianThema->font_color)
-            .text-muted,
-            .text-dark,
-            h4,
-            h5,
-            label {
-                color: {{ $ujian->ujianThema->font_color }} !important;
+        @else
+            body.authentication-bg {
+                background: var(--background-color);
             }
         @endif
 
-        @if ($ujian->ujianThema && $ujian->ujianThema->border_color)
-            .card,
-            .form-control,
-            .input-group-text {
-                border-color: {{ $ujian->ujianThema->border_color }} !important;
+        /* ✅ Validasi header image */
+        @if ($thema && $thema->header_image_path)
+            .card-header-form {
+                background-image: url('{{ asset($thema->header_image_path) }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                color: var(--font-color);
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            }
+        @else
+            .card-header-form {
+                background: var(--header-color) !important;
+            }
+            .card-header-form h4 {
+                color: var(--secondary-color) !important;
             }
         @endif
 
-        .card-header {
-            background-color: {{ $ujian->ujianThema->header_color ?? '#ffffff' }};
+        .text-muted,
+        .text-dark,
+        h4,
+        h5,
+        label {
+            color: var(--font-color);
+        }
+        .card {
+            background-color: var(--tertiary-color);
         }
 
-        @if ($ujian->ujianThema && $ujian->ujianThema->use_custom_color)
-            .btn-primary {
-                background-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-                border-color: {{ $ujian->ujianThema->button_color ?? '#0d6efd' }};
-                color: {{ $ujian->ujianThema->button_font_color ?? 'white' }};
-            }
+        .footer-text {
+            color: var(--primary-color);
+        }
 
-            .text-primary {
-                color: {{ $ujian->ujianThema->primary_color ?? '#0d6efd' }} !important;
-            }
+        .btn-primary {
+            background-color: var(--button-color);
+            border-color: var(--button-color);
+            color: var(--button-font-color);
+        }
 
-            .border-primary {
-                border-color: {{ $ujian->ujianThema->secondary_color ?? '#0d6efd' }} !important;
-            }
-        @endif
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .border-primary {
+            border-color: var(--secondary-color) !important;
+        }
     </style>
 </head>
 
@@ -102,7 +136,7 @@
                 <div class="col-md-10">
                     <div class="card card-header-form shadow-sm border-0 rounded-2 py-5 px-4">
                         @if ($ujian->ujianThema && $ujian->ujianThema->welcome_message)
-                            <h4 class="fw-bold text-center">{{ $ujian->ujianThema->welcome_message }}</h4>
+                            <h4 class="text-center mb-0">{{ $ujian->ujianThema->welcome_message }}</h4>
                         @endif
                     </div>
                 </div>
@@ -113,11 +147,7 @@
                 <!-- معلومات الاختبار -->
                 <div class="col-md-4 mb-3">
                     <div class="card shadow-sm border-0 rounded-2">
-                        <div class="card-header">
-                            @if ($ujian->ujianThema && $ujian->ujianThema->institution_name)
-                                <h5 class="text-center mb-0">{{ $ujian->ujianThema->institution_name }}</h5>
-                            @endif
-                        </div>
+                        
                         <div class="card-body">
                             <h4 class="fw-bold mb-2">{{ $ujian->nama_ujian }}</h4>
                             <p class="text-base mb-3">{{ $ujian->deskripsi }}</p>
@@ -236,10 +266,12 @@
 
         </div>
 
-        <footer>
-            <div class="text-center">
-                <p class="text-base mb-0">© {{ date('Y') }} <a href="{{ route('any', 'index') }}ml"
-                        class="text-primary">MyLMS</a>. جميع الحقوق محفوظة.</p>
+        <footer class="footer-text" dir="ltr" style="text-align: left; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <div>
+            <script>
+            document.write(new Date().getFullYear())
+            </script> © markazarabiyah.com - Supported by
+            <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
             </div>
         </footer>
 

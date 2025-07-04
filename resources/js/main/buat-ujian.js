@@ -1050,6 +1050,10 @@ import flatpickr from "flatpickr";
 
     // Fungsi Utama Preview Tema
     window.initThemePreview = function () {
+        // Ambil dari data-preview jika ada
+        bgImagePreviewUrl = $("#live-preview").data("bg") || "";
+        headerImagePreviewUrl = $("#live-preview").data("header") || "";
+
         // Klik kotak tema = pilih radio input
         $(".theme-option").on("click", function () {
             const radio = $(this).find('input[type="radio"]');
@@ -1135,17 +1139,20 @@ import flatpickr from "flatpickr";
         const $button = $preview.find(".exam-card button");
         const $footer = $(".footer-preview");
 
+        // Reset & atur kelas tema
         $preview
             .removeClass(
                 "classic-preview modern-preview glow-preview minimal-preview custom-preview"
             )
             .addClass(`${theme}-preview`);
 
+        // Update teks
         $("#preview-institution-name").text(name);
         $("#preview-welcome-message").text(message);
 
+        // Apply custom color jika isCustom
         if (isCustom) {
-            $header.css({ background: colors.header });
+            $header.css({ backgroundColor: colors.header });
             $institutionTitle.css({ color: colors.primary });
             $content.css({ backgroundColor: colors.background });
             $welcomeText.css({ color: colors.secondary });
@@ -1170,26 +1177,70 @@ import flatpickr from "flatpickr";
             $footer.removeAttr("style");
         }
 
-        if (bgImagePreviewUrl) {
+        // Ambil URL gambar dari JS (upload) atau dari data-attribute (DB)
+        const $livePreview = $("#live-preview");
+        const removeBg = $("#remove_background_image_flag").val() === "1";
+        const removeHeader = $("#remove_header_image_flag").val() === "1";
+
+        const bgUrl = !removeBg
+            ? window.bgImagePreviewUrl || $livePreview.data("bg") || ""
+            : "";
+
+        const headerUrl = !removeHeader
+            ? window.headerImagePreviewUrl || $livePreview.data("header") || ""
+            : "";
+
+        // Tampilkan background image dari data-bg (content)
+        if (bgUrl) {
             $content.css({
-                backgroundImage: `url(${bgImagePreviewUrl})`,
+                backgroundImage: `url('${bgUrl}')`,
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center center",
+            });
+        } else {
+            // Hapus seluruh properti terkait image
+            $content.css({
+                backgroundImage: "",
+                backgroundSize: "",
+                backgroundRepeat: "",
+                backgroundPosition: "",
+                backgroundColor: "", // biarkan kembali ke default
             });
         }
 
-        if (headerImagePreviewUrl) {
+        // Tampilkan header image dari data-header
+        if (headerUrl) {
             $header.css({
-                backgroundImage: `url(${headerImagePreviewUrl})`,
+                backgroundImage: `url('${headerUrl}')`,
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center center",
+                backgroundColor: "transparent",
             });
+        } else {
+            $header.css({
+                backgroundImage: "",
+                backgroundSize: "",
+                backgroundRepeat: "",
+                backgroundPosition: "",
+                backgroundColor: "",
+            });
+        }
+
+        if (bgUrl) {
+            $("#remove_background_image").removeClass("d-none");
+        } else {
+            $("#remove_background_image").addClass("d-none");
+        }
+
+        if (headerUrl) {
+            $("#remove_header_image").removeClass("d-none");
+        } else {
+            $("#remove_header_image").addClass("d-none");
         }
     };
 
-    // Ambil Data Form Tampilan
     window.getTampilanData = function () {
         const formData = new FormData();
         const selectedTheme = $('input[name="theme"]:checked').val();
@@ -1198,8 +1249,14 @@ import flatpickr from "flatpickr";
         formData.append("theme", selectedTheme);
         formData.append("institution_name", $("#institution_name").val() || "");
         formData.append("welcome_message", $("#welcome_message").val() || "");
-        formData.append("use_custom_color", $("#use_custom_color").is(":checked"));
-        formData.append("show_institution_name", $("#show_institution_name").is(":checked"));
+        formData.append(
+            "use_custom_color",
+            $("#use_custom_color").is(":checked")
+        );
+        formData.append(
+            "show_institution_name",
+            $("#show_institution_name").is(":checked")
+        );
 
         if (isCustom) {
             formData.append("primary_color", $("#primary_color").val() || "");
@@ -1238,6 +1295,16 @@ import flatpickr from "flatpickr";
 
         const header = $("#header_image")[0]?.files[0];
         if (header) formData.append("header_image", header);
+
+        // 🔥 Tambahkan ini agar controller bisa tahu apakah gambar dihapus
+        formData.append(
+            "remove_background_image",
+            $("#remove_background_image_flag").val() || "0"
+        );
+        formData.append(
+            "remove_header_image",
+            $("#remove_header_image_flag").val() || "0"
+        );
 
         return formData;
     };
@@ -1371,6 +1438,16 @@ import flatpickr from "flatpickr";
         const previewContent = document.getElementById("live-preview-content");
         const previewHeader = document.getElementById("live-preview-header");
 
+        const previewWrapper = document.getElementById("live-preview");
+
+        // Hidden input untuk tandai penghapusan gambar dari DB
+        const removeBgFlag = document.getElementById(
+            "remove_background_image_flag"
+        );
+        const removeHeaderFlag = document.getElementById(
+            "remove_header_image_flag"
+        );
+
         function applyBackgroundImage(input, element, removeBtn) {
             const file = input.files[0];
             if (file && file.type.startsWith("image/")) {
@@ -1386,15 +1463,17 @@ import flatpickr from "flatpickr";
 
                     if (input === backgroundInput) {
                         bgImagePreviewUrl = imageUrl;
+                        removeBgFlag.value = ""; // Reset flag jika ada upload baru
                     } else if (input === headerInput) {
                         headerImagePreviewUrl = imageUrl;
+                        removeHeaderFlag.value = "";
                     }
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function resetBackground(element, input, removeBtn) {
+        function resetBackground(element, input, removeBtn, flagInput) {
             input.value = "";
             element.style.backgroundImage = "";
             element.style.backgroundSize = "";
@@ -1405,8 +1484,23 @@ import flatpickr from "flatpickr";
 
             if (input === backgroundInput) bgImagePreviewUrl = "";
             if (input === headerInput) headerImagePreviewUrl = "";
+
+            if (flagInput) flagInput.value = "1"; // tandai agar backend menghapus file
         }
 
+        // === Tambahan: tampilkan tombol hapus jika gambar awal dari DB ===
+        const initialBgImage = previewWrapper.getAttribute("data-bg");
+        const initialHeaderImage = previewWrapper.getAttribute("data-header");
+
+        if (initialBgImage && initialBgImage.trim() !== "") {
+            removeBgBtn.classList.remove("d-none");
+        }
+
+        if (initialHeaderImage && initialHeaderImage.trim() !== "") {
+            removeHeaderBtn.classList.remove("d-none");
+        }
+
+        // === Event Listeners ===
         if (backgroundInput) {
             backgroundInput.addEventListener("change", function () {
                 applyBackgroundImage(this, previewContent, removeBgBtn);
@@ -1415,7 +1509,12 @@ import flatpickr from "flatpickr";
 
         if (removeBgBtn) {
             removeBgBtn.addEventListener("click", function () {
-                resetBackground(previewContent, backgroundInput, removeBgBtn);
+                resetBackground(
+                    previewContent,
+                    backgroundInput,
+                    removeBgBtn,
+                    removeBgFlag
+                );
             });
         }
 
@@ -1427,7 +1526,12 @@ import flatpickr from "flatpickr";
 
         if (removeHeaderBtn) {
             removeHeaderBtn.addEventListener("click", function () {
-                resetBackground(previewHeader, headerInput, removeHeaderBtn);
+                resetBackground(
+                    previewHeader,
+                    headerInput,
+                    removeHeaderBtn,
+                    removeHeaderFlag
+                );
             });
         }
     });

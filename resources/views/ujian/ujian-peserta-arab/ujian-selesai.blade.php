@@ -1,3 +1,13 @@
+@php
+    $thema = $ujian->ujianThema ?? null;
+    $logoPath = $thema->logo_path ?? null;
+    $institutionName = $thema->institution_name ?? null;
+    $showLogoAndText = $logoPath && $institutionName;
+    $showLogoOnly = $logoPath && !$institutionName;
+    $brandingLogo =
+        \App\Models\SystemSetting::where('group', 'branding')->where('key', 'logoHitam')->value('value') ?? '';
+@endphp
+
 @extends('layouts.app-simple')
 
 @section('title', 'الاختبار مكتمل')
@@ -7,25 +17,37 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css">
     <style>
         @font-face {
-             font-family: "Lotus Linotype Bold";
-             src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot");
-             src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot?#iefix")format("embedded-opentype"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff2")format("woff2"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff")format("woff"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.ttf")format("truetype"),
-                 url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.svg#Lotus Linotype Bold")format("svg");
-         }
+            font-family: "Lotus Linotype Bold";
+            src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot");
+            src: url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.eot?#iefix")format("embedded-opentype"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff2")format("woff2"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.woff")format("woff"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.ttf")format("truetype"),
+                url("https://db.onlinewebfonts.com/t/314d71ddbb9f0768c5f219a7cd0abd42.svg#Lotus Linotype Bold")format("svg");
+        }
+
+        :root {
+            --primary-color: {{ $thema->primary_color ?? '#2c2c2c' }};
+            --secondary-color: {{ $thema->secondary_color ?? '#6c757d' }};
+            --tertiary-color: {{ $thema->tertiary_color ?? '#f5f5f5' }};
+            --background-color: {{ $thema->background_color ?? '#ffffff' }};
+            --header-color: {{ $thema->header_color ?? '#f0f0f0' }};
+            --font-color: {{ $thema->font_color ?? '#212529' }};
+            --button-color: {{ $thema->button_color ?? '#0080ff' }};
+            --button-font-color: {{ $thema->button_font_color ?? '#ffffff' }};
+            --border-color: {{ $thema->border_color ?? '#e5e7eb' }};
+        }
 
         body {
-            background-color: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color : '#f8f9fa' }};
+            background: var(--background-color);
             font-family: 'Lotus Linotype Bold', 'Noto Kufi Arabic', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
             direction: rtl;
-
+            
             @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
-                background-image: url('{{ asset('storage/' . $ujian->ujianThema->background_image_path) }}');
+                background-image: url('{{ asset($ujian->ujianThema->background_image_path) }}');
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
@@ -43,7 +65,7 @@
         }
 
         .bento-card {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->header_color ? $ujian->ujianThema->header_color : 'rgba(255, 255, 255, 0.95)' }};
+            background: var(--tertiary-color, rgba(255, 255, 255, 0.95));
             border-radius: 16px;
             padding: 32px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -52,12 +74,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-
-            @if ($ujian->ujianThema && $ujian->ujianThema->header_image_path)
-                background-image: url('{{ asset('storage/' . $ujian->ujianThema->header_image_path) }}');
-                background-size: cover;
-                background-position: center;
-            @endif
         }
 
         .bento-card:hover {
@@ -69,19 +85,25 @@
             content: '';
             position: absolute;
             top: 0;
-            right: 0;
             left: 0;
+            right: 0;
             height: 4px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
+            background: var(--primary-color, #4f46e5);
             border-radius: 24px 24px 0 0;
         }
 
         .bento-hero {
             grid-column: 1 / -1;
             text-align: center;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#fff' }};
+            background: var(--header-color, #4f46e5);
+            color: var(--secondary-color, #fff);
             border: none;
+
+            @if ($ujian->ujianThema && $ujian->ujianThema->header_image_path)
+                background-image: url('{{ asset($ujian->ujianThema->header_image_path) }}');
+                background-size: cover;
+                background-position: center;
+            @endif
         }
 
         .bento-hero::before {
@@ -94,8 +116,9 @@
         }
 
         .success-icon {
-            font-size: 80px;
-            margin-bottom: 24px;
+            font-size: 180px;
+            line-height: 1;
+            margin-bottom: 0px;
             animation: bounce 2s infinite;
         }
 
@@ -109,156 +132,143 @@
         .completion-subtitle {
             font-size: 18px;
             opacity: 0.9;
-            font-weight: 400;
-            margin-bottom: 0;
+            margin-bottom: 32px;
         }
 
         .bento-score {
-            grid-column: 1 / 4;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->secondary_color ? $ujian->ujianThema->secondary_color : '#10b981' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#fff' }};
+            grid-column: span 4;
             text-align: center;
+            background: color-mix(in srgb, var(--primary-color) 15%, transparent);
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-        }
-
-        .bento-score::before {
-            display: none;
+            align-items: center;
         }
 
         .score-circle {
-            width: 120px;
-            height: 120px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--header-color, #10b981);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 16px;
-            position: relative;
-            backdrop-filter: blur(10px);
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+            animation: pulse 2s infinite;
         }
 
         .score-number {
             font-size: 36px;
             font-weight: 900;
-            line-height: 1;
+            color: white;
         }
 
         .score-label {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 16px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: var(--font-color, #374151);
+            margin-top: 8px;
         }
 
         .bento-info {
-            grid-column: 4 / -1;
+            grid-column: span 8;
         }
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
         }
 
         .info-item {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color . '20' : 'rgba(59, 130, 246, 0.05)' }};
             padding: 20px;
+            background: color-mix(in srgb, var(--background-color) 50%, transparent);
             border-radius: 16px;
-            border: 1px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color : 'rgba(59, 130, 246, 0.1)' }};
+            border: 1px solid color-mix(in srgb, var(--border-color) 20%, transparent);
         }
 
         .info-label {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color . '80' : '#6b7280' }};
+            font-size: 14px;
+            font-weight: 500;
+            color: color-mix(in srgb, var(--font-color) 80%, transparent);
             margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .info-value {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
-            line-height: 1.3;
+            color: var(--font-color, #111827);
         }
 
         .bento-stats {
-            grid-column: 1 / 7;
+            grid-column: span 6;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
         }
 
         .stat-card {
             text-align: center;
             padding: 24px 16px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color . '10' : 'rgba(79, 70, 229, 0.05)' }};
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
             border-radius: 16px;
-            border: 1px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color : 'rgba(79, 70, 229, 0.1)' }};
-            transition: transform 0.2s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
+            border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
         }
 
         .stat-number {
             font-size: 32px;
             font-weight: 900;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
+            color: var(--primary-color, #3b82f6);
             margin-bottom: 8px;
-            line-height: 1;
         }
 
         .stat-label {
             font-size: 12px;
             font-weight: 600;
+            color: color-mix(in srgb, var(--font-color) 70%, transparent);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color . '80' : '#6b7280' }};
+            letter-spacing: 0.5px;
         }
 
         .bento-time {
-            grid-column: 7 / -1;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->tertiary_color ? $ujian->ujianThema->tertiary_color : '#f59e0b' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#fff' }};
-        }
-
-        .bento-time::before {
-            display: none;
+            grid-column: span 6;
         }
 
         .time-content {
             display: flex;
             align-items: center;
-            height: 100%;
+            gap: 20px;
         }
 
         .time-icon {
-            font-size: 48px;
-            margin-left: 24px;
-            opacity: 0.8;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--header-color, #f59e0b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
         }
 
         .time-details h4 {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
-            margin: 0 0 8px 0;
+            color: var(--font-color, #111827);
+            margin-bottom: 8px;
         }
 
         .time-details p {
-            font-size: 16px;
+            font-size: 14px;
+            color: color-mix(in srgb, var(--font-color) 80%, transparent);
             margin: 0;
-            opacity: 0.9;
         }
 
         .bento-sections {
@@ -268,46 +278,52 @@
         .sections-header {
             display: flex;
             align-items: center;
+            gap: 16px;
             margin-bottom: 32px;
         }
 
         .sections-icon {
             width: 48px;
             height: 48px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->secondary_color ? $ujian->ujianThema->secondary_color : '#06b6d4' }};
             border-radius: 12px;
+            background: var(--primary-color, #3b82f6);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 16px;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#fff' }};
+            color: white;
             font-size: 20px;
         }
 
         .sections-title {
             font-size: 24px;
             font-weight: 800;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
+            color: var(--font-color, #111827);
             margin: 0;
         }
 
         .sections-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 24px;
         }
 
         .section-card {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color . '10' : 'rgba(99, 102, 241, 0.05)' }};
-            padding: 24px;
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
             border-radius: 20px;
-            border: 1px solid {{ $ujian->ujianThema && $ujian->ujianThema->border_color ? $ujian->ujianThema->border_color : 'rgba(99, 102, 241, 0.1)' }};
-            transition: all 0.3s ease;
+            padding: 24px;
+            border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+            position: relative;
+            overflow: hidden;
         }
 
-        .section-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--border-color, #3b82f6);
         }
 
         .section-header {
@@ -318,55 +334,58 @@
         }
 
         .section-name {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }};
+            color: var(--font-color, #111827);
         }
 
         .section-score {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 900;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->background_color ? $ujian->ujianThema->background_color . '30' : 'rgba(229, 231, 235, 0.5)' }};
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->secondary_color ? $ujian->ujianThema->secondary_color : '#10b981' }};
-            border-radius: 4px;
-            transition: width 1s ease-out;
+            color: var(--primary-color, #10b981);
         }
 
         .section-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            gap: 12px;
+            margin-top: 16px;
         }
 
         .section-stat {
             text-align: center;
+            padding: 12px 8px;
+            background: color-mix(in srgb, var(--header-color) 50%, transparent);
+            border-radius: 12px;
         }
 
         .section-stat-number {
             font-size: 20px;
-            font-weight: 900;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
-            margin-bottom: 4px;
+            font-weight: 800;
+            color: var(--primary-color, #3b82f6);
         }
 
         .section-stat-label {
             font-size: 10px;
             font-weight: 600;
+            color: var(--primary-color, #3b82f6);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color . '80' : '#6b7280' }};
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--header-color, #10b981);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .bento-actions {
@@ -376,53 +395,51 @@
 
         .action-buttons {
             display: flex;
-            justify-content: center;
             gap: 16px;
+            justify-content: center;
             flex-wrap: wrap;
         }
 
         .btn {
             padding: 16px 32px;
-            border-radius: 12px;
-            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            min-width: 160px;
+            justify-content: center;
         }
 
-        .btn-primary {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color : '#4f46e5' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#fff' }};
-        }
-
-        .btn-primary:hover {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->primary_color ? $ujian->ujianThema->primary_color . 'dd' : '#4338ca' }};
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
-        }
-
+        .btn-primary,
         .btn-secondary {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->secondary_color ? $ujian->ujianThema->secondary_color : '#6b7280' }};
-            color: {{ $ujian->ujianThema && $ujian->ujianThema->button_font_color ? $ujian->ujianThema->button_font_color : '#fff' }};
+            background: var(--button-color, #3b82f6);
+            color: var(--button-font-color, #ffffff);
+            box-shadow: 0 8px 32px color-mix(in srgb, var(--button-color) 40%, transparent);
+            border: 2px solid var(--border-color, #e5e7eb);
         }
 
+        .btn-primary:hover,
         .btn-secondary:hover {
-            background: {{ $ujian->ujianThema && $ujian->ujianThema->secondary_color ? $ujian->ujianThema->secondary_color . 'dd' : '#4b5563' }};
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(107, 114, 128, 0.3);
+            box-shadow: 0 12px 40px color-mix(in srgb, var(--button-color) 50%, transparent);
+        }
+
+        .footer-text {
+            margin-top: 50px;
+            color: var(--primary-color);
+            font-size: 14px;
         }
 
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px);
             }
 
             to {
@@ -450,11 +467,66 @@
             }
         }
 
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 70%, transparent);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px transparent;
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 transparent;
+            }
+        }
+
+        .institution-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .institution-logo {
+            max-height: 80px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .institution-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--font-color, #111827);
+            margin: 0;
+        }
+
+        @media (max-width: 1200px) {
+            .bento-container {
+                grid-template-columns: repeat(8, 1fr);
+            }
+
+            .bento-score {
+                grid-column: span 8;
+            }
+
+            .bento-info {
+                grid-column: span 8;
+            }
+
+            .bento-stats,
+            .bento-time {
+                grid-column: span 4;
+            }
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
             .bento-container {
                 grid-template-columns: 1fr;
                 gap: 16px;
-                padding: 0 16px;
             }
 
             .bento-card {
@@ -464,32 +536,20 @@
             .bento-score,
             .bento-info,
             .bento-stats,
-            .bento-time,
-            .bento-sections,
-            .bento-actions {
-                grid-column: 1 / -1;
+            .bento-time {
+                grid-column: span 1;
             }
 
             .completion-title {
-                font-size: 28px;
+                font-size: 32px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
             }
 
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-            }
-
-            .sections-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .time-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .time-icon {
-                margin-left: 0;
-                margin-bottom: 16px;
             }
 
             .action-buttons {
@@ -500,25 +560,28 @@
             .btn {
                 width: 100%;
                 max-width: 300px;
-                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sections-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media print {
             body {
                 background: white !important;
-                color: black !important;
             }
 
             .bento-card {
-                background: white !important;
                 box-shadow: none !important;
-                border: 1px solid #ddd !important;
+                border: 1px solid #ddd;
                 page-break-inside: avoid;
-            }
-
-            .btn {
-                display: none;
             }
 
             .bento-actions {
@@ -674,25 +737,25 @@
             </div>
 
 
-        <!-- Action Buttons -->
-        <div class="bento-card bento-actions">
-            <h4
-                style="color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }}; margin-bottom: 32px; font-weight: 700; text-align: center;">
-                <i class="ri-settings-3-line"
-                    style="color: {{ $ujian->ujianThema && $ujian->ujianThema->tertiary_color ? $ujian->ujianThema->tertiary_color : '#f59e0b' }}; margin-left: 8px;"></i>
-                الإجراءات التالية
-            </h4>
-            <div class="action-buttons">
-                <a href="{{ url('/') }}" class="btn btn-primary">
-                    <i class="ri-home-line"></i>
-                    العودة إلى الصفحة الرئيسية
-                </a>
-                <button onclick="window.print()" class="btn btn-secondary">
-                    <i class="ri-printer-line"></i>
-                    طباعة النتائج
-                </button>
+            <!-- Action Buttons -->
+            <div class="bento-card bento-actions">
+                <h4
+                    style="color: {{ $ujian->ujianThema && $ujian->ujianThema->font_color ? $ujian->ujianThema->font_color : '#111827' }}; margin-bottom: 32px; font-weight: 700; text-align: center;">
+                    <i class="ri-settings-3-line"
+                        style="color: {{ $ujian->ujianThema && $ujian->ujianThema->tertiary_color ? $ujian->ujianThema->tertiary_color : '#f59e0b' }}; margin-left: 8px;"></i>
+                    الإجراءات التالية
+                </h4>
+                <div class="action-buttons">
+                    <a href="{{ url('/') }}" class="btn btn-primary">
+                        <i class="ri-home-line"></i>
+                        العودة إلى الصفحة الرئيسية
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="ri-printer-line"></i>
+                        طباعة النتائج
+                    </button>
+                </div>
             </div>
-        </div>
         @endif
 
         @if (!isset($examSummary))

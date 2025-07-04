@@ -450,46 +450,42 @@ class UjianController extends Controller
             $use_custom_color = $request->boolean('use_custom_color') ? 1 : 0;
             $show_institution_name = $request->boolean('show_institution_name') ? 1 : 0;
 
+            if ($use_custom_color == 0) {
+                $ujianThema->logo_path = null;
+            }
+
+            if ($show_institution_name == 0) {
+                $ujianThema->institution_name = null;
+            }
+
             $ujianThema->theme = $request->input('theme', 'classic');
             $ujianThema->institution_name = $request->input('institution_name');
             $ujianThema->welcome_message = $request->input('welcome_message');
             $ujianThema->use_custom_color = $use_custom_color;
             $ujianThema->show_institution_name = $show_institution_name;
 
-            if ($use_custom_color) {
-                $ujianThema->primary_color = $request->input('primary_color');
-                $ujianThema->secondary_color = $request->input('secondary_color');
-                $ujianThema->tertiary_color = $request->input('tertiary_color');
-                $ujianThema->background_color = $request->input('background_color');
-                $ujianThema->header_color = $request->input('header_color');
-                $ujianThema->font_color = $request->input('font_color');
-                $ujianThema->button_color = $request->input('button_color');
-                $ujianThema->button_font_color = $request->input('button_font_color');
-            } else {
-                $selectedTheme = $request->input('theme', 'klasik');
+            $selectedTheme = $request->input('theme', 'custom');
 
-                if (isset($masterColors[$selectedTheme])) {
-                    $themeColors = $masterColors[$selectedTheme];
-                    $ujianThema->primary_color = $themeColors['primary_color'];
-                    $ujianThema->secondary_color = $themeColors['secondary_color'];
-                    $ujianThema->tertiary_color = $themeColors['tertiary_color'];
-                    $ujianThema->background_color = $themeColors['background'];
-                    $ujianThema->header_color = $themeColors['header'];
-                    $ujianThema->font_color = $themeColors['font'];
-                    $ujianThema->button_color = $themeColors['button'];
-                    $ujianThema->button_font_color = $themeColors['button_font'];
-                } else {
-                    // Fallback to klasik theme if selected theme not found
-                    $ujianThema->primary_color = $masterColors['klasik']['primary_color'];
-                    $ujianThema->secondary_color = $masterColors['klasik']['secondary_color'];
-                    $ujianThema->tertiary_color = $masterColors['klasik']['tertiary_color'];
-                    $ujianThema->background_color = $masterColors['klasik']['background'];
-                    $ujianThema->header_color = $masterColors['klasik']['header'];
-                    $ujianThema->font_color = $masterColors['klasik']['font'];
-                    $ujianThema->button_color = $masterColors['klasik']['button'];
-                    $ujianThema->button_font_color = $masterColors['klasik']['button_font'];
-                }
+            // Cek apakah tema yang dipilih ada di daftar tema
+            if (isset($masterColors[$selectedTheme])) {
+                $themeColors = $masterColors[$selectedTheme];
+            } else {
+                // Fallback ke tema klasik
+                $selectedTheme = 'klasik';
+                $themeColors = $masterColors['klasik'];
             }
+
+            // Simpan tema dan warnanya ke ujianThema
+            $ujianThema->theme = $selectedTheme;
+            $ujianThema->primary_color = $themeColors['primary_color'];
+            $ujianThema->secondary_color = $themeColors['secondary_color'];
+            $ujianThema->tertiary_color = $themeColors['tertiary_color'];
+            $ujianThema->background_color = $themeColors['background'];
+            $ujianThema->header_color = $themeColors['header'];
+            $ujianThema->font_color = $themeColors['font'];
+            $ujianThema->button_color = $themeColors['button'];
+            $ujianThema->button_font_color = $themeColors['button_font'];
+
 
             // Handle file uploads
             if ($request->hasFile('logo')) {
@@ -505,9 +501,10 @@ class UjianController extends Controller
                 $ujianThema->logo_path = 'images/ujian/logos/' . $logoName;
             }
 
+            // === File Upload ===
             if ($request->hasFile('background_image')) {
                 if ($ujianThema->background_image_path && file_exists(public_path($ujianThema->background_image_path))) {
-                    unlink(public_path($ujianThema->background_image_path));
+                    @unlink(public_path($ujianThema->background_image_path));
                 }
 
                 $backgroundFile = $request->file('background_image');
@@ -518,7 +515,7 @@ class UjianController extends Controller
 
             if ($request->hasFile('header_image')) {
                 if ($ujianThema->header_image_path && file_exists(public_path($ujianThema->header_image_path))) {
-                    unlink(public_path($ujianThema->header_image_path));
+                    @unlink(public_path($ujianThema->header_image_path));
                 }
 
                 $headerFile = $request->file('header_image');
@@ -526,6 +523,22 @@ class UjianController extends Controller
                 $headerFile->move(public_path('images/ujian/headers'), $headerName);
                 $ujianThema->header_image_path = 'images/ujian/headers/' . $headerName;
             }
+
+            // === Hapus jika diminta ===
+            if ($request->input('remove_background_image') == '1') {
+                if ($ujianThema->background_image_path && file_exists(public_path($ujianThema->background_image_path))) {
+                    @unlink(public_path($ujianThema->background_image_path));
+                }
+                $ujianThema->background_image_path = null;
+            }
+
+            if ($request->input('remove_header_image') == '1') {
+                if ($ujianThema->header_image_path && file_exists(public_path($ujianThema->header_image_path))) {
+                    @unlink(public_path($ujianThema->header_image_path));
+                }
+                $ujianThema->header_image_path = null;
+            }
+
 
             $ujianThema->save();
 
