@@ -89,6 +89,7 @@ class UjianController extends Controller
             'title' => 'Buat Ujian',
             'active' => 'ujian',
             'jenisUjian' => $jenisUjian,
+            'ujian' => null,
         ]);
     }
 
@@ -132,70 +133,73 @@ class UjianController extends Controller
         ];
 
 
-        Log::info("message", [
+        Log::info("Ujian Store Request", [
             'request' => $request->all(),
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Parse JSON data from FormData
+            // --- JSON Data ---
             $detail = json_decode($request->input('detail'), true) ?? $request->detail ?? [];
             $peserta = json_decode($request->input('peserta'), true) ?? $request->peserta ?? [];
             $pengaturan = json_decode($request->input('pengaturan'), true) ?? $request->pengaturan ?? [];
             $sections = json_decode($request->input('sections'), true) ?? $request->sections ?? [];
 
-            // Create ujian
+            // --- Ujian ---
             $ujian = new Ujian();
-            $ujian->nama_ujian   = $detail['nama'];
+            $ujian->nama_ujian = $detail['nama'];
             $ujian->deskripsi = $detail['deskripsi'];
             $ujian->durasi = $detail['durasi'];
             $ujian->jenis_ujian_id = $detail['jenis_ujian'];
             $ujian->tanggal_selesai = $detail['tanggal_selesai'];
-            $ujian->status = $detail['status'] ?? 'draft'; // Default to 'draft' if not provided
-            $ujian->link = Str::uuid()->toString(); // Generate a unique link for the ujian
+            $ujian->status = $detail['status'] ?? 'draft';
+            $ujian->link = Str::uuid()->toString();
             $ujian->save();
 
-            // Create ujian settings
-            $ujianPengaturan = new \App\Models\UjianPengaturan();
-            $ujianPengaturan->ujian_id = $ujian->id;
-            $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
-            $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'];
-            $ujianPengaturan->acak_soal = $pengaturan['acak_soal'] ?? false;
-            $ujianPengaturan->acak_jawaban = $pengaturan['acak_jawaban'] ?? false;
-            $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;
-            $ujianPengaturan->lihat_pembahasan = $pengaturan['lihat_pembahasan'] ?? false;
-            $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
-            $ujianPengaturan->is_arabic = $pengaturan['is_arabic'] ?? false;
-            $ujianPengaturan->formula_type = $pengaturan['answer_type'];
-            $ujianPengaturan->operation_1 = $pengaturan['operation'];
-            $ujianPengaturan->value_1 = $pengaturan['value'];
-            $ujianPengaturan->operation_2 = $pengaturan['operation2'];
-            $ujianPengaturan->value_2 = $pengaturan['value2'];
-
+            // --- Pengaturan ---
+            $ujianPengaturan = new \App\Models\UjianPengaturan([
+                'ujian_id' => $ujian->id,
+                'nilai_kelulusan' => $pengaturan['nilai_kelulusan'],
+                'hasil_ujian_tersedia' => $pengaturan['hasil_ujian'],
+                'acak_soal' => $pengaturan['acak_soal'] ?? false,
+                'acak_jawaban' => $pengaturan['acak_jawaban'] ?? false,
+                'lihat_hasil' => $pengaturan['lihat_hasil'] ?? false,
+                'lihat_pembahasan' => $pengaturan['lihat_pembahasan'] ?? false,
+                'lockscreen' => $pengaturan['lockscreen'] ?? false,
+                'is_arabic' => $pengaturan['is_arabic'] ?? false,
+                'formula_type' => $pengaturan['answer_type'] ?? null,
+                'operation_1' => $pengaturan['operation'] ?? '*',
+                'value_1' => $pengaturan['value'] ?? 1,
+                'operation_2' => $pengaturan['operation2'] ?? '*',
+                'value_2' => $pengaturan['value2'] ?? 1,
+            ]);
             $ujianPengaturan->save();
 
-            // Create ujian peserta form
-            $ujianPesertaForm = new \App\Models\UjianPesertaForm();
-            $ujianPesertaForm->ujian_id = $ujian->id;
-            $ujianPesertaForm->nama = $peserta['nama'] ?? false;
-            $ujianPesertaForm->phone = $peserta['phone'] ?? false;
-            $ujianPesertaForm->email = $peserta['email'] ?? false;
-            $ujianPesertaForm->institusi = $peserta['institusi'] ?? false;
-            $ujianPesertaForm->nomor_induk = $peserta['nomor_induk'] ?? false;
-            $ujianPesertaForm->tanggal_lahir = $peserta['tanggal_lahir'] ?? false;
-            $ujianPesertaForm->alamat = $peserta['alamat'] ?? false;
-            $ujianPesertaForm->foto = $peserta['foto'] ?? false;
+            // --- Form Peserta ---
+            $ujianPesertaForm = new \App\Models\UjianPesertaForm([
+                'ujian_id' => $ujian->id,
+                'nama' => $peserta['nama'] ?? false,
+                'phone' => $peserta['phone'] ?? false,
+                'email' => $peserta['email'] ?? false,
+                'institusi' => $peserta['institusi'] ?? false,
+                'nomor_induk' => $peserta['nomor_induk'] ?? false,
+                'tanggal_lahir' => $peserta['tanggal_lahir'] ?? false,
+                'alamat' => $peserta['alamat'] ?? false,
+                'foto' => $peserta['foto'] ?? false,
+            ]);
             $ujianPesertaForm->save();
 
+            // --- Theme ---
             $use_custom_color = $request->boolean('use_custom_color') ? 1 : 0;
             $show_institution_name = $request->boolean('show_institution_name') ? 1 : 0;
 
-            // Create ujian theme
+            $selectedTheme = $request->input('theme', 'klasik');
+
             $ujianThema = new \App\Models\UjianThema();
             $ujianThema->ujian_id = $ujian->id;
-            $ujianThema->theme = $request->input('theme', 'classic');
-            $ujianThema->institution_name = $request->input('institution_name');
+            $ujianThema->theme = $selectedTheme;
+            $ujianThema->institution_name = $show_institution_name ? $request->input('institution_name') : null;
             $ujianThema->welcome_message = $request->input('welcome_message');
             $ujianThema->use_custom_color = $use_custom_color;
             $ujianThema->show_institution_name = $show_institution_name;
@@ -210,51 +214,26 @@ class UjianController extends Controller
                 $ujianThema->button_color = $request->input('button_color');
                 $ujianThema->button_font_color = $request->input('button_font_color');
             } else {
-                $selectedTheme = $request->input('theme', 'klasik');
-
-                if (isset($masterColors[$selectedTheme])) {
-                    $themeColors = $masterColors[$selectedTheme];
-                    $ujianThema->primary_color = $themeColors['primary_color'];
-                    $ujianThema->secondary_color = $themeColors['secondary_color'];
-                    $ujianThema->tertiary_color = $themeColors['tertiary_color'];
-
-                    $ujianThema->background_color = $themeColors['background'];
-                    $ujianThema->header_color = $themeColors['header'];
-                    $ujianThema->font_color = $themeColors['font'];
-                    $ujianThema->button_color = $themeColors['button'];
-                    $ujianThema->button_font_color = $themeColors['button_font'];
-                } else {
-                    // Fallback to klasik theme if selected theme not found
-                    $ujianThema->primary_color = $masterColors['klasik']['primary_color'];
-                    $ujianThema->secondary_color = $masterColors['klasik']['secondary_color'];
-                    $ujianThema->tertiary_color = $masterColors['klasik']['tertiary_color'];
-                    $ujianThema->background_color = $masterColors['klasik']['background'];
-                    $ujianThema->header_color = $masterColors['klasik']['header'];
-                    $ujianThema->font_color = $masterColors['klasik']['font'];
-                    $ujianThema->button_color = $masterColors['klasik']['button'];
-                    $ujianThema->button_font_color = $masterColors['klasik']['button_font'];
-                }
+                $themeColors = $masterColors[$selectedTheme] ?? $masterColors['klasik'];
+                $ujianThema->primary_color = $themeColors['primary_color'];
+                $ujianThema->secondary_color = $themeColors['secondary_color'];
+                $ujianThema->tertiary_color = $themeColors['tertiary_color'];
+                $ujianThema->background_color = $themeColors['background'];
+                $ujianThema->header_color = $themeColors['header'];
+                $ujianThema->font_color = $themeColors['font'];
+                $ujianThema->button_color = $themeColors['button'];
+                $ujianThema->button_font_color = $themeColors['button_font'];
             }
 
-            // Handle file uploads
+            // --- File Uploads ---
             if ($request->hasFile('logo')) {
-                // Hapus logo lama jika ada
-                if ($ujianThema->logo_path && file_exists(public_path($ujianThema->logo_path))) {
-                    unlink(public_path($ujianThema->logo_path));
-                }
-
                 $logoFile = $request->file('logo');
                 $logoName = time() . '_' . $logoFile->getClientOriginalName();
                 $logoFile->move(public_path('images/ujian/logos'), $logoName);
-                // Simpan path relatif dari public
                 $ujianThema->logo_path = 'images/ujian/logos/' . $logoName;
             }
 
             if ($request->hasFile('background_image')) {
-                if ($ujianThema->background_image_path && file_exists(public_path($ujianThema->background_image_path))) {
-                    unlink(public_path($ujianThema->background_image_path));
-                }
-
                 $backgroundFile = $request->file('background_image');
                 $backgroundName = time() . '_' . $backgroundFile->getClientOriginalName();
                 $backgroundFile->move(public_path('images/ujian/backgrounds'), $backgroundName);
@@ -262,25 +241,34 @@ class UjianController extends Controller
             }
 
             if ($request->hasFile('header_image')) {
-                if ($ujianThema->header_image_path && file_exists(public_path($ujianThema->header_image_path))) {
-                    unlink(public_path($ujianThema->header_image_path));
-                }
-
                 $headerFile = $request->file('header_image');
                 $headerName = time() . '_' . $headerFile->getClientOriginalName();
                 $headerFile->move(public_path('images/ujian/headers'), $headerName);
                 $ujianThema->header_image_path = 'images/ujian/headers/' . $headerName;
             }
 
+            // --- Hapus jika diminta (walau sangat jarang di store) ---
+            if ($request->input('remove_background_image') == '1') {
+                if ($ujianThema->background_image_path && file_exists(public_path($ujianThema->background_image_path))) {
+                    @unlink(public_path($ujianThema->background_image_path));
+                }
+                $ujianThema->background_image_path = null;
+            }
+
+            if ($request->input('remove_header_image') == '1') {
+                if ($ujianThema->header_image_path && file_exists(public_path($ujianThema->header_image_path))) {
+                    @unlink(public_path($ujianThema->header_image_path));
+                }
+                $ujianThema->header_image_path = null;
+            }
 
             $ujianThema->save();
 
-            // Create ujian sections
+            // --- Sections + Soal ---
             foreach ($sections as $sectionData) {
                 $ujianSection = new \App\Models\UjianSection();
                 $ujianSection->ujian_id = $ujian->id;
                 $ujianSection->nama_section = $sectionData['nama_section'];
-                // $ujianSection->bobot_nilai = (float) $sectionData['bobot_nilai'];
                 $ujianSection->instruksi = $sectionData['instruksi'] ?? null;
                 $ujianSection->kategori_id = $sectionData['kategori_id'];
                 $ujianSection->formula_type = $sectionData['formula_type'] ?? null;
@@ -288,14 +276,13 @@ class UjianController extends Controller
                 $ujianSection->value_1 = (float) ($sectionData['value_1'] ?? 1);
                 $ujianSection->operation_2 = $sectionData['operation_2'] ?? '*';
                 $ujianSection->value_2 = (float) ($sectionData['value_2'] ?? 1);
-
                 $ujianSection->save();
 
-                // Create ujian section soals
                 foreach ($sectionData['selected_questions'] as $soalId) {
-                    $ujianSectionSoal = new \App\Models\UjianSectionSoal();
-                    $ujianSectionSoal->ujian_section = $ujianSection->id;
-                    $ujianSectionSoal->soal_id = $soalId;
+                    $ujianSectionSoal = new \App\Models\UjianSectionSoal([
+                        'ujian_section' => $ujianSection->id,
+                        'soal_id' => $soalId
+                    ]);
                     $ujianSectionSoal->save();
                 }
             }
@@ -309,6 +296,8 @@ class UjianController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollback();
+
+            Log::error("Error store ujian", ['error' => $e]);
 
             return response()->json([
                 'success' => false,

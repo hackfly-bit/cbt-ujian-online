@@ -21,7 +21,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="email" name="email" checked disabled>
                             <label class="form-check-label mb-1" for="email">
-                                Email
+                                Email (wajib)
                             </label>
                         </div>
                     </div>

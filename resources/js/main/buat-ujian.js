@@ -77,49 +77,49 @@ import flatpickr from "flatpickr";
                     <div id="${collapseId}" class="collapse section-body px-4 py-3 border-top">
                         <form class="section-form">
                             <div class="mb-2">
-                                <label class="form-label">Nama Seksi</label>
-                                <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi">
+                                <label class="form-label">Nama Seksi <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi" required>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Instruksi</label>
                                 <textarea class="form-control" name="instruksi" placeholder="Instruksi pengerjaan soal"></textarea>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label">Formula Penilaian</label>
+                                <label class="form-label">Formula Penilaian <span class="text-danger">*</span></label>
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span>(</span>
-                                    <select class="form-select" name="answer_type" style="width: auto">
+                                    <select class="form-select" name="answer_type" style="width: auto" required>
                                         <option value="correctAnswer">Jawaban Benar</option>
                                         <option value="incorrectAnswer">Jawaban Salah</option>
                                     </select>
-                                    <select class="form-select" name="operation" style="width: auto">
+                                    <select class="form-select" name="operation" style="width: auto" required>
                                         <option value="*">×</option>
                                         <option value="+">+</option>
                                         <option value="-">-</option>
                                         <option value="/">÷</option>
                                     </select>
-                                    <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px">
+                                    <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px" required>
                                     <span>)</span>
-                                    <select class="form-select" name="operation2" style="width: auto">
+                                    <select class="form-select" name="operation2" style="width: auto" required>
                                         <option value="*">×</option>
                                         <option value="+">+</option>
                                         <option value="-">-</option>
                                         <option value="/">÷</option>
                                     </select>
-                                    <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px">
+                                    <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px" required>
                                 </div>
                                 <small class="text-muted">
                                     Contoh: (Jawaban Benar × n) × n
                                 </small>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label">Kategori Soal</label>
-                                <select class="form-select category-dropdown" name="kategori_id" data-section="${self.sectionCount}">
+                                <label class="form-label">Kategori Soal <span class="text-danger">*</span></label>
+                                <select class="form-select category-dropdown" name="kategori_id" data-section="${self.sectionCount}" required>
                                     <option value="">Pilih Kategori</option>
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label">Pilih Soal</label>
+                                <label class="form-label">Pilih Soal <span class="text-danger">*</span></label>
                                 <div class="question-container border rounded p-3" id="question-container-${self.sectionCount}" style="max-height: 300px; overflow-y: auto;">
                                     <div class="text-muted text-center py-3">
                                         <i class="bi bi-list-check fs-3 d-block mb-2"></i>
@@ -1139,7 +1139,7 @@ import flatpickr from "flatpickr";
         const $button = $preview.find(".exam-card button");
         const $footer = $(".footer-preview");
 
-        // Reset & atur kelas tema
+        // Reset kelas tema dan tambahkan kelas baru
         $preview
             .removeClass(
                 "classic-preview modern-preview glow-preview minimal-preview custom-preview"
@@ -1150,7 +1150,7 @@ import flatpickr from "flatpickr";
         $("#preview-institution-name").text(name);
         $("#preview-welcome-message").text(message);
 
-        // Apply custom color jika isCustom
+        // Terapkan warna custom
         if (isCustom) {
             $header.css({ backgroundColor: colors.header });
             $institutionTitle.css({ color: colors.primary });
@@ -1168,49 +1168,86 @@ import flatpickr from "flatpickr";
             });
             $footer.css({ color: colors.primary });
         } else {
-            $header.removeAttr("style");
-            $institutionTitle.removeAttr("style");
-            $content.removeAttr("style");
-            $welcomeText.removeAttr("style");
-            $examCard.removeAttr("style");
-            $button.removeAttr("style");
-            $footer.removeAttr("style");
+            // Reset styling jika bukan custom
+            [
+                $header,
+                $institutionTitle,
+                $content,
+                $welcomeText,
+                $examCard,
+                $button,
+                $footer,
+            ].forEach(($el) => {
+                $el.removeAttr("style");
+            });
         }
 
-        // Ambil URL gambar dari JS (upload) atau dari data-attribute (DB)
+        // === Handle gambar background & header ===
         const $livePreview = $("#live-preview");
         const removeBg = $("#remove_background_image_flag").val() === "1";
         const removeHeader = $("#remove_header_image_flag").val() === "1";
 
-        const bgUrl = !removeBg
-            ? window.bgImagePreviewUrl || $livePreview.data("bg") || ""
-            : "";
+        // Coba ambil ulang gambar dari input file jika ada
+        const bgFile = $("#background_image")[0]?.files[0];
+        const headerFile = $("#header_image")[0]?.files[0];
 
-        const headerUrl = !removeHeader
-            ? window.headerImagePreviewUrl || $livePreview.data("header") || ""
-            : "";
-
-        // Tampilkan background image dari data-bg (content)
-        if (bgUrl) {
+        if (bgFile && !removeBg) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                window.bgImagePreviewUrl = e.target.result;
+                $content.css({
+                    backgroundImage: `url('${e.target.result}')`,
+                    backgroundSize: "cover",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center center",
+                });
+                $("#remove_background_image").removeClass("d-none");
+            };
+            reader.readAsDataURL(bgFile);
+        } else if (
+            !removeBg &&
+            (window.bgImagePreviewUrl || $livePreview.data("bg"))
+        ) {
+            const bgUrl = window.bgImagePreviewUrl || $livePreview.data("bg");
             $content.css({
                 backgroundImage: `url('${bgUrl}')`,
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center center",
             });
+            $("#remove_background_image").removeClass("d-none");
         } else {
-            // Hapus seluruh properti terkait image
             $content.css({
                 backgroundImage: "",
                 backgroundSize: "",
                 backgroundRepeat: "",
                 backgroundPosition: "",
-                backgroundColor: "", // biarkan kembali ke default
+                backgroundColor: "",
             });
+            $("#remove_background_image").addClass("d-none");
+            window.bgImagePreviewUrl = "";
         }
 
-        // Tampilkan header image dari data-header
-        if (headerUrl) {
+        if (headerFile && !removeHeader) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                window.headerImagePreviewUrl = e.target.result;
+                $header.css({
+                    backgroundImage: `url('${e.target.result}')`,
+                    backgroundSize: "cover",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center center",
+                    backgroundColor: "transparent",
+                });
+                $("#remove_header_image").removeClass("d-none");
+            };
+            reader.readAsDataURL(headerFile);
+        } else if (
+            !removeHeader &&
+            (window.headerImagePreviewUrl || $livePreview.data("header"))
+        ) {
+            const headerUrl =
+                window.headerImagePreviewUrl || $livePreview.data("header");
             $header.css({
                 backgroundImage: `url('${headerUrl}')`,
                 backgroundSize: "cover",
@@ -1218,6 +1255,7 @@ import flatpickr from "flatpickr";
                 backgroundPosition: "center center",
                 backgroundColor: "transparent",
             });
+            $("#remove_header_image").removeClass("d-none");
         } else {
             $header.css({
                 backgroundImage: "",
@@ -1226,18 +1264,8 @@ import flatpickr from "flatpickr";
                 backgroundPosition: "",
                 backgroundColor: "",
             });
-        }
-
-        if (bgUrl) {
-            $("#remove_background_image").removeClass("d-none");
-        } else {
-            $("#remove_background_image").addClass("d-none");
-        }
-
-        if (headerUrl) {
-            $("#remove_header_image").removeClass("d-none");
-        } else {
             $("#remove_header_image").addClass("d-none");
+            window.headerImagePreviewUrl = "";
         }
     };
 
@@ -1534,6 +1562,51 @@ import flatpickr from "flatpickr";
                 );
             });
         }
+    });
+
+    // Error handling for input fields
+    $(document).ready(function () {
+        // Tambah kelas merah jika blur dan kosong
+        $("input[required], textarea[required], select[required]").on(
+            "blur",
+            function () {
+                if (!$(this).val()) {
+                    $(this).addClass("input-error");
+                } else {
+                    $(this).removeClass("input-error");
+                }
+            }
+        );
+
+        // Saat tombol diklik
+        $("#btn-lanjut-seksi").on("click", function () {
+            let isValid = true;
+
+            // Cek semua input required
+            $("input[required], textarea[required], select[required]").each(
+                function () {
+                    if (!$(this).val()) {
+                        $(this).addClass("input-error");
+                        isValid = false;
+                    } else {
+                        $(this).removeClass("input-error");
+                    }
+                }
+            );
+
+            if (isValid) {
+                // Tidak ada error → lanjut ke tab berikutnya
+                goToNextTab("seksi");
+            } else {
+                // Opsional: scroll ke atas ke input error pertama
+                $("html, body").animate(
+                    {
+                        scrollTop: $(".input-error").first().offset().top - 100,
+                    },
+                    500
+                );
+            }
+        });
     });
 
     // ...existing code...

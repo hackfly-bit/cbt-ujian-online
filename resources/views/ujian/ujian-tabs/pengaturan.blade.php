@@ -8,10 +8,13 @@
                 <div class="row">
                     <div class="row mb-2">
                         <div class="col-md-6">
-                            <label class="form-label" for="answer_type">Formula Penilaian</label>
+                            <label class="form-label" for="answer_type">
+                                Formula Penilaian
+                                <span class="text-danger">*</span>
+                            </label>
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <span>(</span>
-                                <select class="form-select" id="answer_type" name="answer_type" style="width: auto">
+                                <select class="form-select" id="answer_type" name="answer_type" style="width: auto" required>
                                     <option value="correctAnswer"
                                         {{ old('answer_type', $ujian->ujianPengaturan->formula_type ?? '') == 'correctSection' ? 'selected' : '' }}>
                                         Section Benar</option>
@@ -19,7 +22,7 @@
                                         {{ old('answer_type', $ujian->ujianPengaturan->formula_type ?? '') == 'incorrectSection' ? 'selected' : '' }}>
                                         Section Salah</option>
                                 </select>
-                                <select class="form-select" id="operation" name="operation" style="width: auto">
+                                <select class="form-select" id="operation" name="operation" style="width: auto" required>
                                     <option value="*"
                                         {{ old('operation', $ujian->ujianPengaturan->operation_1 ?? '') == '*' ? 'selected' : '' }}>
                                         ×</option>
@@ -37,7 +40,7 @@
                                     style="width: 80px"
                                     value="{{ old('value', $ujian->ujianPengaturan->value_1 ?? '') }}" required>
                                 <span>)</span>
-                                <select class="form-select" id="operation2" name="operation2" style="width: auto">
+                                <select class="form-select" id="operation2" name="operation2" style="width: auto" required>
                                     <option value="*"
                                         {{ old('operation2', $ujian->ujianPengaturan->operation_2 ?? '') == '*' ? 'selected' : '' }}>
                                         ×</option>
@@ -60,7 +63,10 @@
                             </small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label" for="nilai_kelulusan">Nilai Kelulusan</label>
+                            <label class="form-label" for="nilai_kelulusan">
+                                Nilai Kelulusan
+                                <span class="text-danger">*</span>
+                            </label>
                             <div class="input-group" style="max-width: 600px;">
                                 <input type="number" class="form-control" id="nilai_kelulusan" name="nilai_kelulusan"
                                     min="0" max="100" step="0.01" placeholder="Contoh: 75"

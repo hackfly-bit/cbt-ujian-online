@@ -158,8 +158,8 @@
                             <div class="card" id="theme-preview-container">
                                 <div class="card-body">
                                     <div id="live-preview" class="theme-preview-large"
-                                        data-bg="{{ $ujian->ujianThema->background_image_path ? asset($ujian->ujianThema->background_image_path) : '' }}"
-                                        data-header="{{ $ujian->ujianThema->header_image_path ? asset($ujian->ujianThema->header_image_path) : '' }}">
+                                        data-bg="{{ isset($ujian) && $ujian->ujianThema?->background_image_path ? asset($ujian->ujianThema->background_image_path) : '' }}"
+                                        data-header="{{ isset($ujian) && $ujian->ujianThema?->header_image_path ? asset($ujian->ujianThema->header_image_path) : '' }}">
                                         <div class="preview-content" id="live-preview-content">
                                             @php
                                                 $branding = [

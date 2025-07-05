@@ -126,7 +126,9 @@
             color: #0d6efd;
         }
 
-        
+        .input-error {
+            border: 1px solid red !important;
+        }
     </style>
 @endsection
 
