@@ -322,7 +322,12 @@ function initDataTables() {
                     className: "text-center",
                 },
             ],
-            responsive: true,
+            responsive: {
+                details: {
+                    type: "column",
+                    target: "tr"
+                }
+            },
             scrollX: true,
             language: {
                 paginate: {
@@ -334,9 +339,13 @@ function initDataTables() {
             drawCallback: function () {
                 document
                     .querySelectorAll(".dataTables_paginate .pagination")
-                    .forEach((pagination) =>
-                        pagination.classList.remove("pagination-rounded")
-                    );
+                    .forEach((pagination) => {
+                        pagination.classList.remove("pagination-rounded");
+                        // Tambahkan margin top pada pagination
+                        pagination.style.marginTop = "1rem";
+                        pagination.style.marginBottom = "1rem";
+
+                    });
             },
         });
 
@@ -344,7 +353,7 @@ function initDataTables() {
         if (filterWrapperSelector && tableId) {
             const $filterWrapper = $(`${selector}_filter`);
             $filterWrapper.addClass(
-                "d-flex align-items-center gap-2 justify-content-end"
+                "d-flex align-items-center gap-2 justify-content-end flex-wrap"
             );
 
             const $customFilters = $(filterWrapperSelector).children().detach();
@@ -359,6 +368,11 @@ function initDataTables() {
                 }
             });
         }
+
+        // Responsive: adjust columns on window resize
+        $(window).on("resize", function () {
+            table.columns.adjust().responsive.recalc();
+        });
 
         return table;
     }

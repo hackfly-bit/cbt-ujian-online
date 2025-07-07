@@ -5,23 +5,49 @@
 
             <!-- Topbar Brand Logo -->
             <div class="logo-topbar">
+                @php
+                    $branding = [
+                        'logoPutih' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'logoPutih')
+                                ->value('value') ?? '',
+                        'logoHitam' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'logoHitam')
+                                ->value('value') ?? '',
+                        'favLogoPutih' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'favLogoPutih')
+                                ->value('value') ?? '',
+                        'favLogoHitam' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'favLogoHitam')
+                                ->value('value') ?? '',
+                    ];
+                @endphp
+
+
                 <!-- Logo light -->
                 <a href="/" class="logo-light">
                     <span class="logo-lg">
-                        <img src="/images/logo.png" alt="logo">
+                        <img src="{{ $branding['logoPutih'] ? asset($branding['logoPutih']) : asset('images/placeholder.jpeg') }}"
+                            alt="logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="/images/logo-sm.png" alt="small logo">
+                        <img src="{{ $branding['favLogoPutih'] ? asset($branding['favLogoPutih']) : asset('images/placeholder.jpeg') }}"
+                            alt="small logo">
                     </span>
                 </a>
 
                 <!-- Logo Dark -->
                 <a href="/" class="logo-dark">
                     <span class="logo-lg">
-                        <img src="/images/logo-dark.png" alt="dark logo">
+                        <img src="{{ $branding['logoHitam'] ? asset($branding['logoHitam']) : asset('images/placeholder.jpeg') }}"
+                            alt="dark logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="/images/logo-sm.png" alt="small logo">
+                        <img src="{{ $branding['favLogoHitam'] ? asset($branding['favLogoHitam']) : asset('images/placeholder.jpeg') }}"
+                            alt="small logo">
                     </span>
                 </a>
             </div>
@@ -41,16 +67,20 @@
             </button>
         </div>
 
+        <!-- Aksi: Preview + Simpan + Select -->
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <!-- Kiri: Icon + Teks Preview -->
+            <!-- Preview -->
             <button class="btn btn-outline-secondary d-flex align-items-center" id="preview">
-                <i class="ri-eye-line fs-4 me-2"></i>
-                <span class="fw-semibold">Preview</span>
+                <i class="ri-eye-line fs-5 me-md-2"></i>
+                <span class="fw-semibold d-none d-md-inline">Preview</span>
             </button>
 
-            <!-- Kanan: Tombol + Select -->
+            <!-- Simpan + Select Ukuran -->
             <div class="d-flex align-items-center">
-                <button class="btn btn-primary mx-2" id="updateTemplate">Simpan Perubahan</button>
+                <button class="btn btn-primary mx-2 d-flex align-items-center" id="updateTemplate">
+                    <i class="ri-save-line fs-5 me-md-2"></i>
+                    <span class="d-none d-md-inline">Simpan Perubahan</span>
+                </button>
 
                 <select id="canvas-size-selector" class="form-select" style="width: auto;">
                     <option value="a4-landscape" selected>A4 Landscape</option>
@@ -61,7 +91,7 @@
             </div>
         </div>
 
-        <ul class="topbar-menu d-flex align-items-center gap-3">
+        <ul class="topbar-menu d-flex align-items-center gap-3 d-none d-lg-flex">
             <li class="dropdown d-lg-none">
                 <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
                     aria-haspopup="false" aria-expanded="false">
@@ -99,17 +129,14 @@
                 <a class="nav-link dropdown-toggle arrow-none nav-user px-2" data-bs-toggle="dropdown" href="#"
                     role="button" aria-haspopup="false" aria-expanded="false">
                     <span class="account-user-avatar">
-                        @if(auth()->user()->foto)
-                            <img src="{{ asset('/' . auth()->user()->foto) }}" alt="user-image" width="32" class="rounded-circle">
-                        @else
-                            <img src="/images/users/avatar-1.jpg" alt="user-image" width="32" class="rounded-circle">
-                        @endif
+                        <img src="{{ Auth::user()->foto ? asset(Auth::user()->foto) : asset('images/users/avatar-1.jpg') }}"
+                            alt="user-image" height="42" class="rounded-circle shadow-sm">
                     </span>
                     <span class="d-lg-flex flex-column gap-1 d-none">
                         <h5 class="my-0">
                             {{ auth()->user()->name }}
                         </h5>
-                        <h6 class="my-0 fw-normal">Founder</h6>
+                        <h6 class="my-0 fw-normal">{{ Auth::user()->role }}</h6>
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">

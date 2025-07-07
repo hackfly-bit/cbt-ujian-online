@@ -21,7 +21,7 @@
             text-align: right;
             font-family: 'Arial', 'Times New Roman', 'Amiri', 'Scheherazade New', sans-serif;
             /* font-size: 16px;
-                        line-height: 1.6; */
+                            line-height: 1.6; */
         }
 
         /* Smooth transition for font changes */
@@ -138,56 +138,61 @@
                 <div class="card">
                     <div class="card-body">
 
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-
-                            <div>
-                                <h4 class="header-title">Daftar Semua Soal</h4>
-                                <p class="text-muted fs-14">
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-12 col-md">
+                                <h4 class="header-title mb-1 mb-md-0">Daftar Semua Soal</h4>
+                                <p class="text-muted fs-14 mb-2 mb-md-0">
                                     Berikut ini adalah daftar semua soal ujian, lengkap dengan kategori, tingkat
                                     kesulitan, jenis soal, dan aksi yang dapat dilakukan.
                                 </p>
                             </div>
-                            <!-- Tambah Soal Button -->
-                            <a href="#" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#tambah-bank-soal">
-                                <i class="ri-add-line me-1"></i> Buat Ujian Baru
-                            </a>
+                            <div class="col-12 col-md-auto mt-2 mt-md-0 text-md-end">
+                                <!-- Tambah Soal Button -->
+                                <a href="#" class="btn btn-primary w-100 w-md-auto" data-bs-toggle="modal"
+                                    data-bs-target="#tambah-bank-soal">
+                                    <i class="ri-add-line me-1"></i> Buat Soal Ujian
+                                </a>
+                            </div>
                         </div>
 
                         <!-- FILTERS -->
                         <div id="custom-filters-semua" class="mb-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <select id="filter-category-semua" class="form-select form-select-sm"
-                                    style="min-width: 200px;" title="Filter by category">
-                                    <option value="">All</option>
-                                    <option value="Reading">Reading</option>
-                                    <option value="Listening">Listening</option>
-                                    <option value="Grammar">Grammar</option>
-                                </select>
-                                <select id="filter-difficulty-semua" class="form-select form-select-sm"
-                                    style="min-width: 200px;" title="Filter by difficulty">
-                                    <option value="">All</option>
-                                    <option value="Easy">Easy</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Hard">Hard</option>
-                                </select>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto">
+                                    <select id="filter-category-semua" class="form-select form-select-sm"
+                                        style="min-width: 180px;" title="Filter berdasarkan kategori">
+                                        <option value="">Semua Kategori...</option>
+                                        <option value="Reading">Reading</option>
+                                        <option value="Listening">Listening</option>
+                                        <option value="Grammar">Grammar</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <select id="filter-difficulty-semua" class="form-select form-select-sm"
+                                        style="min-width: 150px;" title="Filter berdasarkan tingkat kesulitan">
+                                        <option value="">Semua Tingkat...</option>
+                                        <option value="Easy">Mudah</option>
+                                        <option value="Medium">Sedang</option>
+                                        <option value="Hard">Sulit</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
                         <div class="table-responsive">
                             <table id="selection-datatable-semua" class="table table-striped dt-responsive nowrap w-100">
-                            <thead>
-                                <tr>
-                                    <th class="text-center">No</th>
-                                    <th>Soal</th>
-                                    <th class="text-center">Kategori</th>
-                                    <th class="text-center">Tingkat</th>
-                                    <th class="text-center">Jenis</th>
-                                    <th class="text-center">Media</th>
-                                    <th class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                        </table>
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">No</th>
+                                        <th>Soal</th>
+                                        <th class="text-center">Kategori</th>
+                                        <th class="text-center">Tingkat</th>
+                                        <th class="text-center">Jenis</th>
+                                        <th class="text-center">Media</th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div> <!-- end table-responsive -->
 
 

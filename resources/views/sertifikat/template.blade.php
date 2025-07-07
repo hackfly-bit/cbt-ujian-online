@@ -61,7 +61,7 @@
                 <input type="hidden" name="ujian_id" id="ujian_id" value="{{ $sertifikat->ujian_id }}">
                 <input type="hidden" name="sertifikat_template" id="sertifikat_template">
             </form>
-            <button class="btn btn-primary mx-2 mt-3" id="edit-background" style="position: fixed">Edit
+            <button class="btn btn-primary mx-2 mt-3" id="edit-background" style="position: fixed; z-index: 999;">Edit
                 Background</button>
             <div class="d-flex justify-content-center align-items-center"
                 style="min-height: 100vh; background-color: #f5f5f5; padding: 1rem; overflow-y: auto;">

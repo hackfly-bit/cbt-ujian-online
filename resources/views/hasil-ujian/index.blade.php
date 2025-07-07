@@ -132,33 +132,34 @@
                 <div class="card">
                     <div class="card-body">
 
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-12 col-md">
                                 <h4 class="header-title">Daftar Hasil Ujian</h4>
                                 <p class="text-muted fs-14 mb-0">
                                     Berikut ini adalah daftar hasil ujian semua peserta, lengkap dengan skor, waktu
                                     penyelesaian, dan sertifikat.
                                 </p>
                             </div>
-                            <div>
-                                <a href="javascript:void(0)" id="btn-download-results" class="btn btn-primary">
+                            <div class="col-12 col-md-auto mt-3 mt-md-0 text-md-end">
+                                <a href="javascript:void(0)" id="btn-download-results"
+                                    class="btn btn-primary w-100 w-md-auto">
                                     <i class="ri-download-line me-1"></i> Download Hasil Ujian
                                 </a>
                             </div>
                         </div>
 
                         <div class="table-responsive">
-                            <table id="hasil-ujian-datatable"  class="table table-striped dt-responsive nowrap w-100">
-                            <thead>
-                                <tr>
-                                    <th class="text-center">No</th>
-                                    <th>Peserta</th>
-                                    <th>Ujian</th>
-                                    <th class="text-center">Waktu Selesai</th>
-                                    <th class="text-center">Skor</th>
-                                    <th class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
+                            <table id="hasil-ujian-datatable" class="table table-striped dt-responsive nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">No</th>
+                                        <th>Peserta</th>
+                                        <th>Ujian</th>
+                                        <th class="text-center">Waktu Selesai</th>
+                                        <th class="text-center">Skor</th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
                             </table>
                         </div>
 

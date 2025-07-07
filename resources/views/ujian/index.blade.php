@@ -37,31 +37,36 @@
         </div>
         <!-- end page title -->
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Tabs -->
-            <ul class="nav nav-tabs" id="tabUjian" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="semua-tab" data-bs-toggle="tab" data-bs-target="#semua"
-                        type="button" role="tab">Semua Ujian</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="aktif-tab" data-bs-toggle="tab" data-bs-target="#aktif" type="button"
-                        role="tab">Aktif</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="draft-tab" data-bs-toggle="tab" data-bs-target="#draft" type="button"
-                        role="tab">Draft</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="selesai-tab" data-bs-toggle="tab" data-bs-target="#selesai" type="button"
-                        role="tab">Selesai</button>
-                </li>
-            </ul>
-
-            <!-- Tambah Soal Button -->
-            <a href="{{ route('ujian.create') }}" class="btn btn-primary">
-                <i class="ri-add-line me-1"></i> Buat Ujian Baru
-            </a>
+        <div class="row mb-3 align-items-center">
+            <div class="col-12 col-md-10 order-2 order-md-1 mt-2 mt-md-0">
+                <!-- Tabs -->
+                <div class="overflow-auto">
+                    <ul class="nav nav-tabs flex-nowrap" id="tabUjian" role="tablist" style="white-space: nowrap;">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="semua-tab" data-bs-toggle="tab" data-bs-target="#semua"
+                                type="button" role="tab" aria-controls="semua" aria-selected="true">Semua Ujian</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="aktif-tab" data-bs-toggle="tab" data-bs-target="#aktif"
+                                type="button" role="tab" aria-controls="aktif" aria-selected="false">Aktif</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="draft-tab" data-bs-toggle="tab" data-bs-target="#draft"
+                                type="button" role="tab" aria-controls="draft" aria-selected="false">Draft</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="selesai-tab" data-bs-toggle="tab" data-bs-target="#selesai"
+                                type="button" role="tab" aria-controls="selesai" aria-selected="false">Selesai</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-md-2 order-1 order-md-2 mb-2 mb-md-0 d-flex justify-content-start justify-content-md-end">
+                <!-- Tambah Ujian Button -->
+                <a href="{{ route('ujian.create') }}" class="btn btn-sm btn-primary px-3 w-100 w-md-auto">
+                    <i class="ri-add-line me-1"></i> Buat Ujian Baru
+                </a>
+            </div>
         </div>
 
         <!-- Konten Tab -->

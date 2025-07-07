@@ -5,23 +5,45 @@
 
             <!-- Topbar Brand Logo -->
             <div class="logo-topbar">
+                @php
+                    $branding = [
+                        'logoPutih' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'logoPutih')
+                                ->value('value') ?? '',
+                        'logoHitam' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'logoHitam')
+                                ->value('value') ?? '',
+                        'favLogoPutih' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'favLogoPutih')
+                                ->value('value') ?? '',
+                        'favLogoHitam' =>
+                            \App\Models\SystemSetting::where('group', 'branding')
+                                ->where('key', 'favLogoHitam')
+                                ->value('value') ?? '',
+                    ];
+                @endphp
+
+                
                 <!-- Logo light -->
                 <a href="/" class="logo-light">
                     <span class="logo-lg">
-                        <img src="/images/logo.png" alt="logo">
+                        <img src="{{ $branding['logoPutih'] ? asset($branding['logoPutih']) : asset('images/placeholder.jpeg') }}" alt="logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="/images/logo-sm.png" alt="small logo">
+                        <img src="{{ $branding['favLogoPutih'] ? asset($branding['favLogoPutih']) : asset('images/placeholder.jpeg') }}" alt="small logo">
                     </span>
                 </a>
 
                 <!-- Logo Dark -->
                 <a href="/" class="logo-dark">
                     <span class="logo-lg">
-                        <img src="/images/logo-dark.png" alt="dark logo">
+                        <img src="{{ $branding['logoHitam'] ? asset($branding['logoHitam']) : asset('images/placeholder.jpeg') }}" alt="dark logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="/images/logo-sm.png" alt="small logo">
+                        <img src="{{ $branding['favLogoHitam'] ? asset($branding['favLogoHitam']) : asset('images/placeholder.jpeg') }}" alt="small logo">
                     </span>
                 </a>
             </div>

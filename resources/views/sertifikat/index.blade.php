@@ -65,23 +65,24 @@
                 <div class="card">
                     <div class="card-body">
 
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h4 class="header-title">Daftar Sertifikat</h4>
-                                <p class="text-muted fs-14">
-                                    Berikut ini adalah daftar semua sertifikat yang telah dibuat, lengkap dengan nama
-                                    sertifikat, ujian terkait, dan aksi yang dapat dilakukan.
-                                </p>
-                            </div>
-                            <!-- Tambah Sertifikat Button -->
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                                    data-bs-target="#modal-tambah-sertifikat">
-                                    <i class="ri-add-line me-1"></i> Buat Sertifikat Custom
-                                </button>
-                                <a href="{{ route('sertifikat.create') }}" class="btn btn-primary">
-                                    <i class="ri-add-line me-1"></i> Pilih Template
-                                </a>
+                        <div class="mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-12 col-md">
+                                    <h4 class="header-title">Daftar Sertifikat</h4>
+                                    <p class="text-muted fs-14 mb-2 mb-md-0">
+                                        Berikut ini adalah daftar semua sertifikat yang telah dibuat, lengkap dengan nama
+                                        sertifikat, ujian terkait, dan aksi yang dapat dilakukan.
+                                    </p>
+                                </div>
+                                <div class="col-12 col-md-auto mt-2 mt-md-0 d-flex gap-2 justify-content-md-end justify-content-start">
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#modal-tambah-sertifikat">
+                                        <i class="ri-add-line me-1"></i> Buat Sertifikat Custom
+                                    </button>
+                                    <a href="{{ route('sertifikat.create') }}" class="btn btn-primary">
+                                        <i class="ri-add-line me-1"></i> Pilih Template
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
