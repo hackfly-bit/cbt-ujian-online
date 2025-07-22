@@ -14,66 +14,6 @@ use Illuminate\Support\Facades\Log;
 
 class BankSoalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
-
-    // public function index(Request $request)
-    // {
-
-    //     if ($request->ajax()) {
-    //         $soals = \App\Models\Soal::with(['kategori', 'tingkatKesulitan', 'subKategori'])
-    //             ->select(['id', 'pertanyaan', 'jenis_font', 'is_audio', 'kategori_id', 'tingkat_kesulitan_id', 'sub_kategori_id', 'created_at', 'jenis_isian']);
-
-    //         if ($request->has('kategori') && $request->kategori !== 'all') {
-    //             $soals->where('kategori_id', (int) $request->kategori);
-    //         }
-
-    //         return datatables()->of($soals->get())
-    //             ->addIndexColumn()
-    //             ->addColumn('pertanyaan', function ($row) {
-    //                 return  $row->pertanyaan;
-    //             })
-    //             ->addColumn('kategori', function ($row) {
-    //                 return $row->kategori ? $row->kategori->nama : '-';
-    //             })
-    //             ->addColumn('tingkat_kesulitan', function ($row) {
-    //                 return $row->tingkatKesulitan ? $row->tingkatKesulitan->nama : '-';
-    //             })
-    //             ->addColumn('jenis_soal', function ($row) {
-    //                 return $row->jenis_isian ? $row->jenis_isian : '-';
-    //             })
-    //             ->addColumn('media', function ($row) {
-    //                 return $row->is_audio ? '<i class="ri-audio-line"></i> Audio' : '<i class="ri-text-wrap"></i> Teks';
-    //             })
-
-    //             ->addColumn('action', function ($row) {
-    //                 return '
-    //                     <div class="action-icons">
-    //                         <a href="javascript:void(0)" class="text-primary" title="Edit" onclick="editSoal(' . $row->id . ')">
-    //                             <i class="ri-edit-2-line"></i>
-    //                         </a>
-    //                         <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation(' . $row->id . ')">
-    //                             <i class="ri-delete-bin-line"></i>
-    //                         </a>
-    //                     </div>
-    //                 ';
-    //             })
-    //             ->rawColumns(['action'])
-    //             ->make(true);
-    //     }
-
-    //     return view('bank-soal.index', [
-    //         'title' => 'Bank Soal',
-    //         'active' => 'banksoal',
-    //         'breadcrumbs' => [
-    //             // ['label' => 'Dashboard', 'url' => route('dashboard')],
-    //             ['label' => 'Bank Soal', 'url' => route('bank-soal.index')],
-    //         ],
-    //     ]);
-    // }
-
 
     public function index(Request $request)
     {
@@ -107,7 +47,7 @@ class BankSoalController extends Controller
 
             return datatables()->of($soals->get())
                 ->addIndexColumn()
-                ->addColumn('pertanyaan', fn($row) => $row->pertanyaan)
+                ->addColumn('pertanyaan', fn($row) => strip_tags($row->pertanyaan))
                 ->addColumn('kategori', fn($row) => $row->kategori ? $row->kategori->nama : '-')
                 ->addColumn('tingkat_kesulitan', fn($row) => $row->tingkatKesulitan ? $row->tingkatKesulitan->nama : '-')
                 ->addColumn('jenis_soal', fn($row) => $row->jenis_isian ?? '-')
@@ -124,7 +64,7 @@ class BankSoalController extends Controller
                     </div>
                 ';
                 })
-                ->rawColumns(['action', 'media', 'tingkat_kesulitan', 'kategori'])
+                ->rawColumns(['action', 'media'])
                 ->make(true);
         }
 
@@ -136,17 +76,6 @@ class BankSoalController extends Controller
             ],
         ]);
     }
-
-
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    // public function create()
-    // {
-    //     //
-    // }
 
     /**
      * Store a newly created resource in storage.
@@ -163,7 +92,7 @@ class BankSoalController extends Controller
                 'pertanyaan' => 'required|string',
                 'jenis_soal' => 'required|in:pilihan_ganda,benar_salah,isian',
                 'is_audio' => 'nullable|boolean',
-                'audio_file' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
+                // 'audio_file' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
                 'tingkat_kesulitan_id' => 'required|exists:tingkat_kesulitan,id',
                 'kategori_id' => 'required|exists:kategori,id',
                 'sub_kategori_id' => 'nullable|exists:sub_kategori,id',

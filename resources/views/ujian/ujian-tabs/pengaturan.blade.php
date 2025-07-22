@@ -80,19 +80,7 @@
                     </div>
 
 
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="hasil_ujian_tersedia"
-                                name="hasil_ujian_tersedia" value="1"
-                                {{ old('hasil_ujian_tersedia', $ujian->ujianPengaturan->hasil_ujian_tersedia ?? false) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="hasil_ujian_tersedia">
-                                <strong>Tampilkan Hasil Ujian</strong>
-                                <br>
-                                <small class="text-muted">Mengizinkan peserta melihat hasil ujian setelah
-                                    selesai</small>
-                            </label>
-                        </div>
-                    </div>
+
 
                     <div class="col-md-6 mb-3">
                         <div class="form-check form-switch">
@@ -120,19 +108,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="lihat_hasil" name="lihat_hasil"
-                                value="1"
-                                {{ old('lihat_hasil', $ujian->ujianPengaturan->lihat_hasil ?? false) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="lihat_hasil">
-                                <strong>Lihat Hasil per Soal</strong>
-                                <br>
-                                <small class="text-muted">Mengizinkan peserta melihat hasil per soal setelah
-                                    ujian</small>
-                            </label>
-                        </div>
-                    </div>
+
 
                     <div class="col-md-6 mb-3">
                         <div class="form-check form-switch">

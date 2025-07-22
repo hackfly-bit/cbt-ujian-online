@@ -110,6 +110,12 @@
             font-size: 16px;
             line-height: 1.6;
         }
+
+        /* Custom badge colors */
+        .bg-purple {
+            background-color: #6f42c1 !important;
+            color: white !important;
+        }
     </style>
 @endsection
 
@@ -277,7 +283,7 @@
                                         <option value="">Pilih Jenis Soal</option>
                                         <option value="pilihan_ganda">Pilihan Ganda</option>
                                         <option value="benar_salah">Benar/Salah</option>
-                                        <option value="isian">Isian</option>
+                                        <option value="bumper">Bumper</option>
                                     </select>
                                 </div>
 

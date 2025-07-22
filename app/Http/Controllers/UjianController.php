@@ -161,7 +161,7 @@ class UjianController extends Controller
             $ujianPengaturan = new \App\Models\UjianPengaturan([
                 'ujian_id' => $ujian->id,
                 'nilai_kelulusan' => $pengaturan['nilai_kelulusan'],
-                'hasil_ujian_tersedia' => $pengaturan['hasil_ujian'],
+                'hasil_ujian_tersedia' => $pengaturan['hasil_ujian'] ?? false,
                 'acak_soal' => $pengaturan['acak_soal'] ?? false,
                 'acak_jawaban' => $pengaturan['acak_jawaban'] ?? false,
                 'lihat_hasil' => $pengaturan['lihat_hasil'] ?? false,
@@ -403,7 +403,7 @@ class UjianController extends Controller
             $ujianPengaturan = $ujian->ujianPengaturan;
             $ujianPengaturan->ujian_id = $ujian->id;
             $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
-            $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'];
+            $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'] ?? false;
             $ujianPengaturan->acak_soal = $pengaturan['acak_soal'] ?? false;
             $ujianPengaturan->acak_jawaban = $pengaturan['acak_jawaban'] ?? false;
             $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;

@@ -155,8 +155,7 @@ import flatpickr from "flatpickr";
                 const currentSectionIndex = self.sectionCount; // Capture immediately for closure
 
                 console.log(
-                    `\n--- Processing Section ${
-                        index + 1
+                    `\n--- Processing Section ${index + 1
                     } (UI Section ${currentSectionIndex}) ---`
                 );
                 console.log("Section data:", section);
@@ -164,23 +163,20 @@ import flatpickr from "flatpickr";
                 const $container = $("#section-container");
                 const collapseId = `collapse-seksi-${currentSectionIndex}`;
                 const sectionHTML = `
-                <div class="section-item mb-2" data-section-index="${currentSectionIndex}" data-db-section-id="${
-                    section.id
-                }">
+                <div class="section-item mb-2" data-section-index="${currentSectionIndex}" data-db-section-id="${section.id
+                    }">
                 <div class="section-content d-flex justify-content-between align-items-center px-4 py-3">
                     <div class="d-flex align-items-center gap-3">
                     <span class="section-drag-handle cursor-grab text-muted">
                         <i class="bi bi-grip-vertical fs-2"></i>
                     </span>
-                    <strong class="section-title m-0">${
-                        section.nama_section || `Seksi ${currentSectionIndex}`
+                    <strong class="section-title m-0">${section.nama_section || `Seksi ${currentSectionIndex}`
                     }</strong>
                     </div>
                     <div class="text-muted section-toolbar d-flex align-items-center gap-2">
-                    <span>${
-                        section.ujian_section_soals
-                            ? section.ujian_section_soals.length
-                            : 0
+                    <span>${section.ujian_section_soals
+                        ? section.ujian_section_soals.length
+                        : 0
                     } soal</span>
                     <button class="chevron-toggle btn btn-sm p-1" type="button"
                         data-bs-toggle="collapse"
@@ -195,83 +191,69 @@ import flatpickr from "flatpickr";
                     <form class="section-form" data-section-index="${currentSectionIndex}">
                     <div class="mb-2">
                         <label class="form-label">Nama Seksi</label>
-                        <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi" value="${
-                            section.nama_section || ""
-                        }">
+                        <input type="text" class="form-control section-nama-input" name="nama_section" placeholder="Nama Seksi" value="${section.nama_section || ""
+                    }">
                     </div>
                      <div class="mb-2">
                                 <label class="form-label">Instruksi</label>
-                                <textarea class="form-control" name="instruksi" placeholder="Instruksi pengerjaan soal">${
-                                    section.instruksi || ""
-                                }</textarea>
+                                <textarea class="form-control" name="instruksi" placeholder="Instruksi pengerjaan soal">${section.instruksi || ""
+                    }</textarea>
                             </div>
                     <div class="mb-2">
                         <label class="form-label">Formula Penilaian</label>
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <span>(</span>
                             <select class="form-select" name="answer_type" style="width: auto">
-                                <option value="correctAnswer" ${
-                                    section.formula_type === "correctAnswer"
-                                        ? "selected"
-                                        : ""
-                                }>Jawaban Benar</option>
-                                <option value="incorrectAnswer" ${
-                                    section.formula_type === "incorrectAnswer"
-                                        ? "selected"
-                                        : ""
-                                }>Jawaban Salah</option>
+                                <option value="correctAnswer" ${section.formula_type === "correctAnswer"
+                        ? "selected"
+                        : ""
+                    }>Jawaban Benar</option>
+                                <option value="incorrectAnswer" ${section.formula_type === "incorrectAnswer"
+                        ? "selected"
+                        : ""
+                    }>Jawaban Salah</option>
                             </select>
                             <select class="form-select" name="operation" style="width: auto">
-                                <option value="*" ${
-                                    section.operation_1 === "*"
-                                        ? "selected"
-                                        : ""
-                                }>×</option>
-                                <option value="+" ${
-                                    section.operation_1 === "+"
-                                        ? "selected"
-                                        : ""
-                                }>+</option>
-                                <option value="-" ${
-                                    section.operation_1 === "-"
-                                        ? "selected"
-                                        : ""
-                                }>-</option>
-                                <option value="/" ${
-                                    section.operation_1 === "/"
-                                        ? "selected"
-                                        : ""
-                                }>÷</option>
+                                <option value="*" ${section.operation_1 === "*"
+                        ? "selected"
+                        : ""
+                    }>×</option>
+                                <option value="+" ${section.operation_1 === "+"
+                        ? "selected"
+                        : ""
+                    }>+</option>
+                                <option value="-" ${section.operation_1 === "-"
+                        ? "selected"
+                        : ""
+                    }>-</option>
+                                <option value="/" ${section.operation_1 === "/"
+                        ? "selected"
+                        : ""
+                    }>÷</option>
                             </select>
-                            <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px" value="${
-                                section.value_1 || ""
-                            }">
+                            <input type="number" class="form-control" name="value" placeholder="n" style="width: 80px" value="${section.value_1 || ""
+                    }">
                             <span>)</span>
                             <select class="form-select" name="operation2" style="width: auto">
-                                <option value="*" ${
-                                    section.operation_2 === "*"
-                                        ? "selected"
-                                        : ""
-                                }>×</option>
-                                <option value="+" ${
-                                    section.operation_2 === "+"
-                                        ? "selected"
-                                        : ""
-                                }>+</option>
-                                <option value="-" ${
-                                    section.operation_2 === "-"
-                                        ? "selected"
-                                        : ""
-                                }>-</option>
-                                <option value="/" ${
-                                    section.operation_2 === "/"
-                                        ? "selected"
-                                        : ""
-                                }>÷</option>
+                                <option value="*" ${section.operation_2 === "*"
+                        ? "selected"
+                        : ""
+                    }>×</option>
+                                <option value="+" ${section.operation_2 === "+"
+                        ? "selected"
+                        : ""
+                    }>+</option>
+                                <option value="-" ${section.operation_2 === "-"
+                        ? "selected"
+                        : ""
+                    }>-</option>
+                                <option value="/" ${section.operation_2 === "/"
+                        ? "selected"
+                        : ""
+                    }>÷</option>
                             </select>
-                            <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px" value="${
-                                section.value_2 || ""
-                            }">
+                            <input type="number" class="form-control" name="value2" placeholder="n" style="width: 80px" value="${section.value_2 || ""
+                    }">
                         </div>
                         <small class="text-muted">
                             Contoh: (Jawaban Benar × n) × n
@@ -293,11 +275,10 @@ import flatpickr from "flatpickr";
                         </div>
                         <div class="mt-2">
                         <small class="text-muted">
-                            <span class="selected-count">${
-                                section.ujian_section_soals
-                                    ? section.ujian_section_soals.length
-                                    : 0
-                            }</span> soal dipilih
+                            <span class="selected-count">${section.ujian_section_soals
+                        ? section.ujian_section_soals.length
+                        : 0
+                    }</span> soal dipilih
                         </small>
                         </div>
                     </div>
@@ -675,21 +656,26 @@ import flatpickr from "flatpickr";
         const questionText = question.pertanyaan || `Soal ${(index || 0) + 1}`;
         const questionId = question.id;
         const tingkatKesulitan = question.tingkat_kesulitan
-            ? `<span class="badge bg-secondary-subtle text-dark small">${
-                  question.tingkat_kesulitan.nama || question.tingkat_kesulitan
-              }</span>`
+            ? `<span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle fw-medium small px-2 py-1">
+                <i class="ri-bar-chart-line me-1"></i>${question.tingkat_kesulitan.nama || question.tingkat_kesulitan
+            }</span>`
             : "";
         const kategori = question.kategori
-            ? `<span class="badge bg-primary-subtle text-primary small">${
-                  question.kategori.nama || question.kategori
-              }</span>`
+            ? `<span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle fw-medium small px-2 py-1">
+                <i class="ri-folder-line me-1"></i>${question.kategori.nama || question.kategori
+            }</span>`
             : "";
         const mediaIcon = question.is_audio
-            ? '<i class="ri-audio-line text-primary me-1"></i>'
-            : '<i class="ri-text-wrap text-muted me-1"></i>';
+            ? `<span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle fw-medium small px-2 py-1">
+                <i class="ri-volume-up-line me-1"></i>Audio</span>`
+            : `<span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle fw-medium small px-2 py-1">
+                <i class="ri-text-wrap me-1"></i>Text</span>`;
+        const jenisSoal = question.jenis_isian === 'pilihan_ganda' ? 'Pilihan Ganda' :
+            question.jenis_isian === 'true_false' ? 'Benar / Salah' :
+                question.jenis_isian;
         const isChecked =
             existingQuestions &&
-            existingQuestions.some((q) => q.soal_id === questionId)
+                existingQuestions.some((q) => q.soal_id === questionId)
                 ? "checked"
                 : "";
 
@@ -697,21 +683,23 @@ import flatpickr from "flatpickr";
             <div class="question-box d-flex align-items-center justify-content-between mb-3 p-3 rounded shadow-sm bg-light-subtle">
                 <div class="content me-3 w-100">
                     <div class="fw-medium text-dark mb-2 d-flex align-items-center" title="${questionText.replace(
-                        /"/g,
-                        "&quot;"
-                    )}">
-                        ${mediaIcon}
-                        <span class="text-truncate">
-                            ${
-                                questionText.length > 100
-                                    ? questionText.substring(0, 100) + "..."
-                                    : questionText
-                            }
+            /"/g,
+            "&quot;"
+        )}">
+                        <span class="text-truncate fs-5">
+                            ${questionText.length > 100
+                ? questionText.substring(0, 100) + "..."
+                : questionText
+            }
                         </span>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         ${kategori}
                         ${tingkatKesulitan}
+                        ${mediaIcon}
+                        <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle fw-medium small px-2 py-1">
+                            <i class="ri-question-line me-1"></i>${jenisSoal}
+                        </span>
                     </div>
                 </div>
                 <div class="form-check ms-auto">
@@ -968,10 +956,8 @@ import flatpickr from "flatpickr";
                 "pengaturan",
                 JSON.stringify({
                     nilai_kelulusan: $("#nilai_kelulusan").val(),
-                    hasil_ujian: $("#hasil_ujian_tersedia").val(),
                     acak_soal: $("#acak_soal").is(":checked"),
                     acak_jawaban: $("#acak_jawaban").is(":checked"),
-                    lihat_hasil: $("#lihat_hasil").is(":checked"),
                     // lihat_pembahasan: $('#lihat_pembahasan').is(':checked'),
                     is_arabic: $("#is_arabic").is(":checked"),
                     answer_type: $("#answer_type").val(),
@@ -1098,26 +1084,26 @@ import flatpickr from "flatpickr";
 
         const colors = isCustom
             ? {
-                  primary: $("#primary_color").val(),
-                  secondary: $("#secondary_color").val(),
-                  tertiary: $("#tertiary_color").val(),
-                  background: $("#background_color").val(),
-                  header: $("#header_color").val(),
-                  font: $("#font_color").val(),
-                  button: $("#button_color").val(),
-                  buttonFont: $("#button_font_color").val(),
-              }
+                primary: $("#primary_color").val(),
+                secondary: $("#secondary_color").val(),
+                tertiary: $("#tertiary_color").val(),
+                background: $("#background_color").val(),
+                header: $("#header_color").val(),
+                font: $("#font_color").val(),
+                button: $("#button_color").val(),
+                buttonFont: $("#button_font_color").val(),
+            }
             : {
-                  background: $("#background_color").val(),
-                  header: $("#header_color").val(),
-              };
+                background: $("#background_color").val(),
+                header: $("#header_color").val(),
+            };
 
         applyThemeToPreview(
             theme,
             colors,
             $("#institution_name").val() || "Nama Institusi",
             $("#welcome_message").val() ||
-                "Pesan sambutan akan ditampilkan di sini...",
+            "Pesan sambutan akan ditampilkan di sini...",
             isCustom
         );
     };
