@@ -26,6 +26,11 @@ return new class extends Migration
             $table->string('header_color')->default('#f8f9fa')->nullable(); // Default header color
             // Custom color settings
             $table->boolean('use_custom_color')->default(false)->nullable();
+            // Custom font settings
+            $table->boolean('use_custom_font')->default(false)->nullable();
+            $table->string('font_family')->nullable(); // Custom font family
+            $table->string('font_size')->nullable(); // Custom font size
+
             $table->boolean('show_institution_name')->default(false)->nullable();
             $table->string('primary_color')->nullable(); // Primary color
             $table->string('secondary_color')->nullable(); // Secondary color

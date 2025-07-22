@@ -10,6 +10,7 @@ use App\Models\Sertifikat;
 
 class HasilUjianSeeder extends Seeder
 {
+     // update
     /**
      * Run the database seeds.
      */

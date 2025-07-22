@@ -11,6 +11,7 @@ use App\Models\JawabanSoal;
 
 class BankSoalSeeder extends Seeder
 {
+    // update
     /**
      * Run the database seeds.
      */

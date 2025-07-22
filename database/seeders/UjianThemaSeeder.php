@@ -8,6 +8,7 @@ use App\Models\Ujian;
 
 class UjianThemaSeeder extends Seeder
 {
+     // update
     /**
      * Run the database seeds.
      */
@@ -15,17 +16,17 @@ class UjianThemaSeeder extends Seeder
     {
         // Get existing ujian records
         $ujians = Ujian::all();
-        
+
         $themes = ['classic', 'modern', 'glow', 'minimal'];
-        
+
         foreach ($ujians as $index => $ujian) {
             // Skip if theme already exists
             if ($ujian->ujianThema) {
                 continue;
             }
-            
+
             $theme = $themes[$index % count($themes)];
-            
+
             UjianThema::create([
                 'ujian_id' => $ujian->id,
                 'theme' => $theme,
