@@ -85,26 +85,24 @@ class BankSoalController extends Controller
     public function store(Request $request)
     {
         try {
-            Log::info('Store request received', ['request_data' => $request->all()]);
 
             $validated = $request->validate([
                 'jenis_font' => 'required|string|max:255',
                 'pertanyaan' => 'required|string',
-                'jenis_soal' => 'required|in:pilihan_ganda,benar_salah,isian',
+                'jenis_soal' => 'required|in:pilihan_ganda,benar_salah,bumper',
                 'is_audio' => 'nullable|boolean',
-                // 'audio_file' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
+                'audio_file' => 'nullable',
                 'tingkat_kesulitan_id' => 'required|exists:tingkat_kesulitan,id',
                 'kategori_id' => 'required|exists:kategori,id',
                 'sub_kategori_id' => 'nullable|exists:sub_kategori,id',
                 'penjelasan_jawaban' => 'nullable|string',
                 'tag' => 'nullable|string|max:255',
-                'jawaban_soal' => 'required|array|min:1',
+                'jawaban_soal' => 'required_unless:jenis_soal,bumper|array|min:1',
                 'jawaban_soal.*.jawaban' => 'required|string',
                 'jawaban_soal.*.jenis_isian' => 'required|string',
                 'jawaban_soal.*.jawaban_benar' => 'required|boolean',
             ]);
 
-            Log::info('Validation passed', ['validated_data' => $validated]);
 
             DB::beginTransaction();
 
@@ -123,37 +121,32 @@ class BankSoalController extends Controller
             if ($request->hasFile('audio_file')) {
                 $path = $request->file('audio_file')->store('audio_files', 'public');
                 $soal->audio_file = $path;
-                Log::info('Audio file saved', ['path' => $path]);
             } else {
                 $soal->audio_file = null;
             }
 
             $soal->save();
-            Log::info('Soal saved', ['soal_id' => $soal->id]);
 
-            // Simpan jawaban soal
-            foreach ($validated['jawaban_soal'] as $index => $jawaban) {
-                $newJawaban = new \App\Models\JawabanSoal();
-                $newJawaban->soal_id = $soal->id;
-                $newJawaban->jenis_isian = $jawaban['jenis_isian'];
-                $newJawaban->jawaban = $jawaban['jawaban'];
-                $newJawaban->jawaban_benar = $jawaban['jawaban_benar'];
-                $newJawaban->save();
-                Log::info('Jawaban saved', ['jawaban_id' => $newJawaban->id, 'index' => $index]);
+            if ($validated['jenis_soal'] !== 'bumper' && isset($validated['jawaban_soal'])) {
+                foreach ($validated['jawaban_soal'] as $jawaban) {
+                    $newJawaban = new \App\Models\JawabanSoal();
+                    $newJawaban->soal_id = $soal->id;
+                    $newJawaban->jenis_isian = $jawaban['jenis_isian'];
+                    $newJawaban->jawaban = $jawaban['jawaban'];
+                    $newJawaban->jawaban_benar = $jawaban['jawaban_benar'];
+                    $newJawaban->save();
+                }
             }
 
             DB::commit();
-            Log::info('Transaction committed successfully');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Soal berhasil ditambahkan.',
                 'data' => $soal->load('jawabanSoals')
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
-            Log::error('Validation error', ['errors' => $e->errors()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Data tidak valid.',
@@ -161,7 +154,7 @@ class BankSoalController extends Controller
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Store error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan soal: ' . $e->getMessage(),
@@ -193,28 +186,32 @@ class BankSoalController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'jenis_font' => 'required|string|max:255',
-            'pertanyaan' => 'required|string',
-            'jenis_soal' => 'required|in:pilihan_ganda,benar_salah,isian',
-            'is_audio' => 'nullable|boolean',
-            'audio_file' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
-            'tingkat_kesulitan_id' => 'required|exists:tingkat_kesulitan,id',
-            'kategori_id' => 'required|exists:kategori,id',
-            'sub_kategori_id' => 'nullable|exists:sub_kategori,id',
-            'penjelasan_jawaban' => 'nullable|string',
-            'tag' => 'nullable|string|max:255',
-            'jawaban_soal' => 'required|array|min:1',
-            'jawaban_soal.*.jawaban' => 'required|string',
-            'jawaban_soal.*.jenis_isian' => 'required|string',
-            'jawaban_soal.*.jawaban_benar' => 'required|boolean',
-        ]);
-
-        DB::beginTransaction();
         try {
-            $soal = \App\Models\Soal::findOrFail($id);
+            $validated = $request->validate([
+                'jenis_font' => 'required|string|max:255',
+                'pertanyaan' => 'required|string',
+                'jenis_soal' => 'required|in:pilihan_ganda,benar_salah,bumper',
+                'is_audio' => 'nullable|boolean',
+                'audio_file' => 'nullable',
+                'tingkat_kesulitan_id' => 'required|exists:tingkat_kesulitan,id',
+                'kategori_id' => 'required|exists:kategori,id',
+                'sub_kategori_id' => 'nullable|exists:sub_kategori,id',
+                'penjelasan_jawaban' => 'nullable|string',
+                'tag' => 'nullable|string|max:255',
+                'jawaban_soal' => 'required_unless:jenis_soal,bumper|array|min:1',
+                'jawaban_soal.*.jawaban' => 'required|string',
+                'jawaban_soal.*.jenis_isian' => 'required|string',
+                'jawaban_soal.*.jawaban_benar' => 'required|boolean',
+            ]);
+
+            DB::beginTransaction();
+
+            $soal = Soal::findOrFail($id);
+            $oldAudioPath = $soal->audio_file;
+
             $soal->jenis_font = $validated['jenis_font'];
             $soal->pertanyaan = $validated['pertanyaan'];
             $soal->is_audio = $validated['is_audio'] ?? false;
@@ -222,30 +219,34 @@ class BankSoalController extends Controller
             $soal->kategori_id = $validated['kategori_id'];
             $soal->sub_kategori_id = $validated['sub_kategori_id'] ?? null;
             $soal->penjelasan_jawaban = $validated['penjelasan_jawaban'] ?? null;
-            $soal->jenis_isian = $validated['jenis_soal'] ?? 'pilihan_ganda'; // Default to pilihan_ganda if not provided
+            $soal->jenis_isian = $validated['jenis_soal'];
             $soal->tag = $validated['tag'] ?? null;
 
-            // Hapus audio lama jika ada file baru diupload
             if ($request->hasFile('audio_file')) {
-                if ($soal->audio_file && Storage::disk('public')->exists($soal->audio_file)) {
-                    Storage::disk('public')->delete($soal->audio_file);
+                $file = $request->file('audio_file');
+
+                if ($oldAudioPath && Storage::disk('public')->exists($oldAudioPath)) {
+                    Storage::disk('public')->delete($oldAudioPath);
                 }
-                $path = $request->file('audio_file')->store('audio_files', 'public');
-                $soal->audio_file = $path;
+
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('audio_files'), $fileName);
+                $soal->audio_file = 'audio_files/' . $fileName;
             }
 
             $soal->save();
 
-            // Hapus jawaban lama
-            \App\Models\JawabanSoal::where('soal_id', $soal->id)->delete();
-            // Tambahkan jawaban baru
-            foreach ($validated['jawaban_soal'] as $jawaban) {
-                $newJawaban = new \App\Models\JawabanSoal();
-                $newJawaban->soal_id = $soal->id;
-                $newJawaban->jenis_isian = $jawaban['jenis_isian'];
-                $newJawaban->jawaban = $jawaban['jawaban'];
-                $newJawaban->jawaban_benar = $jawaban['jawaban_benar'];
-                $newJawaban->save();
+            JawabanSoal::where('soal_id', $soal->id)->delete();
+
+            if ($validated['jenis_soal'] !== 'bumper' && !empty($validated['jawaban_soal'])) {
+                foreach ($validated['jawaban_soal'] as $jawaban) {
+                    $newJawaban = new JawabanSoal();
+                    $newJawaban->soal_id = $soal->id;
+                    $newJawaban->jenis_isian = $jawaban['jenis_isian'];
+                    $newJawaban->jawaban = $jawaban['jawaban'];
+                    $newJawaban->jawaban_benar = $jawaban['jawaban_benar'];
+                    $newJawaban->save();
+                }
             }
 
             DB::commit();
@@ -253,8 +254,21 @@ class BankSoalController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Soal berhasil diperbarui.',
-                'data' => $soal
+                'data' => $soal->load('jawabanSoals'),
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak valid.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Soal tidak ditemukan.',
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -263,7 +277,6 @@ class BankSoalController extends Controller
             ], 500);
         }
     }
-
     /**
      * Remove the specified resource from storage.
      */
@@ -296,6 +309,4 @@ class BankSoalController extends Controller
             ], 500);
         }
     }
-
-
 }

@@ -303,6 +303,7 @@ function initDataTables() {
                     data: "tingkat_kesulitan",
                     name: "tingkat_kesulitan",
                     className: "text-center",
+                    orderable: false,
                 },
                 {
                     data: "jenis_soal",
@@ -387,32 +388,32 @@ function initDataTables() {
         categoryFilterId: "filter-category-semua",
     });
 
-    // Tab Reading
-    window.tableReading = initDatatable({
-        selector: "#selection-datatable-reading",
-        filterWrapperSelector: "#custom-filters-reading",
-        tableId: "selection-datatable-reading",
-        kategoriParam: "1",
-        difficultyFilterId: "filter-difficulty-reading",
-    });
+    // // Tab Reading
+    // window.tableReading = initDatatable({
+    //     selector: "#selection-datatable-reading",
+    //     filterWrapperSelector: "#custom-filters-reading",
+    //     tableId: "selection-datatable-reading",
+    //     kategoriParam: "1",
+    //     difficultyFilterId: "filter-difficulty-reading",
+    // });
 
-    // Tab Listening
-    window.tableListening = initDatatable({
-        selector: "#selection-datatable-listening",
-        filterWrapperSelector: "#custom-filters-listening",
-        tableId: "selection-datatable-listening",
-        kategoriParam: "2",
-        difficultyFilterId: "filter-difficulty-listening",
-    });
+    // // Tab Listening
+    // window.tableListening = initDatatable({
+    //     selector: "#selection-datatable-listening",
+    //     filterWrapperSelector: "#custom-filters-listening",
+    //     tableId: "selection-datatable-listening",
+    //     kategoriParam: "2",
+    //     difficultyFilterId: "filter-difficulty-listening",
+    // });
 
     // Tab Grammar
-    window.tableGrammar = initDatatable({
-        selector: "#selection-datatable-grammar",
-        filterWrapperSelector: "#custom-filters-grammar",
-        tableId: "selection-datatable-grammar",
-        kategoriParam: "3",
-        difficultyFilterId: "filter-difficulty-grammar",
-    });
+    // window.tableGrammar = initDatatable({
+    //     selector: "#selection-datatable-grammar",
+    //     filterWrapperSelector: "#custom-filters-grammar",
+    //     tableId: "selection-datatable-grammar",
+    //     kategoriParam: "3",
+    //     difficultyFilterId: "filter-difficulty-grammar",
+    // });
 }
 
 // Fungsi untuk inisialisasi form events
@@ -690,6 +691,15 @@ function updateJawabanBenarValues() {
     });
 }
 
+// Fungsi untuk update nilai jawaban_benar pada benar/salah
+function updateBenarSalahValues() {
+    const selectedValue = $("input[name='jawaban_benar']:checked").val();
+    
+    // Update hidden inputs berdasarkan pilihan radio button
+    $("input[name='jawaban_soal[0][jawaban_benar]']").val(selectedValue == "0" ? "1" : "0");
+    $("input[name='jawaban_soal[1][jawaban_benar]']").val(selectedValue == "1" ? "1" : "0");
+}
+
 // Update indexes setelah hapus pilihan
 function updatePilihanIndexes() {
     $("#pilihan-container .pilihan-item").each(function (index) {
@@ -716,6 +726,7 @@ function generateBenarSalahForm(container) {
                     <input type="hidden" name="jawaban_soal[0][label_jawaban]" value="Benar">
                     <input type="hidden" name="jawaban_soal[0][jawaban]" value="Benar">
                     <input type="hidden" name="jawaban_soal[0][jenis_isian]" value="benar_salah">
+                    <input type="hidden" name="jawaban_soal[0][jawaban_benar]" value="1" class="jawaban-benar-hidden">
                 </div>
             </div>
             <div class="col-6">
@@ -725,10 +736,16 @@ function generateBenarSalahForm(container) {
                     <input type="hidden" name="jawaban_soal[1][label_jawaban]" value="Salah">
                     <input type="hidden" name="jawaban_soal[1][jawaban]" value="Salah">
                     <input type="hidden" name="jawaban_soal[1][jenis_isian]" value="benar_salah">
+                    <input type="hidden" name="jawaban_soal[1][jawaban_benar]" value="0" class="jawaban-benar-hidden">
                 </div>
             </div>
         </div>
     `);
+    
+    // Add event listener untuk update jawaban_benar values
+    $(document).off('change', 'input[name="jawaban_benar"]').on('change', 'input[name="jawaban_benar"]', function() {
+        updateBenarSalahValues();
+    });
 }
 
 // Generate form isian
@@ -1142,6 +1159,16 @@ function submitForm() {
 
     // Ambil form data
     const formData = new FormData(form);
+    
+    // Debug: Log FormData contents
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            console.log(key, ":", value.name, "(", value.size, "bytes)");
+        } else {
+            console.log(key, ":", value);
+        }
+    }
 
     // Tentukan URL dan method berdasarkan mode edit atau create
     let url = "/bank-soal";
@@ -1588,6 +1615,11 @@ function populateBenarSalah(jawabanSoals) {
         jawabanSoals.forEach((jawaban, index) => {
             $(`input[name="jawaban_soal[${index}][id]"]`).val(jawaban.id);
         });
+        
+        // Update jawaban_benar values setelah set radio button
+        setTimeout(() => {
+            updateBenarSalahValues();
+        }, 100);
     }
 }
 
