@@ -184,17 +184,16 @@ class UjianController extends Controller
             $ujianPengaturan->save();
 
             // --- Form Peserta ---
-            $ujianPesertaForm = new \App\Models\UjianPesertaForm([
-                'ujian_id' => $ujian->id,
-                'nama' => $peserta['nama'] ?? false,
-                'phone' => $peserta['phone'] ?? false,
-                'email' => $peserta['email'] ?? false,
-                'institusi' => $peserta['institusi'] ?? false,
-                'nomor_induk' => $peserta['nomor_induk'] ?? false,
-                'tanggal_lahir' => $peserta['tanggal_lahir'] ?? false,
-                'alamat' => $peserta['alamat'] ?? false,
-                'foto' => $peserta['foto'] ?? false,
-            ]);
+            $ujianPesertaForm = new \App\Models\UjianPesertaForm();
+            $ujianPesertaForm->ujian_id = $ujian->id;
+            $ujianPesertaForm->nama = $peserta['nama'] ?? false;
+            $ujianPesertaForm->phone = $peserta['phone'] ?? false;
+            $ujianPesertaForm->email = $peserta['email'] ?? false;
+            $ujianPesertaForm->institusi = $peserta['institusi'] ?? false;
+            $ujianPesertaForm->nomor_induk = $peserta['nomor_induk'] ?? false;
+            $ujianPesertaForm->tanggal_lahir = $peserta['tanggal_lahir'] ?? false;
+            $ujianPesertaForm->alamat = $peserta['alamat'] ?? false;
+            $ujianPesertaForm->foto = $peserta['foto'] ?? false;
             $ujianPesertaForm->save();
 
             // --- Theme ---
