@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,12 +21,19 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
-      - name: Install NPM dependencies and build (if needed)
+      - name: Install NPM dependencies and build assets
         run: |
           if [ -f package.json ]; then
             npm ci
-            npm run build || true
+            npm run build
           fi
+
+      - name: Laravel optimizations
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan event:cache
 
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -43,5 +51,6 @@ jobs:
             composer.lock
             package-lock.json
             README.md
-            vite.config.js
             webpack.mix.js
+            vite.config.js
+            !public/build/**
