@@ -958,8 +958,8 @@ import flatpickr from "flatpickr";
                 JSON.stringify({
                     nilai_kelulusan: $("#nilai_kelulusan").val(),
                     // Fitur acak soal dan acak jawaban telah dinonaktifkan
-                acak_soal: null,
-                acak_jawaban: null,
+                acak_soal: 0,
+                acak_jawaban: 0,
                     // lihat_pembahasan: $('#lihat_pembahasan').is(':checked'),
                     is_arabic: $("#is_arabic").is(":checked"),
                     answer_type: $("#answer_type").val(),

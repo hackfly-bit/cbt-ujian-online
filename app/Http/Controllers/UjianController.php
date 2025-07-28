@@ -169,8 +169,8 @@ class UjianController extends Controller
                 'ujian_id' => $ujian->id,
                 'nilai_kelulusan' => $pengaturan['nilai_kelulusan'],
                 'hasil_ujian_tersedia' => $pengaturan['hasil_ujian'] ?? false,
-                'acak_soal' => null,
-                'acak_jawaban' => null,
+                'acak_soal' => 0,
+                'acak_jawaban' => 0,
                 'lihat_hasil' => $pengaturan['lihat_hasil'] ?? false,
                 'lihat_pembahasan' => $pengaturan['lihat_pembahasan'] ?? false,
                 'lockscreen' => $pengaturan['lockscreen'] ?? false,
@@ -411,8 +411,8 @@ class UjianController extends Controller
             $ujianPengaturan->ujian_id = $ujian->id;
             $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
             $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'] ?? false;
-            $ujianPengaturan->acak_soal = null;
-            $ujianPengaturan->acak_jawaban = null;
+            $ujianPengaturan->acak_soal = 0;
+            $ujianPengaturan->acak_jawaban = 0;
             $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;
             $ujianPengaturan->lihat_pembahasan = $pengaturan['lihat_pembahasan'] ?? false;
             $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;
