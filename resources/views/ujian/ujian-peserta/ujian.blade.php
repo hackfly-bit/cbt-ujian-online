@@ -30,8 +30,8 @@
         body {
             background: var(--background-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh; 
-            
+            min-height: 100vh;
+
 
             @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
                 background-image: url('{{ asset($ujian->ujianThema->background_image_path) }}');
@@ -618,7 +618,7 @@
                 <h1 class="exam-title">{{ $ujian->nama_ujian ?? 'TEST' }}</h1>
                 <div class="exam-subtitle">
                     <strong>Section {{ $currentSectionNumber ?? 1 }} dari {{ $totalSections ?? 1 }}</strong>
-                    | {{ $totalQuestionsInSection ?? 0 }} soal dalam section ini
+                    | {{ $totalQuestionsInSectionForDisplay ?? 0 }} soal dalam section ini
                     | Total: {{ $totalQuestions ?? 0 }} soal
                 </div>
                 @if (isset($sectionTimeRemaining) && $sectionTimeRemaining !== null)
@@ -644,13 +644,13 @@
                     </div>
                     <div style="margin-top: 8px; font-size: 12px; color: #888;">
                         Durasi Section: {{ $currentSection->durasi ?? '-' }} menit
-                        | Soal dalam section: {{ $totalQuestionsInSection ?? 0 }}
+                        | Soal dalam section: {{ $totalQuestionsInSectionForDisplay ?? 0 }}
                     </div>
                 </div>
 
                 <!-- Question -->
                 <div class="question-number">
-                    Soal {{ $currentQuestionNumber ?? 1 }} dari {{ $totalQuestionsInSection ?? 6 }}
+                    Soal {{ $currentQuestionNumber ?? 1 }} dari {{ $totalQuestionsInSectionForDisplay ?? 6 }}
                     <span style="color: #999;">(Section {{ $currentSectionNumber ?? 1 }})</span>
                 </div>
 
@@ -658,30 +658,45 @@
                     <div
                         class="question-type-indicator
                         @if ($currentQuestion->jenis_isian === 'multiple_choice' || $currentQuestion->jenis_isian === 'pilihan_ganda') type-multiple-choice
-                        @elseif($currentQuestion->jenis_isian === 'isian') type-essay
-                        @elseif($currentQuestion->jenis_isian === 'true_false') type-true-false @endif">
+                        {{-- @elseif($currentQuestion->jenis_isian === 'isian') type-essay --}}
+                        @elseif($currentQuestion->jenis_isian === 'true_false' || $currentQuestion->jenis_isian === 'benar_salah') type-true-false @endif">
                         @if ($currentQuestion->jenis_isian === 'multiple_choice' || $currentQuestion->jenis_isian === 'pilihan_ganda')
                             Pilihan Ganda
-                        @elseif($currentQuestion->jenis_isian === 'isian')
-                            Isian
-                        @elseif($currentQuestion->jenis_isian === 'true_false')
+                        {{-- @elseif($currentQuestion->jenis_isian === 'isian')
+                            Isian --}}
+                        @elseif($currentQuestion->jenis_isian === 'true_false' || $currentQuestion->jenis_isian === 'benar_salah')
                             Benar/Salah
                         @endif
                     </div>
                 @endif
 
                 @if (isset($currentQuestion))
+                 <script>
+                        console.log(@json($currentQuestion))
+                    </script>
                     @if ($currentQuestion->is_audio && $currentQuestion->audio_file)
+
                         <div class="audio-player">
-                            <audio controls preload="metadata">
-                                <source src="{{ asset('/' . $currentQuestion->audio_file) }}" type="audio/mpeg">
+                            <div style="margin-bottom: 10px; font-size: 14px; color: #666;">
+                                🎵 Audio untuk soal ini:
+                            </div>
+                            <audio controls preload="metadata" style="width: 100%;">
+                                <source src="{{ asset($currentQuestion->audio_file) }}" type="audio/mpeg">
+                                <source src="{{ asset($currentQuestion->audio_file) }}" type="audio/wav">
+                                <source src="{{ asset($currentQuestion->audio_file) }}" type="audio/mp3">
                                 Your browser does not support the audio element.
                             </audio>
+                            <!-- Debug info (remove in production) -->
+                            @if (config('app.debug'))
+                                <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                                    Debug: {{ asset($currentQuestion->audio_file) }}
+                                </div>
+                            @endif
                         </div>
                     @endif
 
                     <div class="question-text">
-                        {{ $currentQuestion->pertanyaan ?? '"اختر الجمع الصحيح لكلمة "مؤنث' }}
+                        {!! $currentQuestion->pertanyaan ?? '"اختر الجمع الصحيح لكلمة "مؤنث' !!}
                     </div>
                 @endif
                 <!-- Answer Options -->
@@ -695,7 +710,7 @@
                                             <input type="radio" name="jawaban_{{ $currentQuestion->id }}"
                                                 value="{{ $jawaban->id }}" id="option_{{ $index }}"
                                                 {{ isset($selectedAnswers[$currentQuestion->id]) && $selectedAnswers[$currentQuestion->id] == $jawaban->id ? 'checked' : '' }}>
-                                            <label for="option_{{ $index }}">{{ $jawaban->jawaban }}</label>
+                                            <label for="option_{{ $index }}">{!! $jawaban->jawaban !!}</label>
                                         </li>
                                     @endforeach
                                 @else
@@ -734,11 +749,11 @@
                 <div class="section-progress">
                     <div class="section-progress-bar">
                         <div class="section-progress-fill"
-                            style="width: {{ (($answeredCountInSection ?? 0) / ($totalQuestionsInSection ?? 1)) * 100 }}%;">
+                            style="width: {{ (($answeredCountInSection ?? 0) / ($totalQuestionsInSectionForDisplay ?? 1)) * 100 }}%;">
                         </div>
                     </div>
                     <div style="font-size: 12px; color: #666; text-align: right;">
-                        {{ $answeredCountInSection ?? 0 }} dari {{ $totalQuestionsInSection ?? 0 }} soal telah dijawab
+                        {{ $answeredCountInSection ?? 0 }} dari {{ $totalQuestionsInSectionForDisplay ?? 0 }} soal telah dijawab
                     </div>
                 </div>
             </div>
@@ -810,10 +825,10 @@
                 <!-- Current Section Progress -->
                 <div class="progress-info">
                     <strong>Section {{ $currentSectionNumber ?? 1 }}:
-                        {{ $answeredCountInSection ?? 0 }}/{{ $totalQuestionsInSection ?? 6 }} dijawab</strong>
+                        {{ $answeredCountInSection ?? 0 }}/{{ $totalQuestionsInSectionForDisplay ?? 6 }} dijawab</strong>
                     <div class="section-progress-bar" style="margin: 8px 0;">
                         <div class="section-progress-fill"
-                            style="width: {{ $totalQuestionsInSection > 0 ? ($answeredCountInSection / $totalQuestionsInSection) * 100 : 0 }}%">
+                            style="width: {{ $totalQuestionsInSectionForDisplay > 0 ? ($answeredCountInSection / $totalQuestionsInSectionForDisplay) * 100 : 0 }}%">
                         </div>
                     </div>
                 </div>
@@ -836,15 +851,35 @@
 
                 <!-- Question Navigation (untuk section saat ini) -->
                 <div class="question-navigation">
-                    @for ($i = 1; $i <= ($totalQuestionsInSection ?? 6); $i++)
-                        <button
-                            class="question-nav-btn
-                        {{ $i == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
-                        {{ in_array($i, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
-                            onclick="goToQuestion({{ $i }})">
-                            {{ $i }}
-                        </button>
-                    @endfor
+                    @if(isset($currentSectionSoals) && $currentSectionSoals->count() > 0)
+                        @php
+                            $questionIndex = 1;
+                        @endphp
+                        @foreach($currentSectionSoals as $index => $sectionSoal)
+                            @if($sectionSoal['soal']->jenis_isian !== 'bumper')
+                                <button
+                                    class="question-nav-btn
+                                {{ $questionIndex == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
+                                {{ in_array($questionIndex, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
+                                    onclick="goToQuestion({{ $questionIndex }})">
+                                    {{ $questionIndex }}
+                                </button>
+                                @php
+                                    $questionIndex++;
+                                @endphp
+                            @endif
+                        @endforeach
+                    @else
+                        @for ($i = 1; $i <= ($totalQuestionsInSectionForDisplay ?? 6); $i++)
+                            <button
+                                class="question-nav-btn
+                            {{ $i == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
+                            {{ in_array($i, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
+                                onclick="goToQuestion({{ $i }})">
+                                {{ $i }}
+                            </button>
+                        @endfor
+                    @endif
                 </div>
 
                 <!-- Section Navigation (tombol kecil untuk setiap section) -->
@@ -870,14 +905,14 @@
             </button>
             <div style="display: flex; gap: 10px;">
                 @if (
-                    ($currentQuestionNumber ?? 1) == ($totalQuestionsInSection ?? 6) &&
+                    ($currentQuestionNumber ?? 1) == ($totalQuestionsInSectionForDisplay ?? 6) &&
                         ($currentSectionNumber ?? 1) < ($totalSections ?? 1))
                     <button class="btn btn-warning" onclick="nextSection()"
                         style="padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold;">
                         Lanjut ke Section {{ ($currentSectionNumber ?? 1) + 1 }} →
                     </button>
                 @elseif(
-                    ($currentQuestionNumber ?? 1) == ($totalQuestionsInSection ?? 6) &&
+                    ($currentQuestionNumber ?? 1) == ($totalQuestionsInSectionForDisplay ?? 6) &&
                         ($currentSectionNumber ?? 1) == ($totalSections ?? 1))
                     <button class="btn-next" onclick="submitExam()">
                         Kumpulkan Hasil Ujian
@@ -914,10 +949,10 @@
 
         // Check if user has exam session and auto enable fullscreen
         @if (session('ujian_id') && session('email'))
-            // User has filled exam data, enable fullscreen
+            // User has filled exam data, enable fullscreen - DISABLED due to permissions error
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
-                    enableFullscreen();
+                    // enableFullscreen(); // Disabled to fix TypeError: Permissions check failed
                 }, 1000); // Delay 1 second to ensure page is fully loaded
             });
         @endif
@@ -925,7 +960,7 @@
         let currentQuestion = {{ $currentQuestionNumber ?? 1 }};
         let currentSection = {{ $currentSectionNumber ?? 1 }};
         let totalQuestions = {{ $totalQuestions ?? 6 }};
-        let totalQuestionsInSection = {{ $totalQuestionsInSection ?? 6 }};
+        let totalQuestionsInSection = {{ $totalQuestionsInSectionForDisplay ?? 6 }};
         let totalSections = {{ $totalSections ?? 1 }};
         let timeRemaining = {{ $timeRemaining ?? 7151 }}; // in seconds
         let sectionTimeRemaining = {{ $sectionTimeRemaining ?? 'null' }}; // section time limit

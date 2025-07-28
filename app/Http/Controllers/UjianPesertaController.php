@@ -177,6 +177,11 @@ class UjianPesertaController extends Controller
         // Ambil data ujian dengan relasi
         $ujian = \App\Models\Ujian::where('link', $link)
             ->with([
+                'ujianSections.ujianSectionSoals.soal' => function($query) {
+                    $query->select('id', 'tingkat_kesulitan_id', 'kategori_id', 'sub_kategori_id', 
+                                  'jenis_font', 'jenis_isian', 'pertanyaan', 'is_audio', 'audio_file', 
+                                  'penjelasan_jawaban', 'tag', 'created_at', 'updated_at');
+                },
                 'ujianSections.ujianSectionSoals.soal.jawabanSoals',
                 'ujianPengaturan'
             ])
@@ -241,6 +246,14 @@ class UjianPesertaController extends Controller
             ]);
         }
 
+        // Fitur acak soal dan acak jawaban telah dinonaktifkan
+        // Soal akan ditampilkan sesuai urutan asli
+
+        // Count total questions in section excluding bumper questions for display
+        $totalQuestionsInSectionForDisplay = $sectionQuestions->filter(function($questionData) {
+            return $questionData['soal']->jenis_isian !== 'bumper';
+        })->count();
+
         $totalQuestionsInSection = $sectionQuestions->count();
 
         // Handle parameter 'last' untuk question
@@ -259,15 +272,18 @@ class UjianPesertaController extends Controller
         $currentQuestionData = $sectionQuestions->get($currentQuestionNumber - 1);
         $currentQuestion = $currentQuestionData ? $currentQuestionData['soal'] : null;
 
-        // Hitung total soal dari semua section (untuk informasi)
+        // Hitung total soal dari semua section (untuk informasi) - exclude bumper questions
         $allQuestions = collect();
         foreach ($ujian->ujianSections as $section) {
             foreach ($section->ujianSectionSoals as $sectionSoal) {
-                $allQuestions->push([
-                    'soal' => $sectionSoal->soal,
-                    'section' => $section,
-                    'section_soal' => $sectionSoal
-                ]);
+                // Skip bumper questions from total count
+                if ($sectionSoal->soal->jenis_isian !== 'bumper') {
+                    $allQuestions->push([
+                        'soal' => $sectionSoal->soal,
+                        'section' => $section,
+                        'section_soal' => $sectionSoal
+                    ]);
+                }
             }
         }
         $totalQuestions = $allQuestions->count();
@@ -297,13 +313,16 @@ class UjianPesertaController extends Controller
             }
         }
 
-        // Hitung jawaban yang sudah dijawab dari semua section
+        // Hitung jawaban yang sudah dijawab dari semua section - exclude bumper questions
         $totalAnsweredQuestions = 0;
         foreach ($ujian->ujianSections as $section) {
             foreach ($section->ujianSectionSoals as $sectionSoal) {
-                $soalId = $sectionSoal->soal->id;
-                if ($savedAnswers->where('soal_id', $soalId)->first()) {
-                    $totalAnsweredQuestions++;
+                // Skip bumper questions from answered count
+                if ($sectionSoal->soal->jenis_isian !== 'bumper') {
+                    $soalId = $sectionSoal->soal->id;
+                    if ($savedAnswers->where('soal_id', $soalId)->first()) {
+                        $totalAnsweredQuestions++;
+                    }
                 }
             }
         }
@@ -358,7 +377,9 @@ class UjianPesertaController extends Controller
                 'currentQuestionNumber' => $currentQuestionNumber,
                 'totalSections' => $ujian->ujianSections->count(),
                 'totalQuestions' => $totalQuestions,
-                'totalQuestionsInSection' => $totalQuestionsInSection,
+                'totalQuestionsInSection' => $totalQuestionsInSectionForDisplay,
+                'totalQuestionsInSectionForDisplay' => $totalQuestionsInSectionForDisplay,
+                'currentSectionSoals' => $sectionQuestions,
                 'answeredQuestionsInSection' => $answeredQuestionsInSection,
                 'answeredCountInSection' => $answeredCountInSection,
                 'totalAnsweredQuestions' => $totalAnsweredQuestions,
@@ -380,7 +401,9 @@ class UjianPesertaController extends Controller
             'currentQuestionNumber' => $currentQuestionNumber,
             'totalSections' => $ujian->ujianSections->count(),
             'totalQuestions' => $totalQuestions,
-            'totalQuestionsInSection' => $totalQuestionsInSection,
+            'totalQuestionsInSection' => $totalQuestionsInSectionForDisplay,
+            'totalQuestionsInSectionForDisplay' => $totalQuestionsInSectionForDisplay,
+            'currentSectionSoals' => $sectionQuestions,
             'answeredQuestionsInSection' => $answeredQuestionsInSection,
             'answeredCountInSection' => $answeredCountInSection,
             'totalAnsweredQuestions' => $totalAnsweredQuestions,
@@ -532,6 +555,12 @@ class UjianPesertaController extends Controller
 
             foreach ($section->ujianSectionSoals as $sectionSoal) {
                 $soal = $sectionSoal->soal;
+
+                // Skip bumper questions from scoring calculation
+                if ($soal->jenis_isian === 'bumper') {
+                    continue;
+                }
+
                 $sectionQuestions++;
                 $totalQuestions++;
 
@@ -668,17 +697,17 @@ class UjianPesertaController extends Controller
             Log::warning('Could not save exam result: ' . $e->getMessage());
         }
 
-        // Clear session
-        session()->forget([
-            'ujian_id',
-            'ujian_link',
-            'name',
-            'email',
-            'answered_questions',
-            'exam_start_time',
-            'section_start_times',
-            'lockscreen_enabled'
-        ]);
+        // // Clear session
+        // session()->forget([
+        //     'ujian_id',
+        //     'ujian_link',
+        //     'name',
+        //     'email',
+        //     'answered_questions',
+        //     'exam_start_time',
+        //     'section_start_times',
+        //     'lockscreen_enabled'
+        // ]);
 
         // Check if is_arabic is set to true
         $isArabic = $ujian->ujianPengaturan->is_arabic ?? false;

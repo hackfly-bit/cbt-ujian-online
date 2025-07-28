@@ -682,15 +682,26 @@
                 @if (isset($currentQuestion))
                     @if ($currentQuestion->is_audio && $currentQuestion->audio_file)
                         <div class="audio-player">
-                            <audio controls preload="metadata">
-                                <source src="{{ asset('/' . $currentQuestion->audio_file) }}" type="audio/mpeg">
+                            <div style="margin-bottom: 10px; font-size: 14px; color: #666;">
+                                🎵 الصوت لهذا السؤال:
+                            </div>
+                            <audio controls preload="metadata" style="width: 100%;">
+                                <source src="{{ asset($currentQuestion->audio_file) }}" type="audio/mpeg">
+                                <source src="{{ asset($currentQuestion->audio_file) }}" type="audio/wav">
+                                <source src="{{ asset($currentQuestion->audio_file) }}" type="audio/mp3">
                                 متصفحك لا يدعم عنصر الصوت.
                             </audio>
+                            <!-- Debug info (remove in production) -->
+                            @if (config('app.debug'))
+                                <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                                    Debug: {{ asset($currentQuestion->audio_file) }}
+                                </div>
+                            @endif
                         </div>
                     @endif
 
                     <div class="question-text">
-                        {{ $currentQuestion->pertanyaan ?? 'اختر الجمع الصحيح لكلمة "مؤنث"' }}
+                        {!! $currentQuestion->pertanyaan ?? 'اختر الجمع الصحيح لكلمة "مؤنث"' !!}
                     </div>
                 @endif
                 <!-- خيارات الإجابة -->
@@ -704,7 +715,7 @@
                                             <input type="radio" name="jawaban_{{ $currentQuestion->id }}"
                                                 value="{{ $jawaban->id }}" id="option_{{ $index }}"
                                                 {{ isset($selectedAnswers[$currentQuestion->id]) && $selectedAnswers[$currentQuestion->id] == $jawaban->id ? 'checked' : '' }}>
-                                            <label for="option_{{ $index }}">{{ $jawaban->jawaban }}</label>
+                                            <label for="option_{{ $index }}">{!! $jawaban->jawaban !!}</label>
                                         </li>
                                     @endforeach
                                 @else

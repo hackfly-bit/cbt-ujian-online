@@ -270,7 +270,7 @@
                                             <input type="file" class="form-control" id="audio_file" name="audio_file"
                                                 accept=".mp3,.wav,.ogg">
                                             <small class="text-muted">Format yang didukung: MP3, WAV, OGG (Max:
-                                                10MB)</small>
+                                                2MB)</small>
                                         </div>
                                     </div>
                                 </div>

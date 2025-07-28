@@ -51,17 +51,24 @@ class UjianController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $url = route('ujian.login', $row->link);
+                    $isActive = $row->status === 'aktif';
+
+                    // Tombol Lihat Ujian - disabled jika status bukan aktif
+                    $lihatUjianBtn = $isActive
+                        ? '<a href="' . $url . '" class="text-success" title="Lihat Ujian" target="_blank"><i class="ri-eye-line"></i></a>'
+                        : '<span class="text-muted opacity-50" title="Ujian tidak aktif" style="cursor: not-allowed;"><i class="ri-eye-line"></i></span>';
+
+                    // Tombol Salin Link - disabled jika status bukan aktif
+                    $salinLinkBtn = $isActive
+                        ? '<a href="javascript:void(0)" class="text-secondary copy-link" data-link="' . $url . '" title="Salin Link"><i class="ri-file-copy-line"></i></a>'
+                        : '<span class="text-muted opacity-50" title="Ujian tidak aktif" style="cursor: not-allowed;"><i class="ri-file-copy-line"></i></span>';
 
                     return '<div class="action-icons d-flex gap-2 justify-content-center">
                         <a href="' . route('ujian.show', $row->id) . '" class="text-primary" title="Edit">
                             <i class="ri-edit-2-line"></i>
                         </a>
-                        <a href="' . $url . '" class="text-success" title="Lihat Ujian" target="_blank">
-                            <i class="ri-eye-line"></i>
-                        </a>
-                        <a href="javascript:void(0)" class="text-secondary copy-link" data-link="' . $url . '" title="Salin Link">
-                            <i class="ri-file-copy-line"></i>
-                        </a>
+                        ' . $lihatUjianBtn . '
+                        ' . $salinLinkBtn . '
                         <a href="javascript:void(0)" class="text-danger" title="Hapus" onclick="showDeleteConfirmation(' . $row->id . ')">
                             <i class="ri-delete-bin-line"></i>
                         </a>
@@ -162,8 +169,8 @@ class UjianController extends Controller
                 'ujian_id' => $ujian->id,
                 'nilai_kelulusan' => $pengaturan['nilai_kelulusan'],
                 'hasil_ujian_tersedia' => $pengaturan['hasil_ujian'] ?? false,
-                'acak_soal' => $pengaturan['acak_soal'] ?? false,
-                'acak_jawaban' => $pengaturan['acak_jawaban'] ?? false,
+                'acak_soal' => null,
+                'acak_jawaban' => null,
                 'lihat_hasil' => $pengaturan['lihat_hasil'] ?? false,
                 'lihat_pembahasan' => $pengaturan['lihat_pembahasan'] ?? false,
                 'lockscreen' => $pengaturan['lockscreen'] ?? false,
@@ -404,8 +411,8 @@ class UjianController extends Controller
             $ujianPengaturan->ujian_id = $ujian->id;
             $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
             $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'] ?? false;
-            $ujianPengaturan->acak_soal = $pengaturan['acak_soal'] ?? false;
-            $ujianPengaturan->acak_jawaban = $pengaturan['acak_jawaban'] ?? false;
+            $ujianPengaturan->acak_soal = null;
+            $ujianPengaturan->acak_jawaban = null;
             $ujianPengaturan->lihat_hasil = $pengaturan['lihat_hasil'] ?? false;
             $ujianPengaturan->lihat_pembahasan = $pengaturan['lihat_pembahasan'] ?? false;
             $ujianPengaturan->lockscreen = $pengaturan['lockscreen'] ?? false;

@@ -82,31 +82,7 @@
 
 
 
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="acak_soal" name="acak_soal"
-                                value="1"
-                                {{ old('acak_soal', $ujian->ujianPengaturan->acak_soal ?? false) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="acak_soal">
-                                <strong>Acak Soal</strong>
-                                <br>
-                                <small class="text-muted">Mengacak urutan soal untuk setiap peserta</small>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="acak_jawaban" name="acak_jawaban"
-                                value="1"
-                                {{ old('acak_jawaban', $ujian->ujianPengaturan->acak_jawaban ?? false) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="acak_jawaban">
-                                <strong>Acak Jawaban</strong>
-                                <br>
-                                <small class="text-muted">Mengacak urutan pilihan jawaban untuk setiap soal</small>
-                            </label>
-                        </div>
-                    </div>
+                    <!-- Fitur acak soal dan acak jawaban telah dinonaktifkan -->
 
 
 
