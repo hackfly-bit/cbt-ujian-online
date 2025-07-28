@@ -90,6 +90,7 @@ export default defineConfig({
                 'resources/js/pages/component.dragula.js',
                 'resources/js/pages/component.dragula.js',
 
+
                 // Email js
                 'resources/js/pages/demo.inbox.js',
 
