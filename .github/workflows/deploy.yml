@@ -18,22 +18,31 @@ jobs:
         with:
           php-version: '8.2'
 
+      - name: Set Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.3.0'
+
+      - name: Check Node and npm version
+        run: |
+          node -v
+          npm -v
+
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Install NPM dependencies and build assets
         run: |
-          if [ -f package.json ]; then
-            npm ci
-            npm run build
-          fi
+          export NODE_ENV=production
+          npm ci
+          npm run build
 
-      - name: Laravel optimizations
-        run: |
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          php artisan event:cache
+      # - name: Laravel optimizations
+      #   run: |
+      #     php artisan config:cache
+      #     php artisan route:cache
+      #     php artisan view:cache
+      #     php artisan event:cache
 
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -53,4 +62,5 @@ jobs:
             README.md
             webpack.mix.js
             vite.config.js
+            # Pastikan folder hasil build tetap diupload (untuk Vite)
             !public/build/**
