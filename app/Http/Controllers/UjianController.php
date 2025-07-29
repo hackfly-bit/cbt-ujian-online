@@ -560,11 +560,30 @@ class UjianController extends Controller
                 $ujianSection->save();
 
                 // Create ujian section soals
-                foreach ($sectionData['selected_questions'] as $soalId) {
-                    $ujianSectionSoal = new \App\Models\UjianSectionSoal();
-                    $ujianSectionSoal->ujian_section = $ujianSection->id;
-                    $ujianSectionSoal->soal_id = $soalId;
-                    $ujianSectionSoal->save();
+                if (isset($sectionData['selected_questions']) && is_array($sectionData['selected_questions'])) {
+                    foreach ($sectionData['selected_questions'] as $soalId) {
+                        // Validate soalId is numeric and positive
+                        if (!is_numeric($soalId) || $soalId <= 0) {
+                            Log::warning("Invalid soal ID: {$soalId}, melewati soal ini.");
+                            continue;
+                        }
+
+                        Log::info("Processing soal ID: {$soalId}");
+
+                        // Validate that soal_id exists in database
+                        $soalExists = \App\Models\Soal::where('id', $soalId)->exists();
+                        if (!$soalExists) {
+                            Log::warning("Soal ID {$soalId} tidak ditemukan di database, melewati soal ini.");
+                            continue;
+                        }
+
+                        $ujianSectionSoal = new \App\Models\UjianSectionSoal();
+                        $ujianSectionSoal->ujian_section = $ujianSection->id;
+                        $ujianSectionSoal->soal_id = $soalId;
+                        $ujianSectionSoal->save();
+                    }
+                } else {
+                    Log::warning("Section '{$sectionData['nama_section']}' tidak memiliki selected_questions yang valid.");
                 }
             }
 

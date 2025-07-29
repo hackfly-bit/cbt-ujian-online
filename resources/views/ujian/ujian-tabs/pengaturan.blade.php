@@ -69,9 +69,8 @@
                             </label>
                             <div class="input-group" style="max-width: 600px;">
                                 <input type="number" class="form-control" id="nilai_kelulusan" name="nilai_kelulusan"
-                                    min="0" max="100" step="0.01" placeholder="Contoh: 75"
+                                    min="0" max="1000" step="0.01" placeholder="Contoh: 75"
                                     value="{{ old('nilai_kelulusan', $ujian->ujianPengaturan->nilai_kelulusan ?? '') }}" required>
-                                <span class="input-group-text">%</span>
                             </div>
                             <small class="text-muted">
                                 Batas nilai minimum untuk dinyatakan lulus ujian

@@ -729,7 +729,7 @@
                                         id="jawaban_{{ $currentQuestion->id }}" placeholder="اكتب إجابتك هنا..."
                                         value="{{ $savedTextAnswers[$currentQuestion->id] ?? '' }}">
                                 </li>
-                            @elseif($currentQuestion->jenis_isian === 'true_false')
+                            @elseif($currentQuestion->jenis_isian === 'true_false' || $currentQuestion->jenis_isian === 'benar_salah')
                                 <li class="answer-option">
                                     <input type="radio" name="jawaban_{{ $currentQuestion->id }}"
                                         id="jawaban_true_{{ $currentQuestion->id }}" value="true"
@@ -944,6 +944,7 @@
         let currentSection = {{ $currentSectionNumber ?? 1 }};
         let totalQuestions = {{ $totalQuestions ?? 6 }};
         let totalQuestionsInSection = {{ $totalQuestionsInSection ?? 6 }};
+        let totalQuestionsInSectionForDisplay = {{ $totalQuestionsInSectionForDisplay ?? 6 }};
         let totalSections = {{ $totalSections ?? 1 }};
         let timeRemaining = {{ $timeRemaining ?? 7151 }}; // بالثواني
         let sectionTimeRemaining = {{ $sectionTimeRemaining ?? 'null' }}; // حد وقت القسم
@@ -1392,7 +1393,7 @@
         function nextSection() {
             if (currentSection < totalSections) {
                 // التحقق مما إذا كان هناك أسئلة لم تتم الإجابة عليها في هذا القسم
-                const unansweredCount = totalQuestionsInSection - answeredQuestionsInSection.length;
+                const unansweredCount = totalQuestionsInSectionForDisplay - answeredQuestionsInSection.length;
 
                 if (unansweredCount > 0) {
                     Swal.fire({

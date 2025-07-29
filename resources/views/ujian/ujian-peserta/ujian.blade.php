@@ -483,6 +483,22 @@
             border: 2px solid #ddd;
         }
 
+        .legend-bumper {
+            background: #ffc107;
+        }
+
+        .question-nav-btn.bumper {
+            background: #ffc107;
+            color: #212529;
+            border-color: #ffc107;
+            font-weight: bold;
+        }
+
+        .question-nav-btn.bumper:hover {
+            background: #e0a800;
+            border-color: #d39e00;
+        }
+
         /* Responsive design untuk mobile */
         @media (max-width: 768px) {
             .exam-content {
@@ -724,7 +740,7 @@
                                         id="jawaban_{{ $currentQuestion->id }}" placeholder="Tulis jawaban Anda di sini..."
                                         value="{{ $savedTextAnswers[$currentQuestion->id] ?? '' }}">
                                 </li>
-                            @elseif($currentQuestion->jenis_isian === 'true_false')
+                            @elseif($currentQuestion->jenis_isian === 'true_false' || $currentQuestion->jenis_isian === 'benar_salah')
                                 <li class="answer-option">
                                     <input type="radio" name="jawaban_{{ $currentQuestion->id }}"
                                         id="jawaban_true_{{ $currentQuestion->id }}" value="true"
@@ -847,6 +863,10 @@
                         <div class="legend-color legend-unanswered"></div>
                         <span>Belum</span>
                     </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-bumper"></div>
+                        <span>Bumper</span>
+                    </div>
                 </div>
 
                 <!-- Question Navigation (untuk section saat ini) -->
@@ -854,14 +874,24 @@
                     @if(isset($currentSectionSoals) && $currentSectionSoals->count() > 0)
                         @php
                             $questionIndex = 1;
+                            $displayIndex = 1;
                         @endphp
                         @foreach($currentSectionSoals as $index => $sectionSoal)
-                            @if($sectionSoal['soal']->jenis_isian !== 'bumper')
+                            @if($sectionSoal['soal']->jenis_isian === 'bumper')
+                                <button
+                                    class="question-nav-btn bumper"
+                                    onclick="goToQuestion({{ $index + 1 }})">
+                                    B{{ $displayIndex }}
+                                </button>
+                                @php
+                                    $displayIndex++;
+                                @endphp
+                            @else
                                 <button
                                     class="question-nav-btn
-                                {{ $questionIndex == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
+                                {{ ($index + 1) == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
                                 {{ in_array($questionIndex, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
-                                    onclick="goToQuestion({{ $questionIndex }})">
+                                    onclick="goToQuestion({{ $index + 1 }})">
                                     {{ $questionIndex }}
                                 </button>
                                 @php
@@ -960,7 +990,8 @@
         let currentQuestion = {{ $currentQuestionNumber ?? 1 }};
         let currentSection = {{ $currentSectionNumber ?? 1 }};
         let totalQuestions = {{ $totalQuestions ?? 6 }};
-        let totalQuestionsInSection = {{ $totalQuestionsInSectionForDisplay ?? 6 }};
+        let totalQuestionsInSection = {{ $totalQuestionsInSection ?? 6 }};
+        let totalQuestionsInSectionForDisplay = {{ $totalQuestionsInSectionForDisplay ?? 6 }};
         let totalSections = {{ $totalSections ?? 1 }};
         let timeRemaining = {{ $timeRemaining ?? 7151 }}; // in seconds
         let sectionTimeRemaining = {{ $sectionTimeRemaining ?? 'null' }}; // section time limit
@@ -1409,7 +1440,7 @@
         function nextSection() {
             if (currentSection < totalSections) {
                 // Cek apakah masih ada soal yang belum dijawab di section ini
-                const unansweredCount = totalQuestionsInSection - answeredQuestionsInSection.length;
+                const unansweredCount = totalQuestionsInSectionForDisplay - answeredQuestionsInSection.length;
 
                 if (unansweredCount > 0) {
                     Swal.fire({

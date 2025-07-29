@@ -203,7 +203,7 @@
     </div>
     <!-- container -->
 @endsection
-
+{{--
 @section('script')
     @vite(['resources/js/pages/demo.dashboard.js'])
-@endsection
+@endsection --}}

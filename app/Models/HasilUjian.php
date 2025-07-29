@@ -50,6 +50,7 @@ class HasilUjian extends Model
         'waktu_selesai_timestamp',
         'detail_section',
         'status',
+        'status_kelulusan',
         'sertifikat_id'
     ];
 

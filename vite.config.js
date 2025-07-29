@@ -38,6 +38,7 @@ export default defineConfig({
                 'resources/js/head.js',
                 'resources/js/layout.js',
                 'resources/js/main/bank-soal.js',
+                'resources/js/main/dragula-section.js',
                 'resources/js/main/sertifikat.js',
                 'resources/js/main/buat-ujian.js',
                 'resources/js/main/jenis-ujian.js',

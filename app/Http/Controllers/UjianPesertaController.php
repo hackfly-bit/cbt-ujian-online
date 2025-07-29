@@ -178,8 +178,8 @@ class UjianPesertaController extends Controller
         $ujian = \App\Models\Ujian::where('link', $link)
             ->with([
                 'ujianSections.ujianSectionSoals.soal' => function($query) {
-                    $query->select('id', 'tingkat_kesulitan_id', 'kategori_id', 'sub_kategori_id', 
-                                  'jenis_font', 'jenis_isian', 'pertanyaan', 'is_audio', 'audio_file', 
+                    $query->select('id', 'tingkat_kesulitan_id', 'kategori_id', 'sub_kategori_id',
+                                  'jenis_font', 'jenis_isian', 'pertanyaan', 'is_audio', 'audio_file',
                                   'penjelasan_jawaban', 'tag', 'created_at', 'updated_at');
                 },
                 'ujianSections.ujianSectionSoals.soal.jawabanSoals',
@@ -366,6 +366,8 @@ class UjianPesertaController extends Controller
             }
         }
 
+        Log::info('Current question number:', ['currentQuestionNumber' => $currentQuestionNumber]);
+        Log::info('Total questions:', ['totalQuestions' => $totalQuestions]);
         // check is_arabic
         $isArabic = $ujian->ujianPengaturan->is_arabic ?? false;
         if ($isArabic) {
@@ -377,7 +379,7 @@ class UjianPesertaController extends Controller
                 'currentQuestionNumber' => $currentQuestionNumber,
                 'totalSections' => $ujian->ujianSections->count(),
                 'totalQuestions' => $totalQuestions,
-                'totalQuestionsInSection' => $totalQuestionsInSectionForDisplay,
+                'totalQuestionsInSection' => $totalQuestionsInSection,
                 'totalQuestionsInSectionForDisplay' => $totalQuestionsInSectionForDisplay,
                 'currentSectionSoals' => $sectionQuestions,
                 'answeredQuestionsInSection' => $answeredQuestionsInSection,
@@ -401,7 +403,7 @@ class UjianPesertaController extends Controller
             'currentQuestionNumber' => $currentQuestionNumber,
             'totalSections' => $ujian->ujianSections->count(),
             'totalQuestions' => $totalQuestions,
-            'totalQuestionsInSection' => $totalQuestionsInSectionForDisplay,
+            'totalQuestionsInSection' => $totalQuestionsInSection,
             'totalQuestionsInSectionForDisplay' => $totalQuestionsInSectionForDisplay,
             'currentSectionSoals' => $sectionQuestions,
             'answeredQuestionsInSection' => $answeredQuestionsInSection,
@@ -467,7 +469,7 @@ class UjianPesertaController extends Controller
             if (strlen($jawabanText) === 0) {
                 return response()->json(['success' => false, 'message' => 'Jawaban tidak boleh kosong']);
             }
-        } elseif ($soal->jenis_isian === 'true_false') {
+        } elseif ($soal->jenis_isian === 'true_false' || 'benar_salah') {
             // Untuk true/false, simpan sebagai text 'true' atau 'false'
             if (in_array($value, ['true', 'false'])) {
                 $jawabanText = $value;
@@ -654,6 +656,10 @@ class UjianPesertaController extends Controller
 
         $getSertifikat = \App\Models\Sertifikat::where('ujian_id', $ujianId)->first();
 
+        // Determine pass/fail status based on passing grade
+        $nilaiKelulusan = $ujian->ujianPengaturan->nilai_kelulusan ?? 0;
+        $statusKelulusan = $totalScore >= $nilaiKelulusan ? 'lulus' : 'tidak_lulus';
+
         // Prepare exam summary
         $examSummary = [
             'ujian_name' => $ujian->nama_ujian,
@@ -669,7 +675,9 @@ class UjianPesertaController extends Controller
             'exam_duration_minutes' => $examDuration,
             'exam_start_time' => $examStartTime,
             'exam_end_time' => $examEndTime,
-            'section_results' => $sectionResults
+            'section_results' => $sectionResults,
+            'nilai_kelulusan' => $nilaiKelulusan,
+            'status_kelulusan' => $statusKelulusan
         ];
 
         // Save exam result to database (if HasilUjian model exists)
@@ -689,6 +697,7 @@ class UjianPesertaController extends Controller
                     'waktu_selesai' => $examEndTime,
                     'detail_section' => json_encode($sectionResults),
                     'status' => 'completed',
+                    'status_kelulusan' => $statusKelulusan,
                     'sertifikat_id' => $getSertifikat ? $getSertifikat->id : null
                 ]
             );
@@ -697,7 +706,7 @@ class UjianPesertaController extends Controller
             Log::warning('Could not save exam result: ' . $e->getMessage());
         }
 
-        // // Clear session
+        // Clear session
         // session()->forget([
         //     'ujian_id',
         //     'ujian_link',

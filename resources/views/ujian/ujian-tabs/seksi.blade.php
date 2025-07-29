@@ -15,8 +15,6 @@
                     </button>
                 </div>
 
-                {{-- <div id="section-container" data-plugin="dragula" data-containers='["section-list"]'
-                    data-handleclass="section-drag-handle"> --}}
                 <div id="section-container" data-plugin="dragula" data-handleclass="section-drag-handle">
 
                 </div>

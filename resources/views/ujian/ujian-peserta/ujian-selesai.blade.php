@@ -634,6 +634,24 @@
                     <div class="score-number">{{ $examSummary['total_score'] }}</div>
                 </div>
                 <div class="score-label">Nilai Keseluruhan</div>
+                @if(isset($examSummary['status_kelulusan']))
+                    <div class="status-kelulusan" style="margin-top: 16px; text-align: center;">
+                        @if($examSummary['status_kelulusan'] == 'lulus')
+                            <span class="badge" style="background-color: #10b981; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;">
+                                <i class="ri-check-line" style="margin-right: 4px;"></i>
+                                LULUS
+                            </span>
+                        @else
+                            <span class="badge" style="background-color: #ef4444; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;">
+                                <i class="ri-close-line" style="margin-right: 4px;"></i>
+                                TIDAK LULUS
+                            </span>
+                        @endif
+                        <div style="margin-top: 8px; font-size: 12px; color: #6b7280;">
+                            Batas Kelulusan: {{ $examSummary['nilai_kelulusan'] ?? 'Tidak ditentukan' }}
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Info Section -->
