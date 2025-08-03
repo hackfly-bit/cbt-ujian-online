@@ -17,9 +17,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         \App\Models\User::firstOrCreate([
-            'email' => 'attex@coderthemes.com'
+            'email' => 'admin@toafltamam.com'
         ], [
-            'name' => 'Attex',
+            'name' => 'Admin',
             'email_verified_at' => now(),
             'role' => 'Super Admin',
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
@@ -27,11 +27,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Call Bank Soal seeder
-        $this->call([
-            BankSoalSeeder::class,
-            TestUjianSeeder::class,
-            HasilUjianSeeder::class,
-            UjianThemaSeeder::class,
-        ]);
+        // $this->call([
+        //     BankSoalSeeder::class,
+        //     TestUjianSeeder::class,
+        //     HasilUjianSeeder::class,
+        //     UjianThemaSeeder::class,
+        // ]);
     }
 }
