@@ -6,7 +6,7 @@
                 <script>
                     document.write(new Date().getFullYear())
                 </script> © markazarabiyah.com - Supported by
-            <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
+            {{-- <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a> --}}
             </div>
             {{-- <div class="col-md-6">
                 <div class="text-md-end footer-links d-none d-md-block">

@@ -147,7 +147,7 @@
                 <!-- معلومات الاختبار -->
                 <div class="col-md-4 mb-3">
                     <div class="card shadow-sm border-0 rounded-2">
-                        
+
                         <div class="card-body">
                             <h4 class="fw-bold mb-2">{{ $ujian->nama_ujian }}</h4>
                             <p class="text-base mb-3">{{ $ujian->deskripsi }}</p>
@@ -271,7 +271,7 @@
             <script>
             document.write(new Date().getFullYear())
             </script> © markazarabiyah.com - Supported by
-            <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
+            {{-- <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a> --}}
             </div>
         </footer>
 

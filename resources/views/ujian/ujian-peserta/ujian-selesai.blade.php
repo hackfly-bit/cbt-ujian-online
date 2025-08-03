@@ -87,7 +87,7 @@
             background: var(--header-color, #4f46e5);
             color: var(--secondary-color, #fff);
             border: none;
-            
+
             @if ($ujian->ujianThema && $ujian->ujianThema->header_image_path)
                 background-image: url('{{ asset($ujian->ujianThema->header_image_path) }}');
                 background-size: cover;
@@ -821,7 +821,7 @@
             <script>
                 document.write(new Date().getFullYear())
             </script> © markazarabiyah.com - Supported by
-            <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a>
+            {{-- <a href="https://aneramedia.com/" class="text-reset link-danger" target="_blank">Anera Media</a> --}}
         </div>
     </footer>
 @endsection
