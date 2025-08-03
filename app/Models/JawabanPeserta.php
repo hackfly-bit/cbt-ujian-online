@@ -13,6 +13,7 @@ class JawabanPeserta extends Model
         'ujian_id',
         'peserta_email',
         'soal_id',
+        'section_id',
         'jawaban_soal_id',
         'jawaban_text',
         'dijawab_pada'

@@ -1,0 +1,39 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+    RewriteEngine on
+
+    RewriteCond %{REQUEST_FILENAME} -d [OR]
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ ^$1 [N]
+    # RewriteCond %{REQUEST_URI} (\.\w+$) [NC]
+
+    # Redirect requests from root to the 'public' directory
+    RewriteCond %{HTTP_HOST} ^toafltamam.com$ [NC,OR]
+    RewriteCond %{HTTP_HOST} ^www.toafltamam.com$
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule (.*) /public/$1 [L]
+
+   #Secure File
+   <Files ~ "\.(env|json|config\.js|md|gitignore|gitattributes|lock|editorconfig|yml|styleci\.yml)$">
+        Order allow,deny
+        Deny from all
+    </Files>
+
+    <FilesMatch "^(?!sitemap\.xml$)(.+)\.xml$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    <Files ~ "^(artisan|package\.json|webpack\.mix\.js)$">
+        Order allow,deny
+        Deny from all
+    </Files>
+
+# Deny access to service-account.json and other sensitive files
+#<FilesMatch "(^|/)(service-account\.json|\.env)$">
+#    Require all denied
+#</FilesMatch>
+
+</IfModule>

@@ -42,7 +42,7 @@
             background: var(--background-color);
             font-family: 'Lotus Linotype Bold', 'Noto Kufi Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
-            min-height: 100vh; 
+            min-height: 100vh;
 
             @if ($ujian->ujianThema && $ujian->ujianThema->background_image_path)
                 background-image: url('{{ asset($ujian->ujianThema->background_image_path) }}');
@@ -491,6 +491,10 @@
             border: 2px solid #ddd;
         }
 
+        .legend-bumper {
+            background: #ff9800;
+        }
+
         /* تصميم متجاوب للجوال */
         @media (max-width: 768px) {
             .exam-content {
@@ -791,13 +795,24 @@
                                 $sectionsData = [];
                                 foreach ($ujian->ujianSections as $index => $section) {
                                     $sectionNumber = $index + 1;
-                                    $sectionSoalCount = $section->ujianSectionSoals->count();
+                                    $sectionSoalCount = 0;
                                     $sectionAnsweredCount = 0;
+                                    $firstQuestionId = null;
 
                                     foreach ($section->ujianSectionSoals as $sectionSoal) {
                                         $soalId = $sectionSoal->soal->id;
-                                        if (isset($savedAnswers) && $savedAnswers->where('soal_id', $soalId)->first()) {
-                                            $sectionAnsweredCount++;
+                                        
+                                        // Get first question ID (including bumper)
+                                        if ($firstQuestionId === null) {
+                                            $firstQuestionId = $soalId;
+                                        }
+                                        
+                                        // Skip bumper questions when counting
+                                        if ($sectionSoal->soal->jenis_isian !== 'bumper') {
+                                            $sectionSoalCount++;
+                                            if (isset($savedAnswers) && $savedAnswers->where('soal_id', $soalId)->first()) {
+                                                $sectionAnsweredCount++;
+                                            }
                                         }
                                     }
 
@@ -806,6 +821,7 @@
                                         'total' => $sectionSoalCount,
                                         'answered' => $sectionAnsweredCount,
                                         'completed' => $sectionAnsweredCount >= $sectionSoalCount,
+                                        'firstQuestionId' => $firstQuestionId,
                                     ];
                                 }
                             @endphp
@@ -815,7 +831,7 @@
                                     class="section-nav-btn
                                     {{ $sectionData['number'] == ($currentSectionNumber ?? 1) ? 'active' : '' }}
                                     {{ $sectionData['completed'] ? 'completed' : '' }}"
-                                    onclick="goToSection({{ $sectionData['number'] }})"
+                                    onclick="goToSectionByQuestionId({{ $sectionData['firstQuestionId'] }})"
                                     title="القسم {{ $sectionData['number'] }}: {{ $sectionData['answered'] }}/{{ $sectionData['total'] }} تمت الإجابة">
                                     ق{{ $sectionData['number'] }}
                                     <br>
@@ -852,32 +868,59 @@
                         <div class="legend-color legend-unanswered"></div>
                         <span>لم تتم الإجابة</span>
                     </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-bumper"></div>
+                        <span>بامبر</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #007bff; border: 2px solid #0056b3;"></div>
+                        <span>القسم النشط</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #28a745;"></div>
+                        <span>القسم المكتمل</span>
+                    </div>
                 </div>
 
                 <!-- التنقل بين الأسئلة (للقسم الحالي) -->
                 <div class="question-navigation">
-                    @for ($i = 1; $i <= ($totalQuestionsInSection ?? 6); $i++)
-                        <button
-                            class="question-nav-btn
-                        {{ $i == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
-                        {{ in_array($i, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
-                            onclick="goToQuestion({{ $i }})">
-                            {{ $i }}
-                        </button>
-                    @endfor
-                </div>
-
-                <!-- التنقل بين الأقسام (أزرار صغيرة لكل قسم) -->
-                <div class="section-nav-container">
-                    @for ($s = 1; $s <= ($totalSections ?? 1); $s++)
-                        <button
-                            class="section-nav-btn
-                            {{ $s == ($currentSectionNumber ?? 1) ? 'active' : '' }}
-                            {{ in_array($s, $completedSections ?? []) ? 'completed' : '' }}"
-                            onclick="goToSection({{ $s }})">
-                            ق{{ $s }}
-                        </button>
-                    @endfor
+                    @if (isset($currentSectionSoals) && $currentSectionSoals->count() > 0)
+                        @php
+                            $questionIndex = 1;
+                            $displayIndex = 1;
+                        @endphp
+                        @foreach ($currentSectionSoals as $index => $sectionSoal)
+                            @if ($sectionSoal['soal']->jenis_isian === 'bumper')
+                                <button class="question-nav-btn bumper" onclick="goToQuestion({{ $index + 1 }})">
+                                    ب{{ $displayIndex }}
+                                </button>
+                                @php
+                                    $displayIndex++;
+                                @endphp
+                            @else
+                                <button
+                                    class="question-nav-btn
+                                {{ $index + 1 == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
+                                {{ in_array($questionIndex, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
+                                    onclick="goToQuestion({{ $index + 1 }})">
+                                    {{ $questionIndex }}
+                                </button>
+                                @php
+                                    $questionIndex++;
+                                @endphp
+                            @endif
+                        @endforeach
+                    @else
+                        @for ($i = 1; $i <= ($totalQuestionsInSectionForDisplay ?? 6); $i++)
+                            <button
+                                class="question-nav-btn
+                            {{ $i == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
+                            {{ in_array($i, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
+                                onclick="goToQuestion({{ $i }})">
+                                {{ $i }}
+                            </button>
+                        @endfor
+                    @endif
                 </div>
             </div>
         </div>
@@ -950,6 +993,15 @@
         let sectionTimeRemaining = {{ $sectionTimeRemaining ?? 'null' }}; // حد وقت القسم
         let answeredQuestionsInSection = @json($answeredQuestionsInSection ?? []);
         let lockscreenEnabled = {{ $lockscreenEnabled ? 'true' : 'false' }};
+        
+        // Map question numbers to question IDs for current section
+        let questionIdMap = {
+            @if(isset($currentSectionSoals) && $currentSectionSoals->count() > 0)
+                @foreach($currentSectionSoals as $index => $sectionSoal)
+                    {{ $index + 1 }}: {{ $sectionSoal['soal']->id }},
+                @endforeach
+            @endif
+        };
 
         // وظائف قفل الشاشة
         if (lockscreenEnabled) {
@@ -1300,23 +1352,14 @@
                     if (currentSection < totalSections) {
                         goToSection(currentSection + 1);
                     } else {
-                        submitExam();
+                        forceSubmitExam();
                     }
                 });
                 return;
             }
 
             if (timeRemaining <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'انتهى الوقت!',
-                    text: 'انتهى وقت الاختبار. سيتم تقديم الاختبار تلقائيًا.',
-                    confirmButtonText: 'موافق',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                }).then(() => {
-                    submitExam();
-                });
+                forceSubmitExam();
                 return;
             }
 
@@ -1348,13 +1391,25 @@
         // التنقل بين الأسئلة
         function goToQuestion(questionNum) {
             if (questionNum >= 1 && questionNum <= totalQuestionsInSection) {
-                // تعيين علامة التنقل قبل التنقل
-                if (lockscreenEnabled && window.setNavigationFlag) {
-                    window.setNavigationFlag();
+                // الحصول على معرف السؤال من الخريطة
+                const questionId = questionIdMap[questionNum];
+                if (questionId) {
+                    // تعيين علامة التنقل قبل التنقل
+                    if (lockscreenEnabled && window.setNavigationFlag) {
+                        window.setNavigationFlag();
+                    }
+                    navigateToUrl(
+                        `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question_id=${questionId}`
+                        );
+                } else {
+                    // العودة إلى رقم السؤال إذا لم يتم العثور على المعرف
+                    if (lockscreenEnabled && window.setNavigationFlag) {
+                        window.setNavigationFlag();
+                    }
+                    navigateToUrl(
+                        `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`
+                        );
                 }
-                navigateToUrl(
-                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`
-                    );
             }
         }
 
@@ -1366,6 +1421,17 @@
                 }
                 navigateToUrl(
                     `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${sectionNum}&question=1`);
+            }
+        }
+
+        function goToSectionByQuestionId(questionId) {
+            if (questionId) {
+                // تعيين علامة التنقل قبل التنقل
+                if (lockscreenEnabled && window.setNavigationFlag) {
+                    window.setNavigationFlag();
+                }
+                navigateToUrl(
+                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?question_id=${questionId}`);
             }
         }
 
@@ -1509,42 +1575,75 @@
             });
         }
 
-        // تحديث حالة السؤال في واجهة المستخدم
         function updateQuestionStatus(questionNum, status) {
-            const navBtn = document.querySelector(`[onclick="goToQuestion(${questionNum})"]`);
-            if (navBtn) {
-                navBtn.classList.remove('answered', 'current');
+            const btn = document.querySelector(`.question-nav-btn:nth-child(${questionNum})`);
+            if (btn) {
+                btn.classList.remove('current', 'answered');
                 if (status === 'answered') {
-                    navBtn.classList.add('answered');
+                    btn.classList.add('answered');
                     if (!answeredQuestionsInSection.includes(questionNum)) {
                         answeredQuestionsInSection.push(questionNum);
                     }
                 } else if (status === 'current') {
-                    navBtn.classList.add('current');
+                    btn.classList.add('current');
                 }
+
+                // Update progress untuk section saat ini
+                document.querySelector('.progress-info strong').textContent =
+                    `Section ${currentSection}: ${answeredQuestionsInSection.length}/${totalQuestionsInSectionForDisplay} dijawab`;
             }
         }
 
-        // تقديم الاختبار
+        // تقديم الاختبار مباشرة بدون تأكيد
+        function forceSubmitExam() {
+            Swal.fire({
+                title: 'جاري المعالجة...',
+                text: 'جاري معالجة نتيجة الاختبار الخاص بك',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            navigateToUrl('{{ route('ujian.submit', $ujian->link ?? 'test') }}');
+        }
+
         function submitExam() {
             Swal.fire({
                 icon: 'question',
-                title: 'هل أنت متأكد من تقديم الاختبار؟',
+                title: 'تأكيد التقديم',
                 html: `
-                    <p>بمجرد التقديم، لن تتمكن من العودة وتغيير إجاباتك.</p>
-                    <p>الأسئلة التي تمت الإجابة عليها: <strong>${answeredQuestionsInSection.length}/${totalQuestionsInSection}</strong> (القسم الحالي)</p>
+                    <p>هل أنت متأكد من إنهاء الاختبار؟</p>
+                    <div style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 14px;">
+                        <strong>ملخص الإجابات:</strong><br>
+                        إجمالي الأقسام: ${totalSections}<br>
+                        إجمالي الأسئلة: ${totalQuestions}<br>
+                        القسم الحالي: ${currentSection}<br>
+                        الأسئلة المجابة في هذا القسم: ${answeredQuestionsInSection.length}/${totalQuestionsInSection}
+                    </div>
+                    <p style="color: #d33; font-size: 14px;">الإجابات المحفوظة لا يمكن تغييرها مرة أخرى.</p>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'نعم، قدم الاختبار',
-                cancelButtonText: 'العودة',
+                confirmButtonText: 'نعم، أنهِ الاختبار',
+                cancelButtonText: 'إلغاء',
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6'
+                cancelButtonColor: '#3085d6',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // تعيين علامة التنقل قبل التقديم
-                    if (lockscreenEnabled && window.setNavigationFlag) {
-                        window.setNavigationFlag();
-                    }
+                    Swal.fire({
+                        title: 'جاري المعالجة...',
+                        text: 'جاري معالجة نتيجة الاختبار الخاص بك',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
                     navigateToUrl('{{ route('ujian.submit', $ujian->link ?? 'test') }}');
                 }
             });

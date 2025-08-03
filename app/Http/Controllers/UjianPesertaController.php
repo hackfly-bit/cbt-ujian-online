@@ -177,10 +177,22 @@ class UjianPesertaController extends Controller
         // Ambil data ujian dengan relasi
         $ujian = \App\Models\Ujian::where('link', $link)
             ->with([
-                'ujianSections.ujianSectionSoals.soal' => function($query) {
-                    $query->select('id', 'tingkat_kesulitan_id', 'kategori_id', 'sub_kategori_id',
-                                  'jenis_font', 'jenis_isian', 'pertanyaan', 'is_audio', 'audio_file',
-                                  'penjelasan_jawaban', 'tag', 'created_at', 'updated_at');
+                'ujianSections.ujianSectionSoals.soal' => function ($query) {
+                    $query->select(
+                        'id',
+                        'tingkat_kesulitan_id',
+                        'kategori_id',
+                        'sub_kategori_id',
+                        'jenis_font',
+                        'jenis_isian',
+                        'pertanyaan',
+                        'is_audio',
+                        'audio_file',
+                        'penjelasan_jawaban',
+                        'tag',
+                        'created_at',
+                        'updated_at'
+                    );
                 },
                 'ujianSections.ujianSectionSoals.soal.jawabanSoals',
                 'ujianPengaturan'
@@ -195,6 +207,7 @@ class UjianPesertaController extends Controller
         // Ambil section saat ini dari parameter atau default ke 1
         $currentSectionNumber = (int) $request->get('section', 1);
         $questionParam = $request->get('question', 1);
+        $questionIdParam = $request->get('question_id');
 
         // Validasi section
         if ($currentSectionNumber < 1 || $currentSectionNumber > $ujian->ujianSections->count()) {
@@ -250,14 +263,26 @@ class UjianPesertaController extends Controller
         // Soal akan ditampilkan sesuai urutan asli
 
         // Count total questions in section excluding bumper questions for display
-        $totalQuestionsInSectionForDisplay = $sectionQuestions->filter(function($questionData) {
+        $totalQuestionsInSectionForDisplay = $sectionQuestions->filter(function ($questionData) {
             return $questionData['soal']->jenis_isian !== 'bumper';
         })->count();
 
+        // $totalQuestionsInSectionForDisplayAll = $sectionQuestions->count();
+
         $totalQuestionsInSection = $sectionQuestions->count();
 
-        // Handle parameter 'last' untuk question
-        if ($questionParam === 'last') {
+        // Handle parameter 'last' untuk question atau question_id
+        if ($questionIdParam) {
+            // Cari posisi soal berdasarkan question_id
+            $questionPosition = null;
+            foreach ($sectionQuestions as $index => $questionData) {
+                if ($questionData['soal']->id == $questionIdParam) {
+                    $questionPosition = $index + 1;
+                    break;
+                }
+            }
+            $currentQuestionNumber = $questionPosition ?: 1;
+        } elseif ($questionParam === 'last') {
             $currentQuestionNumber = $totalQuestionsInSection;
         } else {
             $currentQuestionNumber = (int) $questionParam;
@@ -291,10 +316,19 @@ class UjianPesertaController extends Controller
         // Ambil jawaban yang sudah disimpan dari database
         $savedAnswers = \App\Models\JawabanPeserta::where('ujian_id', $ujian->id)
             ->where('peserta_email', session('email'))
+            ->where('section_id', $currentSection->id)
             ->get();
+
+        $savedAnsweredThisSession = \App\Models\JawabanPeserta::where('ujian_id', $ujian->id)
+            ->where('peserta_email', session('email'))
+            // ->where('section_id', $currentSection->id)
+            ->get();
+
+        // Log::info("current Section " . $currentSection->id ?? 'tidak Tidak terdeteksi');
 
         // Buat mapping soal_id ke nomor soal dan jawaban untuk section saat ini
         $answeredQuestionsInSection = [];
+        $answeredQuestionsInSectionWithoutBumper = [];
         $selectedAnswers = [];
         $savedTextAnswers = [];
 
@@ -302,8 +336,11 @@ class UjianPesertaController extends Controller
             $soalId = $questionData['soal']->id;
             $savedAnswer = $savedAnswers->where('soal_id', $soalId)->first();
 
-            if ($savedAnswer) {
-                $answeredQuestionsInSection[] = $index + 1; // nomor soal dalam section (1-based)
+            // Auto mark bumper questions as answered
+            if ($questionData['soal']->jenis_isian === 'bumper') {
+                $answeredQuestionsInSection[] = $index;
+            } else if ($savedAnswer) {
+                $answeredQuestionsInSection[] = $index; // nomor soal dalam section (1-based)
                 if ($savedAnswer->jawaban_soal_id) {
                     $selectedAnswers[$soalId] = $savedAnswer->jawaban_soal_id;
                 }
@@ -313,16 +350,34 @@ class UjianPesertaController extends Controller
             }
         }
 
+         foreach ($sectionQuestions as $index => $questionData) {
+            $soalId = $questionData['soal']->id;
+            $savedAnswer = $savedAnswers->where('soal_id', $soalId)->first();
+
+            // Auto mark bumper questions as answered
+            if ($questionData['soal']->jenis_isian !== 'bumper') {
+                $answeredQuestionsInSectionWithoutBumper[] = $index;
+            }
+        }
+
+        $getCountSoalWithoutBumper = $sectionQuestions->filter(function ($questionData) use ($savedAnswers) {
+            $soalId = $questionData['soal']->id;
+            $savedAnswer = $savedAnswers->where('soal_id', $soalId)->first();
+            return $questionData['soal']->jenis_isian !== 'bumper' && $savedAnswer;
+        })->count();
+
         // Hitung jawaban yang sudah dijawab dari semua section - exclude bumper questions
         $totalAnsweredQuestions = 0;
         foreach ($ujian->ujianSections as $section) {
             foreach ($section->ujianSectionSoals as $sectionSoal) {
-                // Skip bumper questions from answered count
-                if ($sectionSoal->soal->jenis_isian !== 'bumper') {
-                    $soalId = $sectionSoal->soal->id;
-                    if ($savedAnswers->where('soal_id', $soalId)->first()) {
-                        $totalAnsweredQuestions++;
-                    }
+                $soalId = $sectionSoal->soal->id;
+                // Auto count bumper questions as answered
+                if ($sectionSoal->soal->jenis_isian === 'bumper') {
+                    $totalAnsweredQuestions++;
+                }
+                // Count regular answered questions
+                else if ($savedAnswers->where('soal_id', $soalId)->first()) {
+                    $totalAnsweredQuestions++;
                 }
             }
         }
@@ -381,8 +436,10 @@ class UjianPesertaController extends Controller
                 'totalQuestions' => $totalQuestions,
                 'totalQuestionsInSection' => $totalQuestionsInSection,
                 'totalQuestionsInSectionForDisplay' => $totalQuestionsInSectionForDisplay,
+                'totalQuestionAnswered' => $getCountSoalWithoutBumper,
                 'currentSectionSoals' => $sectionQuestions,
                 'answeredQuestionsInSection' => $answeredQuestionsInSection,
+                'answeredQuestionsInSectionWithoutBumper' => $answeredQuestionsInSectionWithoutBumper,
                 'answeredCountInSection' => $answeredCountInSection,
                 'totalAnsweredQuestions' => $totalAnsweredQuestions,
                 'timeRemaining' => $timeRemaining,
@@ -391,6 +448,7 @@ class UjianPesertaController extends Controller
                 'selectedAnswers' => $selectedAnswers,
                 'savedTextAnswers' => $savedTextAnswers,
                 'savedAnswers' => $savedAnswers, // Pass saved answers for section completion calculation
+                'savedAnsweredThisSession' => $savedAnsweredThisSession,
                 'lockscreenEnabled' => $ujian->ujianPengaturan->lockscreen ?? false
             ]);
         }
@@ -407,7 +465,9 @@ class UjianPesertaController extends Controller
             'totalQuestionsInSectionForDisplay' => $totalQuestionsInSectionForDisplay,
             'currentSectionSoals' => $sectionQuestions,
             'answeredQuestionsInSection' => $answeredQuestionsInSection,
+            'answeredQuestionsInSectionWithoutBumper' => $answeredQuestionsInSectionWithoutBumper,
             'answeredCountInSection' => $answeredCountInSection,
+            'totalQuestionAnswered' => $getCountSoalWithoutBumper,
             'totalAnsweredQuestions' => $totalAnsweredQuestions,
             'timeRemaining' => $timeRemaining,
             'sectionTimeRemaining' => $sectionTimeRemaining,
@@ -415,6 +475,7 @@ class UjianPesertaController extends Controller
             'selectedAnswers' => $selectedAnswers,
             'savedTextAnswers' => $savedTextAnswers,
             'savedAnswers' => $savedAnswers, // Pass saved answers for section completion calculation
+            'savedAnsweredThisSession' => $savedAnsweredThisSession,
             'lockscreenEnabled' => $ujian->ujianPengaturan->lockscreen ?? false
         ]);
     }
@@ -482,16 +543,23 @@ class UjianPesertaController extends Controller
 
         // Simpan atau update jawaban ke database
         try {
+            // Dapatkan section_id dari soal_id
+            // $ujianSectionSoal = \App\Models\UjianSectionSoal::where('soal_id', $soalId)->first();
+            // $sectionId = $ujianSectionSoal ? $ujianSectionSoal->ujian_section : null;
+
             \App\Models\JawabanPeserta::updateOrCreate(
                 [
                     'ujian_id' => $ujianId,
                     'peserta_email' => $email,
-                    'soal_id' => $soalId
+                    'soal_id' => $soalId,
+                    'section_id' => $request->input('section_id')
                 ],
                 [
                     'jawaban_soal_id' => $jawabanSoalId,
                     'jawaban_text' => $jawabanText,
-                    'dijawab_pada' => now()
+                    'section_id' => $request->input('section_id'),
+                    'dijawab_pada' => now(),
+                    'updated_at' => now() // Add updated_at timestamp
                 ]
             );
 

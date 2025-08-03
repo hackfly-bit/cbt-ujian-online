@@ -27,6 +27,7 @@
             --button-font-color: {{ $thema->button_font_color ?? '#ffffff' }};
             --border-color: {{ $thema->border_color ?? '#e5e7eb' }};
         }
+
         body {
             background: var(--background-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -61,10 +62,11 @@
             align-items: center;
 
             /* @if ($ujian->ujianThema && $ujian->ujianThema->header_image_path)
-                background-image: url('{{ asset($ujian->ujianThema->header_image_path) }}');
-                background-size: cover;
-                background-position: center;
-            @endif */
+            background-image: url('{{ asset($ujian->ujianThema->header_image_path) }}');
+            background-size: cover;
+            background-position: center;
+        @endif
+        */
         }
 
         .exam-title {
@@ -377,7 +379,7 @@
 
         .question-navigation {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -678,7 +680,7 @@
                         @elseif($currentQuestion->jenis_isian === 'true_false' || $currentQuestion->jenis_isian === 'benar_salah') type-true-false @endif">
                         @if ($currentQuestion->jenis_isian === 'multiple_choice' || $currentQuestion->jenis_isian === 'pilihan_ganda')
                             Pilihan Ganda
-                        {{-- @elseif($currentQuestion->jenis_isian === 'isian')
+                            {{-- @elseif($currentQuestion->jenis_isian === 'isian')
                             Isian --}}
                         @elseif($currentQuestion->jenis_isian === 'true_false' || $currentQuestion->jenis_isian === 'benar_salah')
                             Benar/Salah
@@ -687,7 +689,7 @@
                 @endif
 
                 @if (isset($currentQuestion))
-                 <script>
+                    <script>
                         console.log(@json($currentQuestion))
                     </script>
                     @if ($currentQuestion->is_audio && $currentQuestion->audio_file)
@@ -765,11 +767,12 @@
                 <div class="section-progress">
                     <div class="section-progress-bar">
                         <div class="section-progress-fill"
-                            style="width: {{ (($answeredCountInSection ?? 0) / ($totalQuestionsInSectionForDisplay ?? 1)) * 100 }}%;">
+                            style="width: {{ (($totalQuestionAnswered ?? 0) / ($totalQuestionsInSectionForDisplay ?? 1)) * 100 }}%;">
                         </div>
                     </div>
                     <div style="font-size: 12px; color: #666; text-align: right;">
-                        {{ $answeredCountInSection ?? 0 }} dari {{ $totalQuestionsInSectionForDisplay ?? 0 }} soal telah dijawab
+                        {{ $totalQuestionAnswered ?? 0 }} dari {{ $totalQuestionsInSectionForDisplay ?? 0 }} soal telah
+                        dijawab
                     </div>
                 </div>
             </div>
@@ -801,14 +804,48 @@
                             @php
                                 $sectionsData = [];
                                 foreach ($ujian->ujianSections as $index => $section) {
+                                    //3
                                     $sectionNumber = $index + 1;
-                                    $sectionSoalCount = $section->ujianSectionSoals->count();
+                                    $sectionSoalCount = 0;
                                     $sectionAnsweredCount = 0;
 
+                                    Log::info(
+                                        'section',
+                                        [
+                                            'sectionId' => $section->id,
+                                            'answered' => $savedAnsweredThisSession
+                                        ],
+                                    );
+
                                     foreach ($section->ujianSectionSoals as $sectionSoal) {
-                                        $soalId = $sectionSoal->soal->id;
-                                        if (isset($savedAnswers) && $savedAnswers->where('soal_id', $soalId)->first()) {
-                                            $sectionAnsweredCount++;
+                                         $soalId = $sectionSoal->soal->id;
+                                        Log::info(
+                                            'sectionSoal',
+                                            [
+                                                'soalId' => $soalId,
+                                                'sectionId' => $section->id,
+                                                // 'jenisIsian' => $sectionSoal->soal->jenis_isian,
+                                                // 'jawaban' => $sectionSoal->soal->jawaban,
+                                                'answered' => $savedAnsweredThisSession
+                                                    ->where('soal_id', $soalId)
+                                                    ->where('section_id', $section->id)
+                                                    ->first(),
+                                            ],
+
+                                        );
+                                        // Skip bumper questions when counting
+                                        if ($sectionSoal->soal->jenis_isian !== 'bumper') {
+                                            $sectionSoalCount++;
+
+                                            if (
+                                                isset($savedAnsweredThisSession) &&
+                                                $savedAnsweredThisSession
+                                                    ->where('soal_id', $soalId)
+                                                    ->where('section_id', $section->id)
+                                                    ->first()
+                                            ) {
+                                                $sectionAnsweredCount++;
+                                            }
                                         }
                                     }
 
@@ -819,6 +856,7 @@
                                         'completed' => $sectionAnsweredCount >= $sectionSoalCount,
                                     ];
                                 }
+                                Log::info('sectionsData', $sectionsData);
                             @endphp
 
                             @foreach ($sectionsData as $sectionData)
@@ -841,10 +879,10 @@
                 <!-- Current Section Progress -->
                 <div class="progress-info">
                     <strong>Section {{ $currentSectionNumber ?? 1 }}:
-                        {{ $answeredCountInSection ?? 0 }}/{{ $totalQuestionsInSectionForDisplay ?? 6 }} dijawab</strong>
+                        {{ $totalQuestionAnswered ?? 0 }}/{{ $totalQuestionsInSectionForDisplay ?? 6 }} dijawab</strong>
                     <div class="section-progress-bar" style="margin: 8px 0;">
                         <div class="section-progress-fill"
-                            style="width: {{ $totalQuestionsInSectionForDisplay > 0 ? ($answeredCountInSection / $totalQuestionsInSectionForDisplay) * 100 : 0 }}%">
+                            style="width: {{ $totalQuestionsInSectionForDisplay > 0 ? ($totalQuestionAnswered / $totalQuestionsInSectionForDisplay) * 100 : 0 }}%">
                         </div>
                     </div>
                 </div>
@@ -871,15 +909,14 @@
 
                 <!-- Question Navigation (untuk section saat ini) -->
                 <div class="question-navigation">
-                    @if(isset($currentSectionSoals) && $currentSectionSoals->count() > 0)
+                    @if (isset($currentSectionSoals) && $currentSectionSoals->count() > 0)
                         @php
                             $questionIndex = 1;
                             $displayIndex = 1;
                         @endphp
-                        @foreach($currentSectionSoals as $index => $sectionSoal)
-                            @if($sectionSoal['soal']->jenis_isian === 'bumper')
-                                <button
-                                    class="question-nav-btn bumper"
+                        @foreach ($currentSectionSoals as $index => $sectionSoal)
+                            @if ($sectionSoal['soal']->jenis_isian === 'bumper')
+                                <button class="question-nav-btn bumper answered"
                                     onclick="goToQuestion({{ $index + 1 }})">
                                     B{{ $displayIndex }}
                                 </button>
@@ -889,7 +926,7 @@
                             @else
                                 <button
                                     class="question-nav-btn
-                                {{ ($index + 1) == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
+                                {{ $index + 1 == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
                                 {{ in_array($questionIndex, $answeredQuestionsInSection ?? []) ? 'answered' : '' }}"
                                     onclick="goToQuestion({{ $index + 1 }})">
                                     {{ $questionIndex }}
@@ -900,7 +937,7 @@
                             @endif
                         @endforeach
                     @else
-                        @for ($i = 1; $i <= ($totalQuestionsInSectionForDisplay ?? 6); $i++)
+                        @for ($i = 1; $i <= ($totalQuestionsInSection ?? 6); $i++)
                             <button
                                 class="question-nav-btn
                             {{ $i == ($currentQuestionNumber ?? 1) ? 'current' : '' }}
@@ -910,19 +947,6 @@
                             </button>
                         @endfor
                     @endif
-                </div>
-
-                <!-- Section Navigation (tombol kecil untuk setiap section) -->
-                <div class="section-nav-container">
-                    @for ($s = 1; $s <= ($totalSections ?? 1); $s++)
-                        <button
-                            class="section-nav-btn
-                            {{ $s == ($currentSectionNumber ?? 1) ? 'active' : '' }}
-                            {{ in_array($s, $completedSections ?? []) ? 'completed' : '' }}"
-                            onclick="goToSection({{ $s }})">
-                            S{{ $s }}
-                        </button>
-                    @endfor
                 </div>
             </div>
         </div>
@@ -963,8 +987,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         console.log(@json($ujian ?? 'TEST'));
+        console.log(@json($ujian->ujianSections));
 
-        console.log(@json(Session::all()));
+        console.log(@json($savedAnswers));
+
+        // console log an count $sectionData
+        console.log(@json($sectionData));
 
         // Auto fullscreen when user has filled exam data
         function enableFullscreen() {
@@ -995,8 +1023,19 @@
         let totalSections = {{ $totalSections ?? 1 }};
         let timeRemaining = {{ $timeRemaining ?? 7151 }}; // in seconds
         let sectionTimeRemaining = {{ $sectionTimeRemaining ?? 'null' }}; // section time limit
-        let answeredQuestionsInSection = @json($answeredQuestionsInSection ?? []);
+        let answeredQuestionsInSection = @json($answeredQuestionsInSectionWithoutBumper ?? []);
+
+        // totalQuestionAnswered
         let lockscreenEnabled = {{ $lockscreenEnabled ? 'true' : 'false' }};
+
+        // Map question numbers to question IDs for current section
+        let questionIdMap = {
+            @if (isset($currentSectionSoals) && $currentSectionSoals->count() > 0)
+                @foreach ($currentSectionSoals as $index => $sectionSoal)
+                    {{ $index + 1 }}: {{ $sectionSoal['soal']->id }},
+                @endforeach
+            @endif
+        };
 
         // Lockscreen functionality
         if (lockscreenEnabled) {
@@ -1347,23 +1386,16 @@
                     if (currentSection < totalSections) {
                         goToSection(currentSection + 1);
                     } else {
-                        submitExam();
+                        // submitExam(); don't use reguler submit
+                        forceSubmitExam();
                     }
                 });
                 return;
             }
 
             if (timeRemaining <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Waktu Habis!',
-                    text: 'Waktu ujian telah berakhir. Ujian akan disubmit otomatis.',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                }).then(() => {
-                    submitExam();
-                });
+                // Force submit without confirmation when time is up
+                forceSubmitExam();
                 return;
             }
 
@@ -1395,13 +1427,25 @@
         // Question navigation
         function goToQuestion(questionNum) {
             if (questionNum >= 1 && questionNum <= totalQuestionsInSection) {
-                // Set navigation flag before navigating
-                if (lockscreenEnabled && window.setNavigationFlag) {
-                    window.setNavigationFlag();
-                }
-                navigateToUrl(
-                    `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`
+                // Get question ID from the map
+                const questionId = questionIdMap[questionNum];
+                if (questionId) {
+                    // Set navigation flag before navigating
+                    if (lockscreenEnabled && window.setNavigationFlag) {
+                        window.setNavigationFlag();
+                    }
+                    navigateToUrl(
+                        `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question_id=${questionId}`
                     );
+                } else {
+                    // Fallback to question number if ID not found
+                    if (lockscreenEnabled && window.setNavigationFlag) {
+                        window.setNavigationFlag();
+                    }
+                    navigateToUrl(
+                        `{{ route('ujian.peserta', $ujian->link ?? 'test') }}?section=${currentSection}&question=${questionNum}`
+                    );
+                }
             }
         }
 
@@ -1474,6 +1518,7 @@
             const form = document.getElementById('exam-form');
             const formData = new FormData(form);
             formData.append('question', currentQuestion);
+            formData.append('section_id', {{ $currentSection->id ?? 'null' }});
 
             fetch('{{ route('ujian.save-answer', $ujian->link ?? 'test') }}', {
                     method: 'POST',
@@ -1552,8 +1597,23 @@
 
                 // Update progress untuk section saat ini
                 document.querySelector('.progress-info strong').textContent =
-                    `Section ${currentSection}: ${answeredQuestionsInSection.length}/${totalQuestionsInSection} dijawab`;
+                    `Section ${currentSection}: ${answeredQuestionsInSection.length}/${totalQuestionsInSectionForDisplay} dijawab`;
             }
+        }
+
+        function forceSubmitExam() {
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Sedang memproses hasil ujian Anda',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            navigateToUrl('{{ route('ujian.submit', $ujian->link ?? 'test') }}');
         }
 
         function submitExam() {
