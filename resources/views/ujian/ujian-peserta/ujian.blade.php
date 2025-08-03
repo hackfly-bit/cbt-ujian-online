@@ -786,11 +786,11 @@
                     </div>
                     <div class="section-progress-bar">
                         <div class="section-progress-fill"
-                            style="width: {{ $totalQuestions > 0 ? ($totalAnsweredQuestions / $totalQuestions) * 100 : 0 }}%">
+                            style="width: {{ $totalQuestions > 0 ? ($totalAnsweredQuestionsWithoutBumper / $totalQuestions) * 100 : 0 }}%">
                         </div>
                     </div>
                     <div style="font-size: 11px; color: #888; margin-top: 3px;">
-                        {{ $totalAnsweredQuestions ?? 0 }}/{{ $totalQuestions ?? 6 }} soal dijawab
+                        {{ $totalAnsweredQuestionsWithoutBumper?? 0 }}/{{ $totalQuestions ?? 6 }} soal dijawab
                     </div>
                 </div>
 

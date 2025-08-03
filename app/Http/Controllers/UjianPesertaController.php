@@ -15,6 +15,24 @@ class UjianPesertaController extends Controller
 
         // link ujian
         $getUjian = \App\Models\Ujian::where('link', $link)->with(['ujianPengaturan', 'ujianPesertaForm', 'ujianSections.ujianSectionSoals', 'ujianThema', 'jenisUjian'])->first();
+
+        // Cek apakah ujian ditemukan
+        if (!$getUjian) {
+            return view('ujian.ujian-expired', [
+                'title' => 'Ujian Tidak Ditemukan',
+                'message' => 'Ujian yang Anda cari tidak ditemukan.'
+            ]);
+        }
+
+        // Cek apakah ujian sudah expired
+        if ($getUjian->tanggal_selesai && now() > $getUjian->tanggal_selesai) {
+            return view('ujian.ujian-expired', [
+                'title' => 'Ujian Telah Berakhir',
+                'message' => 'Ujian ini telah berakhir pada ' . \Carbon\Carbon::parse($getUjian->tanggal_selesai)->format('d M Y H:i') . '. Anda tidak dapat mengakses ujian ini lagi.',
+                'ujian' => $getUjian
+            ]);
+        }
+
         $pesertaForm = \App\Models\UjianPesertaForm::where('ujian_id', $getUjian->id)->first();
 
         $is_arabic = $getUjian->ujianPengaturan->is_arabic ?? false;
@@ -204,6 +222,15 @@ class UjianPesertaController extends Controller
                 ->withErrors(['ujian' => 'Ujian tidak ditemukan.']);
         }
 
+        // Cek apakah ujian sudah expired
+        if ($ujian->tanggal_selesai && now() > $ujian->tanggal_selesai) {
+            return view('ujian.ujian-expired', [
+                'title' => 'Ujian Telah Berakhir',
+                'message' => 'Ujian ini telah berakhir pada ' . \Carbon\Carbon::parse($ujian->tanggal_selesai)->format('d M Y H:i') . '. Anda tidak dapat mengakses ujian ini lagi.',
+                'ujian' => $ujian
+            ]);
+        }
+
         // Ambil section saat ini dari parameter atau default ke 1
         $currentSectionNumber = (int) $request->get('section', 1);
         $questionParam = $request->get('question', 1);
@@ -368,16 +395,19 @@ class UjianPesertaController extends Controller
 
         // Hitung jawaban yang sudah dijawab dari semua section - exclude bumper questions
         $totalAnsweredQuestions = 0;
+        $totalAnsweredQuestionsWithoutBumper = 0;
         foreach ($ujian->ujianSections as $section) {
             foreach ($section->ujianSectionSoals as $sectionSoal) {
                 $soalId = $sectionSoal->soal->id;
                 // Auto count bumper questions as answered
                 if ($sectionSoal->soal->jenis_isian === 'bumper') {
                     $totalAnsweredQuestions++;
+                    // $totalAnsweredQuestionsWithoutBumper++;
                 }
                 // Count regular answered questions
-                else if ($savedAnswers->where('soal_id', $soalId)->first()) {
+                else if ($savedAnsweredThisSession->where('soal_id', $soalId)->first()) {
                     $totalAnsweredQuestions++;
+                    $totalAnsweredQuestionsWithoutBumper++;
                 }
             }
         }
@@ -442,6 +472,7 @@ class UjianPesertaController extends Controller
                 'answeredQuestionsInSectionWithoutBumper' => $answeredQuestionsInSectionWithoutBumper,
                 'answeredCountInSection' => $answeredCountInSection,
                 'totalAnsweredQuestions' => $totalAnsweredQuestions,
+                'totalAnsweredQuestionsWithoutBumper' => $totalAnsweredQuestionsWithoutBumper,
                 'timeRemaining' => $timeRemaining,
                 'sectionTimeRemaining' => $sectionTimeRemaining,
                 'sectionQuestions' => $sectionQuestions,
@@ -469,6 +500,7 @@ class UjianPesertaController extends Controller
             'answeredCountInSection' => $answeredCountInSection,
             'totalQuestionAnswered' => $getCountSoalWithoutBumper,
             'totalAnsweredQuestions' => $totalAnsweredQuestions,
+            'totalAnsweredQuestionsWithoutBumper' => $totalAnsweredQuestionsWithoutBumper,
             'timeRemaining' => $timeRemaining,
             'sectionTimeRemaining' => $sectionTimeRemaining,
             'sectionQuestions' => $sectionQuestions,
@@ -799,6 +831,15 @@ class UjianPesertaController extends Controller
         return view('ujian.ujian-peserta.ujian-selesai', [
             'examSummary' => $examSummary,
             'ujian' => $ujian
+        ]);
+    }
+
+    public function ujianExpired()
+    {
+        return view('ujian.ujian-expired', [
+            'title' => 'Ujian Telah Berakhir',
+            'message' => 'Ujian ini telah berakhir. Anda tidak dapat mengakses ujian ini lagi.',
+            'ujian' => null
         ]);
     }
 }

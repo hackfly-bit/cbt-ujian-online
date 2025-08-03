@@ -189,7 +189,7 @@ import DragulaSections from "./dragula-section.js";
                 JSON.stringify({
                     nama: $("#nama_ujian").val(),
                     deskripsi: $("#deskripsi").val(),
-                    durasi: $("#durasi_ujian").val() || 120,
+                    durasi: $("#durasi").val() || 120,
                     jenis_ujian: $("#jenis_ujian").val(),
                     tanggal_selesai: $("#tanggal_kedaluwarsa").val(),
                     status: $("#status_ujian").val(),

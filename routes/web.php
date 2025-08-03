@@ -143,6 +143,7 @@ Route::post('/kerjakan/{link}', [\App\Http\Controllers\UjianPesertaController::c
 Route::get('/kerjakan/{link}/ujian', [\App\Http\Controllers\UjianPesertaController::class, 'ujianPeserta'])->name('ujian.peserta');
 Route::post('/kerjakan/{link}/save-answer', [\App\Http\Controllers\UjianPesertaController::class, 'saveAnswer'])->name('ujian.save-answer');
 Route::get('/kerjakan/{link}/submit', [\App\Http\Controllers\UjianPesertaController::class, 'submitExam'])->name('ujian.submit');
+Route::get('/ujian-expired', [\App\Http\Controllers\UjianPesertaController::class, 'ujianExpired'])->name('ujian.ujian-expired');
 
 Route::group(['prefix' => 'test', 'middleware' => 'auth'], function () {
     Route::get('/{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
