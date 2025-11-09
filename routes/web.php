@@ -120,6 +120,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/pengaturan/logo', [SystemSettingController::class, 'updateLogo'])->name('pengaturan.updateLogo');
     // Manajemen User
     Route::get('/pengaturan/users', [UserController::class, 'datatable'])->name('pengaturan.users.datatable');
+    Route::post('/pengaturan/users', [UserController::class, 'store'])->name('pengaturan.users.store');
+    Route::get('/pengaturan/users/{user}', [UserController::class, 'show'])->name('pengaturan.users.show');
+    Route::put('/pengaturan/users/{user}', [UserController::class, 'update'])->name('pengaturan.users.update');
     Route::put('/pengaturan/users/{user}/status', [UserController::class, 'updateStatus'])->name('pengaturan.users.updateStatus');
     Route::put('/pengaturan/users/{user}/role', [UserController::class, 'updateRole'])->name('pengaturan.users.updateRole');
     Route::delete('/pengaturan/users/{user}', [UserController::class, 'destroy'])->name('pengaturan.users.destroy');
