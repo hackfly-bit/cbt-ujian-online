@@ -101,7 +101,7 @@
                             <a href="{{ route('subkategori.index') }}">Sub Kategori</a>
                         </li>
                          <li class="side-nav-second-level mb-1">
-                            <a href="{{ route('tingkat-kesulitan.index') }}">Sub Kategori</a>
+                            <a href="{{ route('tingkat-kesulitan.index') }}">Tingkat Kesulitan</a>
                         </li>
                     </ul>
                 </div>

@@ -20,7 +20,14 @@ class TingkatKesulitanController extends Controller
             return DataTables::of($items)
                 ->addIndexColumn()
                 ->addColumn('action', function ($item) {
-                    return '\n                        <button type="button" class="btn btn-sm btn-outline-primary btn-edit" data-id="' . $item->id . '" title="Edit">\n                            <i class="ri-edit-line"></i>\n                        </button>\n                        <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-id="' . $item->id . '" title="Hapus">\n                            <i class="ri-delete-bin-line"></i>\n                        </button>\n                    ';
+                    return '
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-edit" data-id="' . $item->id . '" title="Edit">
+                            <i class="ri-edit-line"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-id="' . $item->id . '" title="Hapus">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    ';
                 })
                 ->editColumn('deskripsi', function ($item) {
                     return $item->deskripsi ?: '-';
