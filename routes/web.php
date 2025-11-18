@@ -10,6 +10,7 @@ use App\Http\Controllers\JenisUjianController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UjianController;
 use App\Http\Controllers\SubKategoriController;
+use App\Http\Controllers\TingkatKesulitanController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\SystemSettingController;
 use App\Http\Controllers\UserController;
@@ -84,6 +85,15 @@ Route::group(['prefix' => 'jenis-ujian', 'as' => 'jenis-ujian.', 'middleware' =>
     Route::put('/{id}', [JenisUjianController::class, 'update'])->name('update');
     Route::delete('/{id}', [JenisUjianController::class, 'destroy'])->name('destroy');
     Route::get('/{id}', [JenisUjianController::class, 'show'])->name('show');
+});
+
+// route for master tingkat kesulitan
+Route::group(['prefix' => 'tingkat-kesulitan', 'as' => 'tingkat-kesulitan.', 'middleware' => 'auth'], function () {
+    Route::get('/', [TingkatKesulitanController::class, 'index'])->name('index');
+    Route::post('/', [TingkatKesulitanController::class, 'store'])->name('store');
+    Route::put('/{id}', [TingkatKesulitanController::class, 'update'])->name('update');
+    Route::delete('/{id}', [TingkatKesulitanController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [TingkatKesulitanController::class, 'show'])->name('show');
 });
 
 Route::group(['prefix' => 'filter', 'as' => 'filter.', 'middleware' => 'auth'], function () {

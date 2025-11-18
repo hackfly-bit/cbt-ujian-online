@@ -43,6 +43,7 @@ export default defineConfig({
                 'resources/js/main/buat-ujian.js',
                 'resources/js/main/jenis-ujian.js',
                 'resources/js/main/kategori.js',
+                'resources/js/main/tingkat-kesulitan.js',
                 'resources/js/main/list-sertifikat.js',
                 'resources/js/main/pengaturan.js',
                 'resources/js/main/subkategori.js',
