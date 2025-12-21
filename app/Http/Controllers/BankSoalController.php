@@ -78,6 +78,7 @@ class BankSoalController extends Controller
         ]);
     }
 
+
     /**
      * Store a newly created resource in storage.
      * jenis_font
