@@ -177,9 +177,9 @@
                                     <select id="filter-difficulty-semua" class="form-select form-select-sm"
                                         style="min-width: 150px;" title="Filter berdasarkan tingkat kesulitan">
                                         <option value="">Semua Tingkat...</option>
-                                        <option value="Easy">Mudah</option>
-                                        <option value="Medium">Sedang</option>
-                                        <option value="Hard">Sulit</option>
+                                        @foreach ($tingkatKesulitans as $tk)
+                                            <option value="{{ $tk->nama }}">{{ $tk->nama }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>

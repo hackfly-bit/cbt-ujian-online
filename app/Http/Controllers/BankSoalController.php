@@ -75,6 +75,7 @@ class BankSoalController extends Controller
                 ['label' => 'Bank Soal', 'url' => route('bank-soal.index')],
             ],
             'kategoris' => Kategori::all(),
+            'tingkatKesulitans' => TingkatKesulitan::all(),
         ]);
     }
 
