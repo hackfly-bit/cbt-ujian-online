@@ -74,6 +74,7 @@ class BankSoalController extends Controller
             'breadcrumbs' => [
                 ['label' => 'Bank Soal', 'url' => route('bank-soal.index')],
             ],
+            'kategoris' => Kategori::all(),
         ]);
     }
 

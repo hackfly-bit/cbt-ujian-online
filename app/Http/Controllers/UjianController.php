@@ -167,7 +167,7 @@ class UjianController extends Controller
             // --- Pengaturan ---
             $ujianPengaturan = new \App\Models\UjianPengaturan([
                 'ujian_id' => $ujian->id,
-                'nilai_kelulusan' => $pengaturan['nilai_kelulusan'],
+                'nilai_kelulusan' => (float) ($pengaturan['nilai_kelulusan'] ?? 0),
                 'hasil_ujian_tersedia' => $pengaturan['hasil_ujian'] ?? false,
                 'acak_soal' => 0,
                 'acak_jawaban' => 0,
@@ -177,9 +177,9 @@ class UjianController extends Controller
                 'is_arabic' => $pengaturan['is_arabic'] ?? false,
                 'formula_type' => $pengaturan['answer_type'] ?? null,
                 'operation_1' => $pengaturan['operation'] ?? '*',
-                'value_1' => $pengaturan['value'] ?? 1,
+                'value_1' => (float) ($pengaturan['value'] ?? 1),
                 'operation_2' => $pengaturan['operation2'] ?? '*',
-                'value_2' => $pengaturan['value2'] ?? 1,
+                'value_2' => (float) ($pengaturan['value2'] ?? 1),
             ]);
             $ujianPengaturan->save();
 
@@ -408,7 +408,7 @@ class UjianController extends Controller
             // Update ujian settings
             $ujianPengaturan = $ujian->ujianPengaturan;
             $ujianPengaturan->ujian_id = $ujian->id;
-            $ujianPengaturan->nilai_kelulusan = $pengaturan['nilai_kelulusan'];
+            $ujianPengaturan->nilai_kelulusan = (float) ($pengaturan['nilai_kelulusan'] ?? 0);
             $ujianPengaturan->hasil_ujian_tersedia = $pengaturan['hasil_ujian'] ?? false;
             $ujianPengaturan->acak_soal = 0;
             $ujianPengaturan->acak_jawaban = 0;
@@ -418,9 +418,9 @@ class UjianController extends Controller
             $ujianPengaturan->is_arabic = $pengaturan['is_arabic'] ?? false;
             $ujianPengaturan->formula_type = $pengaturan['answer_type'];
             $ujianPengaturan->operation_1 = $pengaturan['operation'];
-            $ujianPengaturan->value_1 = $pengaturan['value'];
+            $ujianPengaturan->value_1 = (float) ($pengaturan['value'] ?? 1);
             $ujianPengaturan->operation_2 = $pengaturan['operation2'];
-            $ujianPengaturan->value_2 = $pengaturan['value2'];
+            $ujianPengaturan->value_2 = (float) ($pengaturan['value2'] ?? 1);
             $ujianPengaturan->save();
 
             // Update ujian peserta form

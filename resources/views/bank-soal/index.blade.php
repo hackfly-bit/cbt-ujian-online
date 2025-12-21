@@ -168,9 +168,9 @@
                                     <select id="filter-category-semua" class="form-select form-select-sm"
                                         style="min-width: 180px;" title="Filter berdasarkan kategori">
                                         <option value="">Semua Kategori...</option>
-                                        <option value="Reading">Reading</option>
-                                        <option value="Listening">Listening</option>
-                                        <option value="Grammar">Grammar</option>
+                                        @foreach ($kategoris as $kategori)
+                                            <option value="{{ $kategori->nama }}">{{ $kategori->nama }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="col-auto">

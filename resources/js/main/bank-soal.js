@@ -160,24 +160,24 @@ function initSelect2() {
 function initSelect2Events() {
     console.log("Initializing Select2 events...");
 
-    // Font change event
-    $("#jenis_font").on("change", function () {
+    // Font change event - Use off() to prevent duplicate bindings
+    $("#jenis_font").off("change select2:select").on("change", function () {
         const fontType = $(this).val();
         console.log("Font changed:", fontType);
         handleFontChange(fontType);
     });
 
-    // Question type change event
-    $("#jenis_soal").on("select2:select", function (e) {
-        const jenisSoal = e.params.data.id;
-        console.log("Jenis soal changed via Select2:", jenisSoal);
+    // Question type change event - Use off() to prevent duplicate bindings
+    $("#jenis_soal").off("change select2:select").on("change", function () {
+        const jenisSoal = $(this).val();
+        console.log("Jenis soal changed:", jenisSoal);
         generateJawabanForm(jenisSoal);
     });
 
-    // Category change event
-    $("#kategori").on("select2:select", function (e) {
-        const kategoriId = e.params.data.id;
-        console.log("Kategori changed via Select2:", kategoriId);
+    // Category change event - Use off() to prevent duplicate bindings
+    $("#kategori").off("change select2:select").on("change", function () {
+        const kategoriId = $(this).val();
+        console.log("Kategori changed:", kategoriId);
         loadSubKategori(kategoriId);
     });
 
@@ -421,7 +421,7 @@ function initFormEvents() {
     console.log("Initializing form events...");
 
     // Event untuk checkbox audio
-    $("#is_audio").on("change", function () {
+    $("#is_audio").off("change").on("change", function () {
         console.log("Audio checkbox changed:", this.checked);
         if (this.checked) {
             $("#audio-file-container").show();
@@ -429,24 +429,6 @@ function initFormEvents() {
             $("#audio-file-container").hide();
             $("#audio_file").val("");
         }
-    });
-
-    // Event untuk perubahan jenis soal
-    $("#jenis_soal").on("change", function () {
-        console.log("Jenis soal changed:", this.value);
-        generateJawabanForm(this.value);
-    });
-
-    // Event untuk perubahan kategori
-    $("#kategori").on("change", function () {
-        console.log("Kategori changed:", this.value);
-        loadSubKategori(this.value);
-    });
-
-    // Event untuk perubahan jenis font - Arabic RTL Support
-    $("#jenis_font").on("change", function () {
-        console.log("Font type changed:", this.value);
-        handleFontChange(this.value);
     });
 
     // Select2 specific event handlers
@@ -694,7 +676,7 @@ function updateJawabanBenarValues() {
 // Fungsi untuk update nilai jawaban_benar pada benar/salah
 function updateBenarSalahValues() {
     const selectedValue = $("input[name='jawaban_benar']:checked").val();
-    
+
     // Update hidden inputs berdasarkan pilihan radio button
     $("input[name='jawaban_soal[0][jawaban_benar]']").val(selectedValue == "0" ? "1" : "0");
     $("input[name='jawaban_soal[1][jawaban_benar]']").val(selectedValue == "1" ? "1" : "0");
@@ -741,7 +723,7 @@ function generateBenarSalahForm(container) {
             </div>
         </div>
     `);
-    
+
     // Add event listener untuk update jawaban_benar values
     $(document).off('change', 'input[name="jawaban_benar"]').on('change', 'input[name="jawaban_benar"]', function() {
         updateBenarSalahValues();
@@ -1159,7 +1141,7 @@ function submitForm() {
 
     // Ambil form data
     const formData = new FormData(form);
-    
+
     // Debug: Log FormData contents
     console.log("FormData contents:");
     for (let [key, value] of formData.entries()) {
@@ -1615,7 +1597,7 @@ function populateBenarSalah(jawabanSoals) {
         jawabanSoals.forEach((jawaban, index) => {
             $(`input[name="jawaban_soal[${index}][id]"]`).val(jawaban.id);
         });
-        
+
         // Update jawaban_benar values setelah set radio button
         setTimeout(() => {
             updateBenarSalahValues();
