@@ -66,23 +66,23 @@ jobs:
             # Pastikan folder hasil build tetap diupload (untuk Vite)
             !public/build/**
 
-      - name: Upload to Secondary FTP Server
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_HOST_2 }}
-          username: ${{ secrets.FTP_USERNAME_2 }}
-          password: ${{ secrets.FTP_PASSWORD_2 }}
-          server-dir: ${{ secrets.FTP_TARGET_2 }}
-          local-dir: ./
-          exclude: |
-            **/.git/**
-            **/node_modules/**
-            **/vendor/**
-            **/.github/**
-            composer.lock
-            package-lock.json
-            README.md
-            webpack.mix.js
-            vite.config.js
-            # Pastikan folder hasil build tetap diupload (untuk Vite)
-            !public/build/**
+      # - name: Upload to Secondary FTP Server
+      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      #   with:
+      #     server: ${{ secrets.FTP_HOST_2 }}
+      #     username: ${{ secrets.FTP_USERNAME_2 }}
+      #     password: ${{ secrets.FTP_PASSWORD_2 }}
+      #     server-dir: ${{ secrets.FTP_TARGET_2 }}
+      #     local-dir: ./
+      #     exclude: |
+      #       **/.git/**
+      #       **/node_modules/**
+      #       **/vendor/**
+      #       **/.github/**
+      #       composer.lock
+      #       package-lock.json
+      #       README.md
+      #       webpack.mix.js
+      #       vite.config.js
+      #       # Pastikan folder hasil build tetap diupload (untuk Vite)
+      #       !public/build/**
